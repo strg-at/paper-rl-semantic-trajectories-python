@@ -36,12 +36,16 @@ class WebsiteEnvironment(gym.Env):
         render_mode=None,
     ):
         self.render_mode = render_mode
-        assert render_mode is None, "Rendering is not currently supported by this environment!"
+        assert (
+            render_mode is None
+        ), "Rendering is not currently supported by this environment!"
         self.graph = graph
         self.reward = reward if reward is not None else DefaultReward()
 
         self.embeddings = embeddings
-        self.embeddings = np.concatenate((self.embeddings, np.expand_dims(mask_embedding, 0)), axis=0)
+        self.embeddings = np.concatenate(
+            (self.embeddings, np.expand_dims(mask_embedding, 0)), axis=0
+        )
         self.observation_space = spaces.Box(
             low=self.embeddings.min(),
             high=self.embeddings.max(),
@@ -99,7 +103,13 @@ class WebsiteEnvironment(gym.Env):
 
         observation = self._get_obs()
         info = self._get_info()
-        return observation, self.reward.compute_reward(observation), terminated, False, info
+        return (
+            observation,
+            self.reward.compute_reward(observation),
+            terminated,
+            False,
+            info,
+        )
 
     def valid_actions(self) -> list[int]:
         """
@@ -107,9 +117,12 @@ class WebsiteEnvironment(gym.Env):
         """
         return [self.exit_action] + self.neighbors()
 
-    def map_action_ids_to_embeddings(self, action_ids: list[int]) -> npt.NDArray[float]:  # type:ignore
+    def map_action_ids_to_embeddings(
+        self, action_ids: list[int]
+    ) -> npt.NDArray[float]:  # type:ignore
         """
-        Converts a given list of action ids to a numpy array containing the embeddings of the given actions"""
+        Converts a given list of action ids to a numpy array containing the embeddings of the given actions
+        """
         return self.embeddings[action_ids]
 
     def neighbors(self) -> list[int]:
@@ -136,7 +149,9 @@ class WebsiteEnvironment(gym.Env):
         :return: observation for the agent.
         """
         # mask out embeddings of nodes that cannot be reached in one step
-        padded_trajectory = np.full(self.max_steps, len(self.embeddings) - 1, dtype=np.int32)
+        padded_trajectory = np.full(
+            self.max_steps, len(self.embeddings) - 1, dtype=np.int32
+        )
         padded_trajectory[: len(self.trajectory)] = self.trajectory
 
         return self.embeddings[padded_trajectory]

@@ -13,6 +13,13 @@ numba = "^0.60.0"
 llama-cpp-python = "^0.2.85"
 gymnasium = "^0.29.1"
 igraph = "^0.11.6"
+tqdm = "^4.66.5"
+umap-learn = "^0.5.6"
+pandas = "^2.2.2"
+plotly = "^5.23.0"
+cffi = "^1.17.0"
+setuptools = "^72.2.0"
+tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
 
 [tool.poetry.group.dev]
 optional = true
@@ -23,6 +30,15 @@ mypy = "^1.10.0"
 pre-commit = "^3.7.1"
 requests = "^2.32.3"
 duckdb = "^1.0.0"
+torch = {version = "^2.3.1+cpu", source = "pytorch-cpu-src"}
+
+# Currently, poetry does not support this. If you're running on a GPU, you can still install the environment
+# by uncommenting this line, and commenting torch above
+# [tool.poetry.group.release]
+# optional = true
+
+# [tool.poetry.group.release.dependencies]
+# torch = {version = "^2.3.1+cu121", source = "pytorch-gpu-src"}
 
 [tool.poetry.group.lsp-dev]
 optional = true
@@ -32,6 +48,19 @@ ruff-lsp = "^0.0.53"
 pylsp-mypy = "^0.6.8"
 python-lsp-server = "^1.11.0"
 python-lsp-black = "^2.0.0"
+
+# This can be added with
+# poetry source add --priority=explicit pytorch-cpu-src https://download.pytorch.org/whl/cpu
+[[tool.poetry.source]]
+name = "pytorch-cpu-src"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+
+[[tool.poetry.source]]
+name = "pytorch-gpu-src"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
 
 
 [build-system]
