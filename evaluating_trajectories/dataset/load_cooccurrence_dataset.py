@@ -26,9 +26,7 @@ int close_file(FILE *f);
 creclib = ffibuilder.dlopen("glove_ffi/_crec.cpython-312-x86_64-linux-gnu.so")
 
 
-def cooccurrence_iterator(
-    cooccur_filepath: str, batch_size: int
-) -> Generator[
+def cooccurrence_iterator(cooccur_filepath: str, batch_size: int) -> Generator[
     tuple[npt.NDArray[np.integer], npt.NDArray[np.integer], npt.NDArray[np.floating]],
     None,
     None,
