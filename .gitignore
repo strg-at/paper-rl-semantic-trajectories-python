@@ -165,6 +165,7 @@ cython_debug/
 *.txt
 *.png
 *.parquet
+*.pkl
 *.gz
 *.csv
 glove_ffi/_*.c
