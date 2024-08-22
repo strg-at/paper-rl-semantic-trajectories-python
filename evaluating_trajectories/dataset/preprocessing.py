@@ -1,5 +1,6 @@
 import duckdb
 import numpy as np
+from typing import Generator, Any
 from dataclasses import dataclass
 
 
@@ -40,3 +41,25 @@ def user_sessions(parquet_file: str, column_name: str) -> duckdb.DuckDBPyRelatio
     return duckdb.sql(
         f"SELECT user_session, list({column_name}) AS value FROM '{parquet_file}' GROUP BY user_session"
     )
+
+
+def user_sessions_iterator(
+    parquet_file: str, columns: list[str], batch_size=100_000
+) -> Generator[tuple[str, list[dict[str, Any]]], None, None]:
+    """
+    Iterator over user sessions, to be used when memory usage is an issue
+    """
+    if len(columns) == 0:
+        columns = duckdb.sql(f"SELECT * FROM '{parquet_file}' LIMIT 1").columns
+    with duckdb.connect() as conn:
+        conn.execute(
+            f"CREATE TABLE sessions AS SELECT DISTINCT user_session FROM '{parquet_file}'"
+        )
+        sessions = conn.sql("select * from sessions")
+        while session_ids := sessions.fetchmany(batch_size):
+            session_ids = list(map(lambda t: t[0], session_ids))
+            groups = duckdb.execute(
+                f"SELECT user_session, list(struct_pack({','.join(columns)})) AS trajectory FROM '{parquet_file}' WHERE user_session IN (SELECT UNNEST(?)) GROUP BY user_session",
+                (session_ids,),
+            )
+            yield groups.fetchall()
