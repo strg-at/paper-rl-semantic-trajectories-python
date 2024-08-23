@@ -39,4 +39,5 @@ if __name__ == "__main__":
             product_df.at[idx[0], "x"] = x
             product_df.at[idx[0], "y"] = y
 
-    px.scatter(product_df, x="x", y="y", color="category_code")
+    fig = px.scatter(product_df, x="x", y="y", color="category_code")
+    fig.show()
