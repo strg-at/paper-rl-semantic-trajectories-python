@@ -20,6 +20,10 @@ plotly = "^5.23.0"
 cffi = "^1.17.0"
 setuptools = "^72.2.0"
 tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
+stable-baselines3 = "^2.3.2"
+torch = "^2.4.0"
+tensorboard = "^2.17.1"
+rich = "^13.8.0"
 
 [tool.poetry.group.dev]
 optional = true
