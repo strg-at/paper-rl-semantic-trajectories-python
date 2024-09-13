@@ -15,6 +15,8 @@ from evaluating_trajectories.iqlearn.iqlearn import IQLearn
 device = "cuda"
 output_folder = "trajectories"
 
+alpha = 0.001
+
 num_trajectories = 1
 override_traj_idxs = [
     3540384,
@@ -124,7 +126,7 @@ env.starting_location = starting_locations
 ##############################
 #     train with IQLEARN     #
 ##############################
-iqlearn = IQLearn(env, sac_args={"device": device})
+iqlearn = IQLearn(env, sac_args={"device": device, "alpha": {0: alpha}})
 iqlearn.set_demonstration_buffer(buffer)
 
 for i in range(train_intervals):
