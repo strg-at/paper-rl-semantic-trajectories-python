@@ -123,13 +123,17 @@ for i in range(train_intervals):
     print(f"evaluation round {i}")
     trajectories = []
     for _ in range(eval_episodes):
+        trajectory = []
+        trajectory.append(env._get_obs())
         obs, info = env.reset()
         while True:
             action = iqlearn.predict(obs, deterministic=True)[0]
             obs, reward, terminated, truncated, info = env.step(action)  # type: ignore
+            trajectory.append(env._get_obs())
             if terminated or truncated:
-                trajectories.append(env._get_obs())
+                trajectories.append(trajectory)
                 break
+
     with open(f"trajectories_{i*eval_frequency}.pkl", "wb") as f:
         pickle.dump(trajectories, f)
 
@@ -139,12 +143,16 @@ for i in range(train_intervals):
 print(f"evaluation round {i+1}")  # type:ignore
 trajectories = []
 for _ in range(eval_episodes):
+    trajectory = []
+    trajectory.append(env._get_obs())
     obs, info = env.reset()
     while True:
         action = iqlearn.predict(obs, deterministic=True)[0]
         obs, reward, terminated, truncated, info = env.step(action)  # type: ignore
+        trajectory.append(env._get_obs())
         if terminated or truncated:
-            trajectories.append(env._get_obs())
+            trajectories.append(trajectory)
             break
+
 with open(f"trajectories_{(i+1)*eval_frequency}.pkl", "wb") as f:  # type:ignore
     pickle.dump(trajectories, f)
