@@ -1,4 +1,5 @@
 import pickle
+from pathlib import Path
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -12,6 +13,7 @@ from evaluating_trajectories.iqlearn.iqlearn import IQLearn
 #####################
 
 device = "cuda"
+output_folder = "trajectories"
 
 num_trajectories = 1
 override_traj_idxs = [
@@ -27,6 +29,12 @@ train_intervals = 100  # how often training is run, total steps will be eval_fre
 embs_file = "evaluating_trajectories/dataset/embs.npy"
 graph_file = "evaluating_trajectories/dataset/graph.pkl"
 trajectories_file = "evaluating_trajectories/dataset/trajectories.pkl"
+
+######################################
+#     Make sure Directory exists     #
+######################################
+
+Path(output_folder).mkdir(parents=True, exist_ok=True)
 
 
 ############################
@@ -109,7 +117,7 @@ for j in range(num_trajectories):
         # action_mask = next_action_mask  # type: ignore
 
 print(f"trajectory indices: {traj_idxs}")
-with open(f"trajectories_expert.pkl", "wb") as f:
+with open(f"{output_folder}/trajectories_expert.pkl", "wb") as f:
     pickle.dump(group_trajectories, f)
 env.starting_location = starting_locations
 
@@ -134,7 +142,7 @@ for i in range(train_intervals):
                 trajectories.append(trajectory)
                 break
 
-    with open(f"trajectories_{i*eval_frequency}.pkl", "wb") as f:
+    with open(f"{output_folder}/trajectories_{i*eval_frequency}.pkl", "wb") as f:
         pickle.dump(trajectories, f)
 
     print(f"training round {i}")
@@ -154,5 +162,7 @@ for _ in range(eval_episodes):
             trajectories.append(trajectory)
             break
 
-with open(f"trajectories_{(i+1)*eval_frequency}.pkl", "wb") as f:  # type:ignore
+with open(
+    f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb"
+) as f:  # type:ignore
     pickle.dump(trajectories, f)
