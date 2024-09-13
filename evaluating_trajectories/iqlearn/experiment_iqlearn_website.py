@@ -1,4 +1,7 @@
 import pickle
+import hashlib
+import json
+import time
 from pathlib import Path
 
 import numpy as np
@@ -12,10 +15,10 @@ from evaluating_trajectories.iqlearn.iqlearn import IQLearn
 #     Variables     #
 #####################
 
-device = "cuda"
-output_folder = "trajectories"
+device = "cuda:2"
+experiment_name = "single_traj"
 
-alpha = 0.001
+alpha = 10.0
 
 num_trajectories = 1
 override_traj_idxs = [
@@ -32,11 +35,24 @@ embs_file = "evaluating_trajectories/dataset/embs.npy"
 graph_file = "evaluating_trajectories/dataset/graph.pkl"
 trajectories_file = "evaluating_trajectories/dataset/trajectories.pkl"
 
-######################################
-#     Make sure Directory exists     #
-######################################
+####################################################
+#     Create Output Folder from Experiment Hash    #
+####################################################
 
+important_variables = {"alpha": alpha, "traj_idx": override_traj_idxs}
+json_string = json.dumps(important_variables, sort_keys=True)
+hyperparameter_hash = hashlib.md5(json_string.encode("utf-8")).hexdigest()[:8]
+print(f"experiment hash: {hyperparameter_hash}")
+output_folder = f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/run_{time.time()}"
+# make sure path exists
 Path(output_folder).mkdir(parents=True, exist_ok=True)
+
+with open(
+    f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/parameters.pkl",
+    "w",
+    encoding="utf-8",
+) as f:
+    json.dump(important_variables, f, ensure_ascii=False, indent=4)
 
 
 ############################
