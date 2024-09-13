@@ -131,15 +131,12 @@ for i in range(train_intervals):
     print(f"evaluation round {i}")
     trajectories = []
     for _ in range(eval_episodes):
-        trajectory = []
-        trajectory.append(env._get_obs())
         obs, info = env.reset()
         while True:
-            action = iqlearn.predict(obs, deterministic=True)[0]
+            action = iqlearn.predict(obs)[0]
             obs, reward, terminated, truncated, info = env.step(action)  # type: ignore
-            trajectory.append(env._get_obs())
             if terminated or truncated:
-                trajectories.append(trajectory)
+                trajectories.append(obs)
                 break
 
     with open(f"{output_folder}/trajectories_{i*eval_frequency}.pkl", "wb") as f:
@@ -151,15 +148,12 @@ for i in range(train_intervals):
 print(f"evaluation round {i+1}")  # type:ignore
 trajectories = []
 for _ in range(eval_episodes):
-    trajectory = []
-    trajectory.append(env._get_obs())
     obs, info = env.reset()
     while True:
-        action = iqlearn.predict(obs, deterministic=True)[0]
+        action = iqlearn.predict(obs)[0]
         obs, reward, terminated, truncated, info = env.step(action)  # type: ignore
-        trajectory.append(env._get_obs())
         if terminated or truncated:
-            trajectories.append(trajectory)
+            trajectories.append(obs)
             break
 
 with open(
