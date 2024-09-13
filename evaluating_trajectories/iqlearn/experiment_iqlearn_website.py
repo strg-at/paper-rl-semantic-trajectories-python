@@ -1,6 +1,6 @@
-import pickle
 import hashlib
 import json
+import pickle
 import time
 from pathlib import Path
 
@@ -48,7 +48,7 @@ output_folder = f"experiments/{experiment_name}/trajectories_{hyperparameter_has
 Path(output_folder).mkdir(parents=True, exist_ok=True)
 
 with open(
-    f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/parameters.pkl",
+    f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/parameters.json",
     "w",
     encoding="utf-8",
 ) as f:
