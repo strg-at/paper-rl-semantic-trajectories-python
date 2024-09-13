@@ -70,7 +70,7 @@ class WebsiteEnvironment(gym.Env):
         :return: same as ``gymnasium`` reset.
         """
         super().reset(seed=seed)
-        self.agent_location = np.random.choice(self.starting_location)
+        self.agent_location = int(np.random.choice(self.starting_location))
         self.trajectory = [self.agent_location]
         observation = self._get_obs()
         info = self._get_info()
@@ -89,10 +89,10 @@ class WebsiteEnvironment(gym.Env):
         self.agent_location = action
 
         if len(self.trajectory) == self.max_steps:
-            return self.observation_space.sample(), 0, True, True, self._get_info()
+            return self._get_obs(), 0, True, True, self._get_info()
 
         if terminated:
-            observation = self.observation_space.sample()
+            observation = self._get_obs()
             return (
                 observation,
                 self.reward.compute_reward(observation),

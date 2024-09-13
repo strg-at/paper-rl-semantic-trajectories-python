@@ -1,7 +1,10 @@
+import hashlib
+import json
 import pickle
+import time
+from pathlib import Path
 
 import numpy as np
-import torch
 from sentence_transformers import SentenceTransformer
 
 from evaluating_trajectories.environment.website_env import WebsiteEnvironment
@@ -12,19 +15,49 @@ from evaluating_trajectories.iqlearn.iqlearn import IQLearn
 #     Variables     #
 #####################
 
-device = "cuda"
-train_steps = 5000
+device = "cuda:2"
+experiment_name = "single_traj"
+
+alpha = 10.0
+
+num_trajectories = 1
+override_traj_idxs = [
+    3540384,
+]  # if contains num_trajectories entries, use these trajectories
 min_trajectory_length = 3
-max_trajectory_length = 10
+max_trajectory_length = 16
+
+eval_frequency = 100  # in steps
+eval_episodes = 100
+train_intervals = 100  # how often training is run, total steps will be eval_frequency * train_intervals
 
 embs_file = "evaluating_trajectories/dataset/embs.npy"
 graph_file = "evaluating_trajectories/dataset/graph.pkl"
 trajectories_file = "evaluating_trajectories/dataset/trajectories.pkl"
 
+####################################################
+#     Create Output Folder from Experiment Hash    #
+####################################################
+
+important_variables = {"alpha": alpha, "traj_idx": override_traj_idxs}
+json_string = json.dumps(important_variables, sort_keys=True)
+hyperparameter_hash = hashlib.md5(json_string.encode("utf-8")).hexdigest()[:8]
+print(f"experiment hash: {hyperparameter_hash}")
+output_folder = f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/run_{time.time()}"
+# make sure path exists
+Path(output_folder).mkdir(parents=True, exist_ok=True)
+
+with open(
+    f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/parameters.json",
+    "w",
+    encoding="utf-8",
+) as f:
+    json.dump(important_variables, f, ensure_ascii=False, indent=4)
+
+
 ############################
 #     Load Environment     #
 ############################
-
 
 embs = np.load(embs_file)
 
@@ -64,16 +97,19 @@ def trajectory_valid(trajectory) -> bool:
     return True
 
 
-num_trajectories = 10
 buffer = MaskableReplayBuffer(100, env.observation_space, env.action_space, device=device)  # type: ignore
 starting_locations = []
 
-print(len(env.graph.vs))
-for _ in range(num_trajectories):
-    traj_idx = np.random.randint(len(trajectories))
-    while not trajectory_valid(trajectories[traj_idx]):
+group_trajectories = []
+traj_idxs = []
+for j in range(num_trajectories):
+    if len(override_traj_idxs) != num_trajectories:
         traj_idx = np.random.randint(len(trajectories))
-    print(f"imitating trajectory {traj_idx}")
+        while not trajectory_valid(trajectories[traj_idx]):
+            traj_idx = np.random.randint(len(trajectories))
+    else:
+        traj_idx = override_traj_idxs[j]
+    traj_idxs.append(traj_idx)
     obs = None
     action_mask = None
     padded_trajectory = np.full(env.max_steps, len(env.embeddings) - 1, dtype=np.int32)
@@ -81,7 +117,6 @@ for _ in range(num_trajectories):
         if i == 0:
             starting_locations.append(node_id)
         location = np.array(node_id)
-        print(location)
         action_mask = valid_actions(location)
         done = i == len(trajectories[traj_idx]) - 1
         if not done:
@@ -94,44 +129,52 @@ for _ in range(num_trajectories):
         if obs is not None:
             buffer.add(obs, next_obs, location, 0, False, [{}], action_mask)  # type: ignore
         if done:
+            group_trajectories.append(next_obs.copy())
             break
         obs = next_obs
         # action_mask = next_action_mask  # type: ignore
 
+print(f"trajectory indices: {traj_idxs}")
+with open(f"{output_folder}/trajectories_expert.pkl", "wb") as f:
+    pickle.dump(group_trajectories, f)
 env.starting_location = starting_locations
 
 ##############################
 #     train with IQLEARN     #
 ##############################
-iqlearn = IQLearn(env, sac_args={"device": device})
+iqlearn = IQLearn(env, sac_args={"device": device, "alpha": {0: alpha}})
 iqlearn.set_demonstration_buffer(buffer)
-iqlearn.learn(train_steps)
 
-# observations = []
-# possible_actions = []
-# obs, info = env.reset()
-# action_embeddings = env.map_action_ids_to_embeddings(env.valid_actions())
-# action_embeddings = torch.tensor(action_embeddings)
-# obs = torch.tensor(obs)
-# observations.append(obs)
-# possible_actions.append(action_embeddings)
-# for i in range(5):
-#     obs, _, _, _, _ = env.step(np.random.choice(env.valid_actions()[1:]))
-#     obs = torch.tensor(obs)
-#     action_embeddings = env.map_action_ids_to_embeddings(env.valid_actions())
-#     action_embeddings = torch.tensor(action_embeddings)
-#     observations.append(obs)
-#     possible_actions.append(action_embeddings)
-#
-# print(f"{iqlearn.compute_values(observations, possible_actions)=}")
+for i in range(train_intervals):
+    print(f"evaluation round {i}")
+    trajectories = []
+    for _ in range(eval_episodes):
+        obs, info = env.reset()
+        while True:
+            action = iqlearn.predict(obs)[0]
+            obs, reward, terminated, truncated, info = env.step(action)  # type: ignore
+            if terminated or truncated:
+                trajectories.append(obs)
+                break
 
-for _ in range(100):
+    with open(f"{output_folder}/trajectories_{i*eval_frequency}.pkl", "wb") as f:
+        pickle.dump(trajectories, f)
+
+    print(f"training round {i}")
+    iqlearn.learn(eval_frequency)
+
+print(f"evaluation round {i+1}")  # type:ignore
+trajectories = []
+for _ in range(eval_episodes):
     obs, info = env.reset()
-    print(env.agent_location)
     while True:
-        action = iqlearn.predict(obs, deterministic=True)
-        print(action)
-        obs, reward, terminated, truncated, info = env.step(action)
+        action = iqlearn.predict(obs)[0]
+        obs, reward, terminated, truncated, info = env.step(action)  # type: ignore
         if terminated or truncated:
-            print("")
+            trajectories.append(obs)
             break
+
+with open(
+    f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb"
+) as f:  # type:ignore
+    pickle.dump(trajectories, f)
