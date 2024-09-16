@@ -50,7 +50,7 @@ class Args:
     """Whether or not to use target nets"""
     tau: float = 0.0005
     """target smoothing coefficient (default: 0.005)"""
-    batch_size: int = 256
+    batch_size: int = 32
     """the batch size of sample from the replay memory"""
     learning_starts: int = 0
     """timestep to start learning"""
