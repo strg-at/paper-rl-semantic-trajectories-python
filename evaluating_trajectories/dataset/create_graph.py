@@ -6,6 +6,7 @@ import pandas as pd
 
 parquet_file = "evaluating_trajectories/dataset/trajectories.parquet"
 duckdb_path = "evaluating_trajectories/dataset/text_gen.duckdb"
+edgelist_output = "evaluating_trajectories/dataset/edgelist"
 trajectories_output = "evaluating_trajectories/dataset/trajectories.pkl"
 graph_output = "evaluating_trajectories/dataset/graph.pkl"
 
@@ -45,12 +46,13 @@ for trajectory in trajectories:
     for source, target in zip(trajectory, trajectory[1:]):
         # avoid self loops
         if source != target:
-            edges.add((source, target))
-            edges.add((target, source))
+            edges.add(f"{source} {target}")
 
+with open(edgelist_output, "w") as f:
+    f.write("\n".join(edges))
 
-df = pd.DataFrame(edges)
-graph = ig.Graph.DataFrame(df, directed=False, use_vids=False)
+with open(edgelist_output, "r") as f:
+    graph = ig.Graph.Read_Edgelist(f, directed=False)
 
 with open(graph_output, "wb") as f:
     pickle.dump(graph, f)
