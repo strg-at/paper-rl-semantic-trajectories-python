@@ -73,6 +73,35 @@ def levenshtein_distance(
     return score / max_score, nw_matrix  # normalize
 
 
+@njit
+def mean_levenshtein_distance(
+    trajectories_a: list[list[npt.NDArray[float]]],
+    trajectories_b: list[list[npt.NDArray[float]]],
+    dist_fn: Callable[[npt.NDArray[float], npt.NDArray[float]], float],
+    penalty=1,
+) -> float:
+    """
+    Compute the mean Levenshtein distance algorithm. See :py:meth:`GraphTrajectoryRewardEmbedding.reward`.
+
+    This function is compiled with `numba <https://numba.readthedocs.io/>`_
+
+    :param trajectory_a: list of first trajectories, e.g. expert trajectories
+    :param trajectory_b: list of second trajectories, e.g. imitated trajectories
+    :param simil_fn: similarity function. Should be something like :py:func:`cos_sim`.
+    :param threshold: threshold for the ``simil_fn``
+    :return: returns the mean levenshtein distance over all trajectory pairs
+    """
+    n_rows = len(trajectories_a)
+    n_cols = len(trajectories_b)
+    scores = np.zeros((n_rows, n_cols), dtype=float)
+    for i in range(n_rows):
+        for j in range(n_cols):
+            scores[i, j] = levenshtein_distance(
+                trajectories_a[i], trajectories_b[j], dist_fn, penalty
+            )[0]
+    return np.mean(scores).item()
+
+
 def compare_groups(group_1, group_2):
     results = {}
     for group1_id, group1_traj in group_1.items():
