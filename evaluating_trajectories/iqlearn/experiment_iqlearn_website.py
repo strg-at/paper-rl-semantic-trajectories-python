@@ -129,13 +129,6 @@ for j in range(num_trajectories):
         next_obs = env.embeddings[padded_trajectory]
         if obs is not None:
             buffer.add(obs, next_obs, location, 0, done, [{}], action_mask)  # type: ignore
-        if done:
-            padded_trajectory[i + 1] = env.exit_action
-            next_obs = padded_trajectory.copy()
-            next_obs = env.embeddings[padded_trajectory]
-            buffer.add(obs, next_obs, np.array(env.exit_action), 0, False, [{}], action_mask)  # type: ignore
-            group_trajectories.append(next_obs.copy())
-            break
         obs = next_obs
         action_mask = next_action_mask
         if done:
