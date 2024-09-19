@@ -1,6 +1,7 @@
 import hashlib
 import json
 import pickle
+import sys
 import time
 from pathlib import Path
 
@@ -15,10 +16,13 @@ from evaluating_trajectories.iqlearn.iqlearn import IQLearn
 #     Variables     #
 #####################
 
-device = "cuda:2"
+device = f"cuda:{sys.argv[1]}"
+print(f"running on {device}")
 experiment_name = "single_traj"
 
-alpha = 10.0
+alpha = float(sys.argv[2])
+q_lr = 5e-5
+print(f"using alpha={alpha}, q_lr={q_lr}")
 
 num_trajectories = 1
 override_traj_idxs = [
@@ -39,7 +43,7 @@ trajectories_file = "evaluating_trajectories/dataset/trajectories.pkl"
 #     Create Output Folder from Experiment Hash    #
 ####################################################
 
-important_variables = {"alpha": alpha, "traj_idx": override_traj_idxs}
+important_variables = {"alpha": alpha, "traj_idx": override_traj_idxs, "q_lr": q_lr}
 json_string = json.dumps(important_variables, sort_keys=True)
 hyperparameter_hash = hashlib.md5(json_string.encode("utf-8")).hexdigest()[:8]
 print(f"experiment hash: {hyperparameter_hash}")
@@ -113,25 +117,26 @@ for j in range(num_trajectories):
     obs = None
     action_mask = None
     padded_trajectory = np.full(env.max_steps, len(env.embeddings) - 1, dtype=np.int32)
+    print(trajectories[traj_idx])
     for i, node_id in enumerate(trajectories[traj_idx]):
         if i == 0:
             starting_locations.append(node_id)
         location = np.array(node_id)
-        action_mask = valid_actions(location)
+        next_action_mask = valid_actions(location)
         done = i == len(trajectories[traj_idx]) - 1
-        if not done:
-            padded_trajectory[i] = location
-            next_obs = padded_trajectory.copy()
-            next_obs = env.embeddings[padded_trajectory]
-        else:
-            next_obs = padded_trajectory.copy()
-            next_obs = env.embeddings[padded_trajectory]
+        padded_trajectory[i] = location
+        next_obs = padded_trajectory.copy()
+        next_obs = env.embeddings[padded_trajectory]
         if obs is not None:
-            buffer.add(obs, next_obs, location, 0, False, [{}], action_mask)  # type: ignore
-        if done:
-            group_trajectories.append(next_obs.copy())
-            break
+            buffer.add(obs, next_obs, location, 0, done, [{}], action_mask)  # type: ignore
         obs = next_obs
+        action_mask = next_action_mask
+        if done:
+            padded_trajectory[i + 1] = env.exit_action
+            next_obs = padded_trajectory.copy()
+            next_obs = env.embeddings[padded_trajectory]
+            buffer.add(obs, next_obs, np.array(env.exit_action), 0, True, [{}], action_mask)  # type: ignore
+            group_trajectories.append(next_obs.copy())
         # action_mask = next_action_mask  # type: ignore
 
 print(f"trajectory indices: {traj_idxs}")
@@ -142,7 +147,7 @@ env.starting_location = starting_locations
 ##############################
 #     train with IQLEARN     #
 ##############################
-iqlearn = IQLearn(env, sac_args={"device": device, "alpha": {0: alpha}})
+iqlearn = IQLearn(env, sac_args={"device": device, "alpha": {0: alpha}, "q_lr": q_lr})
 iqlearn.set_demonstration_buffer(buffer)
 
 for i in range(train_intervals):
