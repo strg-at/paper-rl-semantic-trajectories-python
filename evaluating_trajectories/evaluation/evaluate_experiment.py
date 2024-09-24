@@ -9,6 +9,7 @@ import numpy as np
 from numba.typed import List
 
 from evaluating_trajectories.evaluation.levenshtein_distance import (
+    cos_dist,
     euclid_sim,
     mean_levenshtein_distance,
 )
@@ -35,7 +36,7 @@ def get_label(params: dict):
 
 def convert_to_list(trajectories):
     return List(
-        List(trajectory[:, i] for i in range(trajectory.shape[1]))
+        List(trajectory[i, :] for i in range(trajectory.shape[0]))
         for trajectory in trajectories
     )
 
@@ -83,10 +84,10 @@ for hash in hashes:
         levenshtein = mean_levenshtein_distance(
             convert_to_list(trajectories_expert[run_id]),
             convert_to_list(trajectories_iqlearn),
-            euclid_sim,
+            cos_dist,
         )
         id = int(match.groups()[2])
-        print(f"{run_id}: {id}: {wasserstein}")
+        print(f"{run_id}: {id}: {wasserstein} {levenshtein}")
         if id not in wasserstein_distances:
             wasserstein_distances[id] = []
         wasserstein_distances[id].append(wasserstein)
