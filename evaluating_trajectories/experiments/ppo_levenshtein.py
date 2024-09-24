@@ -1,3 +1,5 @@
+import hashlib
+import json
 import pickle
 import sys
 import time
@@ -24,18 +26,33 @@ from evaluating_trajectories.evaluation.levenshtein_distance import (
 
 device = f"cuda:{sys.argv[1]}"
 print(f"running on {device}")
-experiment_name = "ppo_levenshtein"
+experiment_name = "ppo_levenshtein_min"
+
+n_steps = 1024
+gamma = 0.9
 
 num_trajectories = 1
+override_traj_idxs = [
+    1829803,
+    5255935,
+    3619652,
+    5034976,
+    794293,
+    2561893,
+    3680468,
+    432399,
+    2834087,
+    394507,
+]
 override_traj_idxs = [
     3540384,
 ]  # if contains num_trajectories entries, use these trajectories
 min_trajectory_length = 3
 max_trajectory_length = 16
 
-eval_frequency = 100  # in steps
+eval_frequency = 4096  # in steps
 eval_episodes = 100
-total_train_steps = 100_000
+train_intervals = 1000  # how often training is run, total steps will be eval_frequency * train_intervals
 
 embs_file = "evaluating_trajectories/dataset/embs.npy"
 graph_file = "evaluating_trajectories/dataset/graph.pkl"
@@ -45,9 +62,21 @@ trajectories_file = "evaluating_trajectories/dataset/trajectories.pkl"
 #     Create Output Folder from Experiment Hash    #
 ####################################################
 
-output_folder = f"experiments/{experiment_name}/run_{time.time()}"
+important_variables = {"n_steps": n_steps, "gamma": gamma}
+json_string = json.dumps(important_variables, sort_keys=True)
+hyperparameter_hash = hashlib.md5(json_string.encode("utf-8")).hexdigest()[:8]
+print(f"experiment hash: {hyperparameter_hash}")
+output_folder = f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/run_{time.time()}"
 # make sure path exists
 Path(output_folder).mkdir(parents=True, exist_ok=True)
+
+with open(
+    f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/parameters.json",
+    "w",
+    encoding="utf-8",
+) as f:
+    json.dump(important_variables, f, ensure_ascii=False, indent=4)
+
 
 ############################
 #     Load Environment     #
@@ -123,40 +152,59 @@ group_trajectories = [[obs for obs in trajectory] for trajectory in group_trajec
 ##########################
 
 
-assert len(traj_idxs) == 1, "Reward right now only works with one trajectory..."
-
-
 class LevenshteinReward(RewardClass):
     def compute_reward(self, trajectory: npt.NDArray[np.float32]) -> float:
         trajectory = [obs for obs in trajectory]  # type:ignore
-        return 1 - np.abs(levenshtein_distance(group_trajectories[0], trajectory, cos_dist)[0])  # type: ignore
+        distances = np.zeros((len(group_trajectories),))
+        for i, user_traj in enumerate(group_trajectories):
+            distances[i] = 1 - levenshtein_distance(user_traj, trajectory, cos_dist)[0]  # type: ignore
+        return np.min(distances).item()
 
 
 env.reward = LevenshteinReward()
-
-#########################
-#    Train PPO agent    #
-#########################
-
-model = MaskablePPO("MlpPolicy", env, gamma=0.9, verbose=1, device=device)
-model.learn(50_000)
+eval_env = WebsiteEnvironment(graph, starting_locations, max_trajectory_length, embs, mask_embedding)  # type: ignore
+eval_env.reward = LevenshteinReward()
 
 #################
 #    Run PPO    #
 #################
 
-obs, _ = env.reset()
-i = 0
-while True:
-    # Retrieve current action mask
-    action_masks = get_action_masks(env)
-    action, _states = model.predict(obs, action_masks=action_masks)
-    print(action)
-    obs, reward, terminated, truncated, info = env.step(action)  # type:ignore
-    if terminated or truncated:
-        obs, _ = env.reset()
-        i += 1
-        if i == 10:
+# if you run into a problem with the logits during training, set `validate_args=False` in sb3_contrib/common/maskable/distributions.py:68, see also https://github.com/DLR-RM/stable-baselines3/issues/1596
+# unfortunately this is an issue with sb3 (or rather torch) and not with our code
+
+model = MaskablePPO(
+    "MlpPolicy", env, gamma=gamma, verbose=1, device=device, n_steps=n_steps
+)
+for i in range(train_intervals):
+    print(f"evaluation round {i}")
+    trajectories = []
+    for _ in range(eval_episodes):
+        obs, info = eval_env.reset()
+        while True:
+            action = model.predict(obs)[0]
+            obs, reward, terminated, truncated, info = eval_env.step(action)  # type: ignore
+            if terminated or truncated:
+                trajectories.append(obs)
+                break
+
+    with open(f"{output_folder}/trajectories_{i*eval_frequency}.pkl", "wb") as f:
+        pickle.dump(trajectories, f)
+
+    print(f"training round {i}")
+    model.learn(eval_frequency, reset_num_timesteps=(i == 0))
+
+print(f"evaluation round {i+1}")  # type:ignore
+trajectories = []
+for _ in range(eval_episodes):
+    obs, info = eval_env.reset()
+    while True:
+        action = model.predict(obs)[0]
+        obs, reward, terminated, truncated, info = eval_env.step(action)  # type: ignore
+        if terminated or truncated:
+            trajectories.append(obs)
             break
-        print("")
-        print("next")
+
+with open(
+    f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb"  # type:ignore
+) as f:  # type:ignore
+    pickle.dump(trajectories, f)
