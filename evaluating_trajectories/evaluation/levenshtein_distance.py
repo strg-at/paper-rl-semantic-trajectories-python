@@ -7,7 +7,7 @@ from numba import njit
 
 @njit
 def euclid_sim(vector_a: npt.NDArray[float], vector_b: npt.NDArray[float]) -> float:
-    return -(np.linalg.norm(vector_a - vector_b))
+    return np.linalg.norm(vector_a - vector_b)
 
 
 @njit
