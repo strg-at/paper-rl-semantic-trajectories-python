@@ -6,7 +6,13 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+from numba.typed import List
 
+from evaluating_trajectories.evaluation.levenshtein_distance import (
+    cos_dist,
+    euclid_sim,
+    mean_levenshtein_distance,
+)
 from evaluating_trajectories.evaluation.wasserstein_distance import wasserstein_uniform
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -28,6 +34,15 @@ def get_label(params: dict):
     return f"$\\alpha$={params['alpha']}"
 
 
+def convert_to_list(trajectories):
+    return List(
+        List(trajectory[i, :] for i in range(trajectory.shape[0]))
+        for trajectory in trajectories
+    )
+
+
+fig, axs = plt.subplots(2, 1, figsize=(12, 6))
+
 for hash in hashes:
     output_folder = f"experiments/{experiment_name}/trajectories_{hash}"
 
@@ -42,7 +57,8 @@ for hash in hashes:
         f"({output_folder}/run_([0-9\\.]+))/trajectories_([0-9]+)\\.pkl"
     )
 
-    distances = {}
+    wasserstein_distances = {}
+    levenshtein_distances = {}
     print_traj = None
     for path in glob.glob(f"{output_folder}/run_*/trajectories_*.pkl"):
         match = pattern.fullmatch(path)
@@ -52,36 +68,49 @@ for hash in hashes:
         run_id = match.groups()[1]
         if run_id not in trajectories_expert:
             with open(f"{match.groups()[0]}/trajectories_expert.pkl", "rb") as f:
-                trajectories = np.stack(pickle.load(f), axis=0)
-            print_traj = trajectories
-            trajectories_expert[run_id] = trajectories.reshape(
-                trajectories.shape[0], -1
-            )
+                trajectories_expert[run_id] = np.stack(pickle.load(f), axis=0)
 
         with open(path, "rb") as f:
             trajectories_iqlearn = np.stack(pickle.load(f), axis=0)
         # print(trajectories_iqlearn)
-        print(f"expert: {print_traj[0, :, 0]}")
+        print(f"expert: {trajectories_expert[run_id][0, :, 0]}")
         print(trajectories_iqlearn[0, :, 0])
-        trajectories_iqlearn = trajectories_iqlearn.reshape(
-            trajectories_iqlearn.shape[0], -1
-        )
         wasserstein = wasserstein_uniform(
-            trajectories_expert[run_id], trajectories_iqlearn
+            trajectories_expert[run_id].reshape(
+                trajectories_expert[run_id].shape[0], -1
+            ),
+            trajectories_iqlearn.reshape(trajectories_iqlearn.shape[0], -1),
+        )
+        levenshtein = mean_levenshtein_distance(
+            convert_to_list(trajectories_expert[run_id]),
+            convert_to_list(trajectories_iqlearn),
+            cos_dist,
         )
         id = int(match.groups()[2])
-        print(f"{run_id}: {id}: {wasserstein}")
-        if id not in distances:
-            distances[id] = []
-        distances[id].append(wasserstein)
+        print(f"{run_id}: {id}: {wasserstein} {levenshtein}")
+        if id not in wasserstein_distances:
+            wasserstein_distances[id] = []
+        wasserstein_distances[id].append(wasserstein)
+        if id not in levenshtein_distances:
+            levenshtein_distances[id] = []
+        levenshtein_distances[id].append(levenshtein)
 
-    xs = list(distances.keys())
+    xs = list(wasserstein_distances.keys())
     xs.sort()
-    ys = [np.mean(distances[key]) for key in xs]
-    plt.plot(xs, ys, label=label)
+    ys = [np.mean(wasserstein_distances[key]) for key in xs]
+    axs[0].plot(xs, ys, label=label)
+    xs = list(levenshtein_distances.keys())
+    xs.sort()
+    ys = [np.mean(levenshtein_distances[key]) for key in xs]
+    axs[1].plot(xs, ys, label=label)
 
-plt.title("Wasserstein Distance over Training Steps")
-plt.xlabel("Training Steps")
-plt.ylabel("Wasserstein Distance")
-plt.legend()
+axs[0].set_title("Wasserstein Distance over Training Steps")
+axs[0].set_xlabel("Training Steps")
+axs[0].set_ylabel("Wasserstein Distance")
+axs[0].legend()
+
+axs[1].set_title("Levenshtein Distance over Training Steps")
+axs[1].set_xlabel("Training Steps")
+axs[1].set_ylabel("Levenshtein Distance")
+axs[1].legend()
 plt.show()
