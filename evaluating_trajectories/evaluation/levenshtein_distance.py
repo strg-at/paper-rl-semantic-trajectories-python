@@ -78,7 +78,7 @@ def mean_levenshtein_distance(
     trajectories_a: list[list[npt.NDArray[float]]],
     trajectories_b: list[list[npt.NDArray[float]]],
     dist_fn: Callable[[npt.NDArray[float], npt.NDArray[float]], float],
-    penalty=1,
+    penalty=2,
 ) -> float:
     """
     Compute the mean Levenshtein distance algorithm. See :py:meth:`GraphTrajectoryRewardEmbedding.reward`.
@@ -96,7 +96,7 @@ def mean_levenshtein_distance(
     scores = np.zeros((n_rows, n_cols), dtype=float)
     for i in range(n_rows):
         for j in range(n_cols):
-            scores[i, j] = levenshtein_distance(
+            scores[i, j] = levenshtein_distance(  # type: ignore
                 trajectories_a[i], trajectories_b[j], dist_fn, penalty
             )[0]
     return np.mean(scores).item()
