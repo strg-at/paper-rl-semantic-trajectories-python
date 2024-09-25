@@ -2,7 +2,7 @@ from typing import Callable
 
 import numpy as np
 import numpy.typing as npt
-from numba import njit
+from numba import njit, prange
 
 
 @njit
@@ -38,7 +38,7 @@ def levenshtein_distance(
     penalty=1,
 ) -> float:
     """
-    Compute the Levenshtein distance algorithm. See :py:meth:`GraphTrajectoryRewardEmbedding.reward`.
+    Compute the Levenshtein distance algorithm.
 
     This function is compiled with `numba <https://numba.readthedocs.io/>`_
 
@@ -73,7 +73,7 @@ def levenshtein_distance(
     return score / max_score, nw_matrix  # normalize
 
 
-@njit
+@njit(parallel=True)
 def mean_levenshtein_distance(
     trajectories_a: list[list[npt.NDArray[float]]],
     trajectories_b: list[list[npt.NDArray[float]]],
@@ -81,7 +81,7 @@ def mean_levenshtein_distance(
     penalty=2,
 ) -> float:
     """
-    Compute the mean Levenshtein distance algorithm. See :py:meth:`GraphTrajectoryRewardEmbedding.reward`.
+    Compute the mean Levenshtein distance algorithm.
 
     This function is compiled with `numba <https://numba.readthedocs.io/>`_
 
@@ -94,7 +94,7 @@ def mean_levenshtein_distance(
     n_rows = len(trajectories_a)
     n_cols = len(trajectories_b)
     scores = np.zeros((n_rows, n_cols), dtype=float)
-    for i in range(n_rows):
+    for i in prange(n_rows):
         for j in range(n_cols):
             scores[i, j] = levenshtein_distance(  # type: ignore
                 trajectories_a[i], trajectories_b[j], dist_fn, penalty
