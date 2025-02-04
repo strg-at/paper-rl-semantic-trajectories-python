@@ -153,17 +153,20 @@ group_trajectories = [[obs for obs in trajectory] for trajectory in group_trajec
 
 
 class LevenshteinReward(RewardClass):
+    def __init__(self, group_trajectories):
+        self.group_trajectories = group_trajectories
+
     def compute_reward(self, trajectory: npt.NDArray[np.float32]) -> float:
         trajectory = [obs for obs in trajectory]  # type:ignore
-        distances = np.zeros((len(group_trajectories),))
-        for i, user_traj in enumerate(group_trajectories):
+        distances = np.zeros((len(self.group_trajectories),))
+        for i, user_traj in enumerate(self.group_trajectories):
             distances[i] = 1 - levenshtein_distance(user_traj, trajectory, cos_dist)[0]  # type: ignore
         return np.min(distances).item()
 
 
-env.reward = LevenshteinReward()
+env.reward = LevenshteinReward(group_trajectories)
 eval_env = WebsiteEnvironment(graph, starting_locations, max_trajectory_length, embs, mask_embedding)  # type: ignore
-eval_env.reward = LevenshteinReward()
+eval_env.reward = LevenshteinReward(group_trajectories)
 
 #################
 #    Run PPO    #
