@@ -89,7 +89,7 @@ class WebsiteEnvironment(gym.Env):
         self.agent_location = action
 
         if len(self.trajectory) == self.max_steps:
-            return self._get_obs(), 0, True, True, self._get_info()
+            return self._get_obs(), 0, True, False, self._get_info()
 
         if terminated:
             observation = self._get_obs()
