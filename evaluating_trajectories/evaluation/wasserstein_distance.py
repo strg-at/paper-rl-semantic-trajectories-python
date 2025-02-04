@@ -6,7 +6,7 @@ import ot
 
 
 def wasserstein(x, y, weights_x, weights_y):
-    M = ot.dist(x, y, metric="euclidean")
+    M = ot.dist(x, y, metric="cosine")
     return ot.emd2(weights_x, weights_y, M, check_marginals=False)
 
 

@@ -2,12 +2,12 @@ from typing import Callable
 
 import numpy as np
 import numpy.typing as npt
-from numba import njit
+from numba import njit, prange
 
 
 @njit
 def euclid_sim(vector_a: npt.NDArray[float], vector_b: npt.NDArray[float]) -> float:
-    return -(np.linalg.norm(vector_a - vector_b))
+    return np.linalg.norm(vector_a - vector_b)
 
 
 @njit
@@ -38,7 +38,7 @@ def levenshtein_distance(
     penalty=1,
 ) -> float:
     """
-    Compute the Levenshtein distance algorithm. See :py:meth:`GraphTrajectoryRewardEmbedding.reward`.
+    Compute the Levenshtein distance algorithm.
 
     This function is compiled with `numba <https://numba.readthedocs.io/>`_
 
@@ -71,6 +71,35 @@ def levenshtein_distance(
     score = nw_matrix[i, j]
     max_score = penalty * max(n_rows - 1, n_cols - 1)
     return score / max_score, nw_matrix  # normalize
+
+
+@njit(parallel=True)
+def mean_levenshtein_distance(
+    trajectories_a: list[list[npt.NDArray[float]]],
+    trajectories_b: list[list[npt.NDArray[float]]],
+    dist_fn: Callable[[npt.NDArray[float], npt.NDArray[float]], float],
+    penalty=2,
+) -> float:
+    """
+    Compute the mean Levenshtein distance algorithm.
+
+    This function is compiled with `numba <https://numba.readthedocs.io/>`_
+
+    :param trajectory_a: list of first trajectories, e.g. expert trajectories
+    :param trajectory_b: list of second trajectories, e.g. imitated trajectories
+    :param simil_fn: similarity function. Should be something like :py:func:`cos_sim`.
+    :param threshold: threshold for the ``simil_fn``
+    :return: returns the mean levenshtein distance over all trajectory pairs
+    """
+    n_rows = len(trajectories_a)
+    n_cols = len(trajectories_b)
+    scores = np.zeros((n_rows, n_cols), dtype=float)
+    for i in prange(n_rows):
+        for j in range(n_cols):
+            scores[i, j] = levenshtein_distance(  # type: ignore
+                trajectories_a[i], trajectories_b[j], dist_fn, penalty
+            )[0]
+    return np.mean(scores).item()
 
 
 def compare_groups(group_1, group_2):
