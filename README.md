@@ -103,7 +103,7 @@ For this, you will need the `evaluating_trajectories/experiments/train_glove_emb
 python evaluating_trajectories/experiments/train_glove_embeddings.py --vocab-file vocab.txt --cooccurr-file cooccurence.shuf.bin --embeddings-size 100 --embs-save-path glove_vectors.pt --glove-vectors-save-path glove_vectors.txt
 ```
 
-Notice that the script also exposes a [tinygrad](https://github.com/tinygrad/tinygrad) model too, in case you have an AMD or Intel GPU.
+Notice that the script also exposes a [tinygrad](https://github.com/tinygrad/tinygrad) model, in case you have an AMD or Intel GPU.
 You can run it with:
 
 ```bash

@@ -21,22 +21,18 @@ cffi = "^1.17.0"
 setuptools = "^72.2.0"
 tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
 stable-baselines3 = "^2.3.2"
-torch = "^2.4.0"
 tensorboard = "^2.17.1"
 rich = "^13.8.0"
 pot = "^0.9.4"
 sb3-contrib = "^2.3.0"
+torch = {version = "^2.4.0+cpu", source = "pytorch-cpu-src"}
+python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
-mypy = "^1.10.0"
 pre-commit = "^3.7.1"
-requests = "^2.32.3"
-duckdb = "^1.0.0"
-torch = {version = "^2.3.1+cpu", source = "pytorch-cpu-src"}
 
 # Currently, poetry does not support this. If you're running on a GPU, you can still install the environment
 # by uncommenting this line, and commenting torch above
@@ -50,10 +46,16 @@ torch = {version = "^2.3.1+cpu", source = "pytorch-cpu-src"}
 optional = true
 
 [tool.poetry.group.lsp-dev.dependencies]
-ruff-lsp = "^0.0.53"
-pylsp-mypy = "^0.6.8"
-python-lsp-server = "^1.11.0"
-python-lsp-black = "^2.0.0"
+black = "^24.4.2"
+basedpyright = "^1.24.0"
+
+[tool.ruff]
+ignore = ["E501"]
+line-length = 120
+
+[tool.basedpyright]
+reportMissingTypeStubs = false
+typeCheckingMode = "standard"
 
 # This can be added with
 # poetry source add --priority=explicit pytorch-cpu-src https://download.pytorch.org/whl/cpu
