@@ -3,3 +3,5 @@ cffi:
 	cd glove_ffi && python cooccur_extension_build.py && cd ..
 glove:
 	cd submodules/GloVe && make && cd .. && cd ..
+clear:
+	cd glove_ffi && rm _crec.* cooccur.o
