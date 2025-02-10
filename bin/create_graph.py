@@ -26,6 +26,11 @@ REMOVE_PRODUCTS_WITHOUT_DESC = os.getenv("REMOVE_PRODUCTS_WITHOUT_DESC", "1") in
 HIGH_RAM_DEVICE = os.getenv("HIGH_RAM_DEVICE", "0") in ["1", "True", "true"]
 N_THREADS = int(os.getenv("N_THREADS", "10"))
 PERCENTILE_MAX = float(os.getenv("PERCENTILE_MAX", "0.99"))
+SKIP_TRAJECTORY_SAVING = os.getenv("SKIP_TRAJECTORY_SAVING", "0") in [
+    "1",
+    "True",
+    "true",
+]
 
 
 EDGE_LIST = """
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     edges = conn.sql(edge_query)
 
     conn.execute("SET preserve_insertion_order = false;")
-    conn.sql(f"COPY edges TO '{EDGELIST_OUTPUT_PATH}' (delim ' ')")
+    conn.sql(f"COPY edges TO '{EDGELIST_OUTPUT_PATH}' (header false, delim ' ')")
 
     print("Creating graph...")
     with open(EDGELIST_OUTPUT_PATH, "r") as f:
@@ -85,6 +90,9 @@ if __name__ == "__main__":
 
     with open(GRAPH_PATH, "wb") as f:
         pickle.dump(graph, f)
+
+    if SKIP_TRAJECTORY_SAVING:
+        exit(0)
 
     if HIGH_RAM_DEVICE:
         conn.sql(
