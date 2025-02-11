@@ -19,10 +19,8 @@ typedef struct cooccur_arr {
 
 CREC *init_crec(int arr_size);
 
+void free_cooarr(COO_ARR *coo_arr);
 unsigned long read_cooccur(COO_ARR *coo_arr, FILE *f, int lines);
-
-FILE *open_file(char *filename);
-int close_file(FILE *f);
 """
 )
 

@@ -3,6 +3,10 @@
 
 unsigned long read_cooccur(COO_ARR *coo_arr, FILE *f, int lines) {
   CREC *crec = init_crec(lines);
+  if (!f) {
+    free(crec);
+    return 0;
+  }
   unsigned long lines_read = fread(crec, sizeof(CREC), lines, f);
 
   if (lines_read == 0) {
@@ -38,7 +42,3 @@ CREC *init_crec(int arr_size) {
   CREC *crecs = (CREC *)malloc(arr_size * sizeof(CREC));
   return crecs;
 }
-
-FILE *open_file(char *filename) { return fopen(filename, "rb"); }
-
-int close_file(FILE *f) { return fclose(f); }
