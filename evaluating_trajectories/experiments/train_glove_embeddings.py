@@ -10,11 +10,11 @@ from evaluating_trajectories.dataset.load_cooccurrence_dataset import (
 )
 
 
-def get_iterator():
-    return cooccurrence_iterator(args.cooccurr_file, batch_size=args.batch_size)
+def get_iterator(cooccurr_file: str, batch_size: int):
+    return cooccurrence_iterator(cooccurr_file, batch_size)
 
 
-def train_with_pytorch(vocab):
+def train_with_pytorch(args, vocab):
     device = torch.device("cpu")
     if torch.cuda.is_available():
         device = torch.device("cuda")
@@ -33,7 +33,7 @@ def train_with_pytorch(vocab):
     for epoch in pbar:
         epoch_loss = 0
         n_batches = 0
-        batch_iterator = get_iterator()
+        batch_iterator = get_iterator(args.cooccurr_file, args.batch_size)
         for i, (w1, w2, x) in tqdm(
             enumerate(batch_iterator),
             desc=f"Epoch {epoch}",
@@ -58,7 +58,7 @@ def train_with_pytorch(vocab):
         return embeddings
 
 
-def train_with_tinygrad(vocab):
+def train_with_tinygrad(args, vocab):
     glove = models.GloVeTG(len(vocab), args.embeddings_size, args.x_max, args.alpha)
     optimizer = tg.nn.optim.Adam(tg.nn.state.get_parameters(glove), lr=1e-3)
     losses = []
@@ -81,7 +81,7 @@ def train_with_tinygrad(vocab):
 
     for epoch in pbar:
         epoch_loss = 0
-        batch_iterator = get_iterator()
+        batch_iterator = get_iterator(args.cooccurr_file, args.batch_size)
         n_batches = 0
         for i, (w1, w2, x) in tqdm(
             enumerate(batch_iterator),
@@ -151,9 +151,9 @@ if __name__ == "__main__":
             vocab[word] = i
 
     if args.use_tinygrad:
-        embs = train_with_tinygrad(vocab)
+        embs = train_with_tinygrad(args, vocab)
     else:
-        embs = train_with_pytorch(vocab)
+        embs = train_with_pytorch(args, vocab)
 
     with open(args.glove_vectors_save_path, "w") as f:
         for word, idx in vocab.items():
