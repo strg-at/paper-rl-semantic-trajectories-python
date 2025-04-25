@@ -1,0 +1,2 @@
+from .levenshtein_distance import levenshtein_distance, mean_levenshtein_distance
+from .wasserstein_distance import wasserstein, wasserstein_from_trajectories, wasserstein_uniform

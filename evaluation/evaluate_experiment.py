@@ -8,12 +8,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numba.typed import List
 
-from evaluating_trajectories.evaluation.levenshtein_distance import (
+from evaluating_trajectories.distances.levenshtein_distance import (
     cos_dist,
-    euclid_sim,
     mean_levenshtein_distance,
 )
-from evaluating_trajectories.evaluation.wasserstein_distance import wasserstein_uniform
+from evaluating_trajectories.distances.wasserstein_distance import wasserstein_uniform
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -35,10 +34,7 @@ def get_label(params: dict):
 
 
 def convert_to_list(trajectories):
-    return List(
-        List(trajectory[i, :] for i in range(trajectory.shape[0]))
-        for trajectory in trajectories
-    )
+    return List(List(trajectory[i, :] for i in range(trajectory.shape[0])) for trajectory in trajectories)
 
 
 fig, axs = plt.subplots(2, 1, figsize=(12, 6))
@@ -53,9 +49,7 @@ for hash in hashes:
 
     trajectories_expert = {}
 
-    pattern = re.compile(
-        f"({output_folder}/run_([0-9\\.]+))/trajectories_([0-9]+)\\.pkl"
-    )
+    pattern = re.compile(f"({output_folder}/run_([0-9\\.]+))/trajectories_([0-9]+)\\.pkl")
 
     wasserstein_distances = {}
     levenshtein_distances = {}
@@ -76,9 +70,7 @@ for hash in hashes:
         print(f"expert: {trajectories_expert[run_id][0, :, 0]}")
         print(trajectories_iqlearn[0, :, 0])
         wasserstein = wasserstein_uniform(
-            trajectories_expert[run_id].reshape(
-                trajectories_expert[run_id].shape[0], -1
-            ),
+            trajectories_expert[run_id].reshape(trajectories_expert[run_id].shape[0], -1),
             trajectories_iqlearn.reshape(trajectories_iqlearn.shape[0], -1),
         )
         levenshtein = mean_levenshtein_distance(

@@ -7,33 +7,26 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--path", type=str, help="Path to the parquet file", default="2019-Oct.parquet"
+        "--path",
+        type=str,
+        help="Path to the trajectories csv file",
+        default="data/trajectories.csv",
     )
     parser.add_argument("--output-file", type=str, help="Output file", required=True)
     parser.add_argument(
-        "--min-trajectory-length", type=int, help="Minimum trajectory length", default=3
+        "--batch-size",
+        type=int,
+        help="Batch size for loading the data. Defaults to 10k.",
+        default=10_000,
     )
     args = parser.parse_args()
-    count = (
-        duckdb.sql(f"SELECT DISTINCT user_session FROM '{args.path}'")
-        .count("*")
-        .fetchone()[0]
-    )
-    batch_size = 7_000_000  # this should be ok if you have ~32gb of ram
-    user_sessions_it = preprocessing.user_sessions_iterator(
-        args.path, ["product_id"], batch_size=batch_size
-    )
+
+    count = duckdb.sql(f"SELECT DISTINCT user_session FROM '{args.path}'").count("*").fetchone()[0]
+    batch_size = args.batch_size
+    user_sessions_it = preprocessing.user_sessions_iterator(args.path, ["product_id"], batch_size=batch_size)
     pbar = tqdm(desc="Writing trajectories in glove format", total=count // batch_size)
     with open(args.output_file, "w") as f:
-        for trajectory_groups in user_sessions_it:
-            trajectory_groups = map(lambda t: t[1], trajectory_groups)
-            trajectory_groups = filter(
-                lambda t: len(t) >= args.min_trajectory_length, trajectory_groups
-            )
-            str_products = map(
-                lambda t: " ".join(map(lambda p: str(p["product_id"]), t)) + "\n",
-                trajectory_groups,
-            )
-
-            f.writelines(str_products)
+        for _, trajectory in user_sessions_it:
+            str_products = " ".join(map(str, trajectory))
+            f.write(str_products)
             pbar.update()

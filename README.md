@@ -70,13 +70,19 @@ import duckdb
 duckdb.sql("COPY (SELECT * FROM read_csv(['2019-Oct.csv.gz', '2019-Nov.csv.gz', ...])) TO 'alldata.parquet'")
 ```
 
+You should then run the `bin/create_graph.py` script which will generate several files. Look at the top of the script for configuration options (via env variables).
+
+```bash
+python bin/create_graph.py
+```
+
 Then, you can generate the `glove_trajectories.txt` file with:
 
 ```bash
-python bin/glove_preprocessing.py --path alldata.parquet --output-file glove_trajectories.txt --min-trajectory-length 3
+python bin/glove_preprocessing.py --path trajectories.csv --output-file glove_trajectories.txt
 ```
 
-Feel free to adjust the paremeters to your liking.
+Feel free to adjust the parameters to your liking.
 
 Now, we can generate the vocabulary and the cooccurence.shuf.bin file.
 Before running this, check the `demo.sh` file and see if you want to change any parameter:
@@ -103,7 +109,7 @@ For this, you will need the `evaluating_trajectories/experiments/train_glove_emb
 python evaluating_trajectories/experiments/train_glove_embeddings.py --vocab-file vocab.txt --cooccurr-file cooccurence.shuf.bin --embeddings-size 100 --embs-save-path glove_vectors.pt --glove-vectors-save-path glove_vectors.txt
 ```
 
-Notice that the script also exposes a [tinygrad](https://github.com/tinygrad/tinygrad) model too, in case you have an AMD or Intel GPU.
+Notice that the script also exposes a [tinygrad](https://github.com/tinygrad/tinygrad) model, in case you have an AMD or Intel GPU.
 You can run it with:
 
 ```bash
@@ -112,4 +118,5 @@ python evaluating_trajectories/experiments/train_glove_embeddings.py --vocab-fil
 
 ### Using GloVe embeddings
 
+The generated embeddings will be in a file called `vectors.txt` or `glove_vectors.txt`.
 To see an example on how to load or use the embeddings, look at the `bin/embedding_visualization.py` script.

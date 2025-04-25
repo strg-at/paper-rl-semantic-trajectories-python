@@ -90,10 +90,7 @@ def valid_actions(location) -> np.ndarray:
 
 
 def trajectory_valid(trajectory) -> bool:
-    if (
-        len(trajectories[traj_idx]) < min_trajectory_length
-        or len(trajectories[traj_idx]) >= max_trajectory_length
-    ):
+    if len(trajectories[traj_idx]) < min_trajectory_length or len(trajectories[traj_idx]) >= max_trajectory_length:
         return False
     for node_id in trajectory:
         if node_id >= len(env.graph.vs):
@@ -179,7 +176,5 @@ for _ in range(eval_episodes):
             trajectories.append(obs)
             break
 
-with open(
-    f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb"
-) as f:  # type:ignore
+with open(f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb") as f:  # type:ignore
     pickle.dump(trajectories, f)
