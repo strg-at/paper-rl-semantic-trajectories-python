@@ -1,5 +1,4 @@
 import argparse
-import numpy as np
 import duckdb
 import umap
 import plotly.express as px
@@ -15,9 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_parquet", default="2019-Oct.parquet", type=str)
     args = parser.parse_args()
 
-    embeddings, embeddings_norm, vocab, ivocab = read_glove_data(
-        args.vocab_file, args.vectors_file
-    )
+    embeddings, embeddings_norm, vocab, ivocab = read_glove_data(args.vocab_file, args.vectors_file)
 
     print("scaling embeddings")
     scaled_embs = StandardScaler().fit_transform(embeddings)
@@ -26,9 +23,7 @@ if __name__ == "__main__":
     print("reducing to 2d")
     embs_2d = reducer.fit_transform(scaled_embs)
 
-    product_df = duckdb.sql(
-        f"SELECT DISTINCT ON(product_id) * FROM '{args.data_parquet}'"
-    ).df()
+    product_df = duckdb.sql(f"SELECT DISTINCT ON(product_id) * FROM '{args.data_parquet}'").df()
     product_df["x"] = None
     product_df["y"] = None
 

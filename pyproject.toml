@@ -1,45 +1,49 @@
-[tool.poetry]
+[project]
 name = "evaluating-trajectories"
 version = "0.1.0"
 description = "Code for the evaluating trajectories paper"
-authors = ["Tobias Kietreiber <tobias.kietreiber@fhstp.ac.at>", "Alessio Molinari <alessio.molinari@strg.at>"]
+authors = [
+  { name = "Tobias Kietreiber", email = "tobias.kietreiber@fhstp.ac.at" },
+  { name = "Alessio Molinari", email = "alessio.molinari@strg.at" }
+]
 readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+  "duckdb >=1.0.0,<2.0.0",
+  "numpy >=2.0.1,<3.0.0",
+  "numba >=0.60.0,<1.0.0",
+  "gymnasium >=0.29.1,<1.0.0",
+  "igraph >=0.11.6,<1.0.0",
+  "tqdm >=4.66.5,<5.0.0",
+  "umap-learn >=0.5.6,<1.0.0",
+  "pandas >=2.2.2,<3.0.0",
+  "plotly >=5.23.0,<6.0.0",
+  "cffi >=1.17.0,<2.0.0",
+  "setuptools >=72.2.0,<73.0.0",
+  "stable-baselines3 >=2.3.2,<3.0.0",
+  "tensorboard >=2.17.1,<3.0.0",
+  "rich >=13.8.0,<14.0.0",
+  "pot >=0.9.4,<1.0.0",
+  "sb3-contrib >=2.3.0,<3.0.0",
+  "python-dotenv >=1.0.1,<2.0.0",
+  "torch ==2.6.0; extra != 'cpu'",
+  "transformers (>=4.51.3,<5.0.0)",
+]
+
+[project.optional-dependencies]
+cpu = [
+  "torch (==2.6.0+cpu)"
+]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-duckdb = "^1.0.0"
-numpy = "^2.0.1"
-numba = "^0.60.0"
-gymnasium = "^0.29.1"
-igraph = "^0.11.6"
-tqdm = "^4.66.5"
-umap-learn = "^0.5.6"
-pandas = "^2.2.2"
-plotly = "^5.23.0"
-cffi = "^1.17.0"
-setuptools = "^72.2.0"
-tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
-stable-baselines3 = "^2.3.2"
-tensorboard = "^2.17.1"
-rich = "^13.8.0"
-pot = "^0.9.4"
-sb3-contrib = "^2.3.0"
-torch = {version = "^2.4.0+cpu", source = "pytorch-cpu-src"}
-python-dotenv = "^1.0.1"
+torch = [
+    { markers = "extra == 'cpu'", source = "pytorch-cpu-src"},
+    { markers = "extra != 'cpu'"}
+ ]
 
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.7.1"
-
-# Currently, poetry does not support this. If you're running on a GPU, you can still install the environment
-# by uncommenting this line, and commenting torch above
-# [tool.poetry.group.release]
-# optional = true
-
-# [tool.poetry.group.release.dependencies]
-# torch = {version = "^2.3.1+cu121", source = "pytorch-gpu-src"}
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.textgen]
 optional = true
@@ -47,6 +51,18 @@ optional = true
 [tool.poetry.group.textgen.dependencies]
 llama-cpp-python = "^0.3.7"
 
+[tool.poetry.group.tinygrad]
+optional = true
+
+[tool.poetry.group.tinygrad.dependencies]
+tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.7.1"
+ipython = "^9.1.0"
 
 [tool.poetry.group.lsp-dev]
 optional = true
@@ -54,6 +70,16 @@ optional = true
 [tool.poetry.group.lsp-dev.dependencies]
 black = "^24.4.2"
 basedpyright = "^1.24.0"
+
+[[tool.poetry.source]]
+name = "pytorch-cpu-src"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+[[tool.poetry.source]]
+name = "pytorch-cuda-src"
+url = "https://download.pytorch.org/whl/cu126"
+priority = "explicit"
 
 [tool.ruff]
 ignore = ["E501"]
@@ -63,20 +89,5 @@ line-length = 120
 reportMissingTypeStubs = false
 typeCheckingMode = "standard"
 
-# This can be added with
-# poetry source add --priority=explicit pytorch-cpu-src https://download.pytorch.org/whl/cpu
-[[tool.poetry.source]]
-name = "pytorch-cpu-src"
-url = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
-
-
-[[tool.poetry.source]]
-name = "pytorch-gpu-src"
-url = "https://download.pytorch.org/whl/cu121"
-priority = "explicit"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.black]
+line-length = 120

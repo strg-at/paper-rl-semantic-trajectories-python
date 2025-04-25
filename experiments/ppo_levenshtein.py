@@ -11,14 +11,8 @@ from sb3_contrib import MaskablePPO
 from sb3_contrib.common.maskable.utils import get_action_masks
 from sentence_transformers import SentenceTransformer
 
-from evaluating_trajectories.environment.website_env import (
-    RewardClass,
-    WebsiteEnvironment,
-)
-from evaluating_trajectories.evaluation.levenshtein_distance import (
-    cos_dist,
-    levenshtein_distance,
-)
+from evaluating_trajectories.environment.website_env import WebsiteEnvironment
+from evaluating_trajectories.environment.rewards import LevenshteinReward
 
 #####################
 #     Variables     #
@@ -102,10 +96,7 @@ with open(trajectories_file, "rb") as f:
 
 
 def trajectory_valid(trajectory) -> bool:
-    if (
-        len(trajectories[traj_idx]) < min_trajectory_length
-        or len(trajectories[traj_idx]) >= max_trajectory_length
-    ):
+    if len(trajectories[traj_idx]) < min_trajectory_length or len(trajectories[traj_idx]) >= max_trajectory_length:
         return False
     for node_id in trajectory:
         if node_id >= len(env.graph.vs):
@@ -147,26 +138,11 @@ env.starting_location = starting_locations
 
 group_trajectories = [[obs for obs in trajectory] for trajectory in group_trajectories]
 
-##########################
-#    Construct Reward    #
-##########################
-
-
-class LevenshteinReward(RewardClass):
-    def __init__(self, group_trajectories):
-        self.group_trajectories = group_trajectories
-
-    def compute_reward(self, trajectory: npt.NDArray[np.float32]) -> float:
-        trajectory = [obs for obs in trajectory]  # type:ignore
-        distances = np.zeros((len(self.group_trajectories),))
-        for i, user_traj in enumerate(self.group_trajectories):
-            distances[i] = 1 - levenshtein_distance(user_traj, trajectory, cos_dist)[0]  # type: ignore
-        return np.min(distances).item()
-
 
 env.reward = LevenshteinReward(group_trajectories)
-eval_env = WebsiteEnvironment(graph, starting_locations, max_trajectory_length, embs, mask_embedding)  # type: ignore
-eval_env.reward = LevenshteinReward(group_trajectories)
+eval_env = WebsiteEnvironment(
+    graph, starting_locations, max_trajectory_length, embs, mask_embedding, reward=LevenshteinReward(group_trajectories)
+)  # type: ignore
 
 #################
 #    Run PPO    #
@@ -175,9 +151,7 @@ eval_env.reward = LevenshteinReward(group_trajectories)
 # if you run into a problem with the logits during training, set `validate_args=False` in sb3_contrib/common/maskable/distributions.py:68, see also https://github.com/DLR-RM/stable-baselines3/issues/1596
 # unfortunately this is an issue with sb3 (or rather torch) and not with our code
 
-model = MaskablePPO(
-    "MlpPolicy", env, gamma=gamma, verbose=1, device=device, n_steps=n_steps
-)
+model = MaskablePPO("MlpPolicy", env, gamma=gamma, verbose=1, device=device, n_steps=n_steps)
 for i in range(train_intervals):
     print(f"evaluation round {i}")
     trajectories = []
@@ -190,13 +164,13 @@ for i in range(train_intervals):
                 trajectories.append(obs)
                 break
 
-    with open(f"{output_folder}/trajectories_{i*eval_frequency}.pkl", "wb") as f:
+    with open(f"{output_folder}/trajectories_{i * eval_frequency}.pkl", "wb") as f:
         pickle.dump(trajectories, f)
 
     print(f"training round {i}")
     model.learn(eval_frequency, reset_num_timesteps=(i == 0))
 
-print(f"evaluation round {i+1}")  # type:ignore
+print(f"evaluation round {i + 1}")  # type:ignore
 trajectories = []
 for _ in range(eval_episodes):
     obs, info = eval_env.reset()
@@ -208,6 +182,7 @@ for _ in range(eval_episodes):
             break
 
 with open(
-    f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb"  # type:ignore
+    f"{output_folder}/trajectories_{(i + 1) * eval_frequency}.pkl",
+    "wb",  # type:ignore
 ) as f:  # type:ignore
     pickle.dump(trajectories, f)

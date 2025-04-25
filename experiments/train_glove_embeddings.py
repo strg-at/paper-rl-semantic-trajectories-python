@@ -19,16 +19,12 @@ def train_with_pytorch(args, vocab):
     if torch.cuda.is_available():
         device = torch.device("cuda")
 
-    glove = models.GloVe(len(vocab), args.embeddings_size, args.x_max, args.alpha).to(
-        device
-    )
+    glove = models.GloVe(len(vocab), args.embeddings_size, args.x_max, args.alpha).to(device)
 
     optimizer = torch.optim.Adagrad(glove.parameters(), lr=args.learning_rate)
 
     losses = []
-    pbar = tqdm(
-        range(args.epochs), desc="Training GloVe", total=args.epochs, position=0
-    )
+    pbar = tqdm(range(args.epochs), desc="Training GloVe", total=args.epochs, position=0)
 
     for epoch in pbar:
         epoch_loss = 0
@@ -62,9 +58,7 @@ def train_with_tinygrad(args, vocab):
     glove = models.GloVeTG(len(vocab), args.embeddings_size, args.x_max, args.alpha)
     optimizer = tg.nn.optim.Adam(tg.nn.state.get_parameters(glove), lr=1e-3)
     losses = []
-    pbar = tqdm(
-        range(args.epochs), desc="Training GloVe", total=args.epochs, position=0
-    )
+    pbar = tqdm(range(args.epochs), desc="Training GloVe", total=args.epochs, position=0)
 
     @tg.TinyJit
     def train_step(w1, w2, x):
@@ -109,38 +103,22 @@ if __name__ == "__main__":
     the necessary files, simply run the `demo.sh` in the `submodules/GloVe` directory.
     """.strip()
     parser = argparse.ArgumentParser("Train GloVe embeddings", description="")
-    parser.add_argument(
-        "--vocab-file", type=str, required=True, help="Path to vocab file"
-    )
-    parser.add_argument(
-        "--cooccurr-file", type=str, required=True, help="Path to cooccurences file"
-    )
-    parser.add_argument(
-        "--embeddings-size", type=int, default=100, help="Embeddings size"
-    )
-    parser.add_argument(
-        "--embs-save-path", type=str, required=True, help="Path to save embeddings"
-    )
+    parser.add_argument("--vocab-file", type=str, required=True, help="Path to vocab file")
+    parser.add_argument("--cooccurr-file", type=str, required=True, help="Path to cooccurences file")
+    parser.add_argument("--embeddings-size", type=int, default=100, help="Embeddings size")
+    parser.add_argument("--embs-save-path", type=str, required=True, help="Path to save embeddings")
     parser.add_argument(
         "--glove-vectors-save-path",
         type=str,
         required=True,
         help="Path to save GloVe vectors in GloVe vectors.txt format (see original repo).",
     )
-    parser.add_argument(
-        "--batch-size", type=int, default=1000, help="Batch size for training"
-    )
-    parser.add_argument(
-        "--learning-rate", type=float, default=0.05, help="Learning rate"
-    )
-    parser.add_argument(
-        "--epochs", type=int, default=100, help="Number of epochs to train"
-    )
+    parser.add_argument("--batch-size", type=int, default=1000, help="Batch size for training")
+    parser.add_argument("--learning-rate", type=float, default=0.05, help="Learning rate")
+    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs to train")
     parser.add_argument("--x-max", type=int, default=100, help="GloVe X max value")
     parser.add_argument("--alpha", type=float, default=0.75, help="GloVe X max value")
-    parser.add_argument(
-        "--use-tinygrad", action="store_true", help="Use tinygrad instead of pytorch"
-    )
+    parser.add_argument("--use-tinygrad", action="store_true", help="Use tinygrad instead of pytorch")
 
     args = parser.parse_args()
 

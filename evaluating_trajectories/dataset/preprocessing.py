@@ -37,10 +37,8 @@ def read_glove_data(vocab_file, vectors_file):
     return W, W_norm, vocab, ivocab
 
 
-def user_sessions(parquet_file: str, column_name: str) -> duckdb.DuckDBPyRelation:
-    return duckdb.sql(
-        f"SELECT user_session, list({column_name}) AS value FROM '{parquet_file}' GROUP BY user_session"
-    )
+def user_sessions(parquet_file: str, column_name: str, delim: str = " ") -> duckdb.DuckDBPyRelation:
+    return duckdb.sql(f"SELECT user_session, list({column_name}) AS value FROM '{parquet_file}' GROUP BY user_session")
 
 
 def user_sessions_iterator(
@@ -53,7 +51,7 @@ def user_sessions_iterator(
         columns = duckdb.sql(f"SELECT * FROM '{trajectory_file}' LIMIT 1").columns
     with duckdb.connect() as conn:
         conn.execute("SET preserve_insertion_order = false;")
-        sessions = conn.sql("SELECT user_session, trajectory FROM '{parquet_file}'")
+        sessions = conn.sql(f"SELECT user_session, trajectory FROM '{trajectory_file}'")
         while data := sessions.fetchmany(batch_size):
             for session, traj in data:
                 yield session, traj
