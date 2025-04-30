@@ -4,7 +4,7 @@ import umap
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
-from evaluating_trajectories.dataset.preprocessing import read_glove_data
+from evaluating_trajectories.dataset.preprocessing import load_glove_embeddings
 
 
 if __name__ == "__main__":
@@ -14,10 +14,10 @@ if __name__ == "__main__":
     parser.add_argument("--data_parquet", default="2019-Oct.parquet", type=str)
     args = parser.parse_args()
 
-    embeddings, embeddings_norm, vocab, ivocab = read_glove_data(args.vocab_file, args.vectors_file)
+    emb_with_vocab = load_glove_embeddings(args.vocab_file, args.vectors_file)
 
     print("scaling embeddings")
-    scaled_embs = StandardScaler().fit_transform(embeddings)
+    scaled_embs = StandardScaler().fit_transform(emb_with_vocab.embeddings_norm)
     reducer = umap.UMAP()
 
     print("reducing to 2d")
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     product_df["x"] = None
     product_df["y"] = None
 
-    for prod_id, pos in tqdm(vocab.items()):
+    for prod_id, pos in tqdm(emb_with_vocab.vocab.items()):
         x, y = embs_2d[pos]
         idx = product_df.index[product_df.product_id == int(prod_id)]
         if len(idx) > 0:

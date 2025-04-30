@@ -1,18 +1,15 @@
-import hashlib
-import json
 import pickle
 import sys
-import time
-from pathlib import Path
 
 import numpy as np
-import numpy.typing as npt
 from sb3_contrib import MaskablePPO
-from sb3_contrib.common.maskable.utils import get_action_masks
-from sentence_transformers import SentenceTransformer
+from tqdm import tqdm
 
-from evaluating_trajectories.environment.website_env import WebsiteEnvironment
+from evaluating_trajectories import environment
+from evaluating_trajectories.dataset import preprocessing
 from evaluating_trajectories.environment.rewards import LevenshteinReward
+from evaluating_trajectories.environment.website_env import WebsiteEnvironment
+from evaluating_trajectories.utils import utils
 
 #####################
 #     Variables     #
@@ -26,21 +23,6 @@ n_steps = 1024
 gamma = 0.9
 
 num_trajectories = 1
-override_traj_idxs = [
-    1829803,
-    5255935,
-    3619652,
-    5034976,
-    794293,
-    2561893,
-    3680468,
-    432399,
-    2834087,
-    394507,
-]
-override_traj_idxs = [
-    3540384,
-]  # if contains num_trajectories entries, use these trajectories
 min_trajectory_length = 3
 max_trajectory_length = 16
 
@@ -52,97 +34,64 @@ embs_file = "evaluating_trajectories/dataset/embs.npy"
 graph_file = "evaluating_trajectories/dataset/graph.pkl"
 trajectories_file = "evaluating_trajectories/dataset/trajectories.pkl"
 
-####################################################
-#     Create Output Folder from Experiment Hash    #
-####################################################
+glove_vocab_file = "data/glove_emb_out_2019-10-01_2019-11-01/vocab.txt"
+glove_vectors_file = "data/glove_emb_out_2019-10-01_2019-11-01/vectors.txt"
 
-important_variables = {"n_steps": n_steps, "gamma": gamma}
-json_string = json.dumps(important_variables, sort_keys=True)
-hyperparameter_hash = hashlib.md5(json_string.encode("utf-8")).hexdigest()[:8]
-print(f"experiment hash: {hyperparameter_hash}")
-output_folder = f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/run_{time.time()}"
-# make sure path exists
-Path(output_folder).mkdir(parents=True, exist_ok=True)
-
-with open(
-    f"experiments/{experiment_name}/trajectories_{hyperparameter_hash}/parameters.json",
-    "w",
-    encoding="utf-8",
-) as f:
-    json.dump(important_variables, f, ensure_ascii=False, indent=4)
+output_folder, _ = utils.create_experiment_hash(n_steps, gamma, ".experiments")
 
 
 ############################
 #     Load Environment     #
 ############################
 
-embs = np.load(embs_file)
 
-with open(graph_file, "rb") as f:
-    graph = pickle.load(f)
+embs_with_vocab = preprocessing.load_glove_embeddings(glove_vocab_file, glove_vectors_file)
 
-model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-mask_embedding = model.encode(model.tokenizer.special_tokens_map["mask_token"])  # type: ignore
+graph, trajectories = environment.utils.load_environment(
+    graph_filepath=graph_file, trajectories_filepath=trajectories_file
+)
+# Filter the graph so that we obtain the subgraph of only those products for which we have embeddings.
+print("Loading subgraph...")
+available_nodes = set(embs_with_vocab.vocab.keys())
+graph = graph.subgraph(graph.vs.select(name_in=available_nodes))
 
-env = WebsiteEnvironment(graph, [0], max_trajectory_length, embs, mask_embedding)  # type: ignore
+for vert in tqdm(graph.vs, desc="Loading embeddings onto graph"):
+    idx = embs_with_vocab.vocab[vert["name"]]
+    vert["embedding"] = embs_with_vocab.embeddings_norm[idx]
 
-with open(trajectories_file, "rb") as f:
-    trajectories = pickle.load(f)
+graph.add_vertex(name="exit", embedding=embs_with_vocab.mask_embedding)
+embeddings = np.array(graph.vs["embedding"])
 
 
 #################################################
 #    Get Starting Locations for Trajectories    #
 #################################################
 
+group_trajectories, starting_locations = environment.utils.sample_n_trajectories(
+    trajectories,
+    embeddings,
+    num_trajectories,
+    graph,
+    min_trajectory_length,
+    max_trajectory_length,
+    max_trajectory_length,
+)
+group_trajectories = [[obs for obs in trajectory] for trajectory in group_trajectories]
+env = WebsiteEnvironment(
+    graph, [0], max_trajectory_length, embeddings.min(), embeddings.max(), reward=LevenshteinReward(group_trajectories)
+)
+eval_env = WebsiteEnvironment(
+    graph,
+    starting_locations,
+    max_trajectory_length,
+    embeddings.min(),
+    embeddings.max(),
+    reward=LevenshteinReward(group_trajectories),
+)
 
-def trajectory_valid(trajectory) -> bool:
-    if len(trajectories[traj_idx]) < min_trajectory_length or len(trajectories[traj_idx]) >= max_trajectory_length:
-        return False
-    for node_id in trajectory:
-        if node_id >= len(env.graph.vs):
-            return False
-    return True
-
-
-starting_locations = []
-group_trajectories = []
-traj_idxs = []
-for j in range(num_trajectories):
-    if len(override_traj_idxs) != num_trajectories:
-        traj_idx = np.random.randint(len(trajectories))
-        while not trajectory_valid(trajectories[traj_idx]):
-            traj_idx = np.random.randint(len(trajectories))
-    else:
-        traj_idx = override_traj_idxs[j]
-    traj_idxs.append(traj_idx)
-    starting_locations.append(trajectories[traj_idx][0])
-    padded_trajectory = np.full(env.max_steps, len(env.embeddings) - 1, dtype=np.int32)
-    for i, node_id in enumerate(trajectories[traj_idx]):
-        location = np.array(node_id)
-        print(location)
-        done = i == len(trajectories[traj_idx]) - 1
-        padded_trajectory[i] = location
-        if done:
-            padded_trajectory[i + 1] = env.exit_action
-            obs = env.embeddings[padded_trajectory]
-            group_trajectories.append(obs.copy())
-
-print(f"trajectory indices: {traj_idxs}")
 with open(f"{output_folder}/trajectories_expert.pkl", "wb") as f:
     pickle.dump(group_trajectories, f)
-env.starting_location = starting_locations
 
-##########################################################
-#    Convert group_trajectories to levenshtein format    #
-##########################################################
-
-group_trajectories = [[obs for obs in trajectory] for trajectory in group_trajectories]
-
-
-env.reward = LevenshteinReward(group_trajectories)
-eval_env = WebsiteEnvironment(
-    graph, starting_locations, max_trajectory_length, embs, mask_embedding, reward=LevenshteinReward(group_trajectories)
-)  # type: ignore
 
 #################
 #    Run PPO    #
@@ -152,6 +101,7 @@ eval_env = WebsiteEnvironment(
 # unfortunately this is an issue with sb3 (or rather torch) and not with our code
 
 model = MaskablePPO("MlpPolicy", env, gamma=gamma, verbose=1, device=device, n_steps=n_steps)
+i = 0  # avoids type checker complaints
 for i in range(train_intervals):
     print(f"evaluation round {i}")
     trajectories = []
@@ -170,7 +120,7 @@ for i in range(train_intervals):
     print(f"training round {i}")
     model.learn(eval_frequency, reset_num_timesteps=(i == 0))
 
-print(f"evaluation round {i + 1}")  # type:ignore
+print(f"evaluation round {i + 1}")
 trajectories = []
 for _ in range(eval_episodes):
     obs, info = eval_env.reset()
@@ -183,6 +133,6 @@ for _ in range(eval_episodes):
 
 with open(
     f"{output_folder}/trajectories_{(i + 1) * eval_frequency}.pkl",
-    "wb",  # type:ignore
-) as f:  # type:ignore
+    "wb",
+) as f:
     pickle.dump(trajectories, f)

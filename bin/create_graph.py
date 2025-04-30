@@ -37,17 +37,18 @@ SKIP_TRAJECTORY_SAVING = os.getenv("SKIP_TRAJECTORY_SAVING", "0") in [
 ]
 
 
-EDGE_LIST = """
-WITH elements AS (
-    -- list slicing works differently. In python this would be equivalent to zip(l, l[1:])
-    SELECT unnest(list_zip(list(product_id), list(product_id)[2:]), recursive := true)
-    FROM valid_trajectories
-    WHERE user_session IN ?
-    GROUP BY user_session
-)
-SELECT element1, element2
-FROM elements
-WHERE element1 IS NOT NULL and element2 IS NOT NULL and element1 != element2
+EDGE_LIST_QUERY = """
+COPY (
+    WITH elements AS (
+        -- list slicing works differently. In python this would be equivalent to zip(l, l[1:])
+        SELECT unnest(list_zip(list(product_id), list(product_id)[2:]), recursive := true)
+        FROM valid_trajectories
+        GROUP BY user_session
+    )
+    SELECT element1, element2
+    FROM elements
+    WHERE element1 IS NOT NULL and element2 IS NOT NULL and element1 != element2
+) TO '{csvname}' (delimiter ' ')
 """
 
 
@@ -61,17 +62,16 @@ def compute_from_start_to_end_dates(
     percentile = conn.sql(
         f"SELECT quantile_cont(user_session_length, {PERCENTILE_MAX}) as perc FROM user_sessions"
     ).fetchone()[0]
+
     # We remove all trajectories shorter than 1 and longer than the percentile
     remove_join = ""
     if REMOVE_PRODUCTS_WITHOUT_DESC:
         remove_join = "JOIN products p ON a.product_id = p.product_id"
+    sessions = conn.sql(
+        "SELECT user_session FROM user_sessions WHERE user_session_length BETWEEN 2 AND ?", params=(percentile,)
+    )
     valid_trajectories = conn.sql(
         f"""
-        WITH sessions AS (
-            SELECT user_session
-            FROM  user_sessions
-            WHERE user_session_length BETWEEN 2 AND {percentile}
-        )
         SELECT a.product_id, a.user_session
         FROM '{ALL_DATA_PARQUET}' a
         JOIN sessions s
@@ -79,26 +79,16 @@ def compute_from_start_to_end_dates(
         {remove_join}
     """
     )
-    sessions = conn.sql("SELECT user_session FROM user_sessions")
-    pbar = tqdm(desc="Computing and writing edge list to disk...")
 
     # We add the start/end date to the different file names we have. We also need to remove the extension
     # from the file name, so we can add the start and end date
     edgelist_file_name, ext = os.path.splitext(EDGELIST_OUTPUT_PATH)
     edgelist_file_name = f"{edgelist_file_name}_{start_date.strftime('%Y-%m-%d')}_{end_date.strftime('%Y-%m-%d')}{ext}"
 
-    with open(edgelist_file_name, "w") as f:
-        writer = csv.writer(f, delimiter=" ")
-        while s := sessions.fetchmany(100):
-            s = [x[0] for x in s]
-            edges = conn.sql(EDGE_LIST, params=(s,))
-            while e := edges.fetchmany(100):
-                writer.writerows(e)
-            pbar.update(100)
+    conn.sql(EDGE_LIST_QUERY.format(csvname=edgelist_file_name))
 
     print("Creating graph...")
-    with open(edgelist_file_name, "r") as f:
-        graph = ig.Graph.Read_Edgelist(f, directed=False)
+    graph = ig.Graph.Read_Ncol(edgelist_file_name, directed=False)
 
     graph_filename, ext = os.path.splitext(GRAPH_PATH)
     graph_filename = f"{graph_filename}_{start_date.strftime('%Y-%m-%d')}_{end_date.strftime('%Y-%m-%d')}{ext}"

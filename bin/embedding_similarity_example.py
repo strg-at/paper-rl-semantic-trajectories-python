@@ -1,4 +1,4 @@
-from evaluating_trajectories.dataset.preprocessing import read_glove_data
+from evaluating_trajectories.dataset.preprocessing import load_glove_embeddings
 import argparse
 import numpy as np
 import duckdb
@@ -13,9 +13,10 @@ if __name__ == "__main__":
     parser.add_argument("--data_parquet", default="2019-Oct.parquet", type=str)
     args = parser.parse_args()
 
-    embeddings, embeddings_norm, vocab, ivocab = read_glove_data(
-        args.vocab_file, args.vectors_file
-    )
+    emb_with_vocab = load_glove_embeddings(args.vocab_file, args.vectors_file)
+    embeddings_norm = emb_with_vocab.embeddings_norm
+    vocab = emb_with_vocab.vocab
+    ivocab = emb_with_vocab.ivocab
 
     rand_prods = duckdb.sql(
         f"SELECT product_id, brand, category_code FROM '{args.data_parquet}' WHERE brand is not NULL and category_code is not NULL USING SAMPLE 5"
@@ -23,7 +24,7 @@ if __name__ == "__main__":
     prod_dicts = []
     for prod in rand_prods:
         prod_id, brand, category_code = prod
-        prod_vec = embeddings_norm[vocab[str(prod_id)]]
+        prod_vec = emb_with_vocab.embeddings_norm[vocab[str(prod_id)]]
         d = np.sum(prod_vec**2) ** 0.5
         vec_norm = (prod_vec.T / d).T
 
@@ -41,9 +42,7 @@ if __name__ == "__main__":
             category_code = duckdb.sql(
                 f"SELECT category_code FROM '{args.data_parquet}' WHERE product_id = {ivocab[idx]}"
             ).fetchone()
-            brand = duckdb.sql(
-                f"SELECT brand FROM '{args.data_parquet}' WHERE product_id = {ivocab[idx]}"
-            ).fetchone()
+            brand = duckdb.sql(f"SELECT brand FROM '{args.data_parquet}' WHERE product_id = {ivocab[idx]}").fetchone()
             if category_code is None or brand is None:
                 continue
             prod_details_dict["similar"].append(

@@ -1,7 +1,13 @@
+import pickle
+from dataclasses import dataclass
+from typing import Any, Generator
+
 import duckdb
 import numpy as np
-from typing import Generator, Any
-from dataclasses import dataclass
+import numpy.typing as npt
+from sentence_transformers import SentenceTransformer
+
+from evaluating_trajectories.utils import consts
 
 
 @dataclass
@@ -10,7 +16,16 @@ class Trajectory:
     user_session_id: str
 
 
-def read_glove_data(vocab_file, vectors_file):
+@dataclass
+class EmbeddingsWithVocab:
+    embeddings: npt.NDArray[np.floating]
+    embeddings_norm: npt.NDArray[np.floating]
+    mask_embedding: npt.NDArray[np.floating]
+    vocab: dict[str, int]
+    ivocab: dict[int, str]
+
+
+def load_glove_embeddings(vocab_file: str, vectors_file: str) -> EmbeddingsWithVocab:
     with open(vocab_file, "r") as f:
         words = [x.rstrip().split(" ")[0] for x in f.readlines()]
     with open(vectors_file, "r") as f:
@@ -34,7 +49,33 @@ def read_glove_data(vocab_file, vectors_file):
     W_norm = np.zeros(W.shape)
     d = np.sum(W**2, 1) ** (0.5)
     W_norm = (W.T / d).T
-    return W, W_norm, vocab, ivocab
+
+    mask_embedding = np.zeros(W.shape[-1])
+    emb_vocab = EmbeddingsWithVocab(
+        embeddings=W, embeddings_norm=W_norm, mask_embedding=mask_embedding, vocab=vocab, ivocab=ivocab
+    )
+    return emb_vocab
+
+
+def load_sentencetransf_embeddings(embeddings_file: str, vocab_file: str) -> EmbeddingsWithVocab:
+    embs = np.load(embeddings_file)
+    with open(vocab_file, "rb") as f:
+        vocab = pickle.load(f)
+    ivocab = {v: k for k, v in vocab.items()}
+
+    model = SentenceTransformer(consts.SENTENCE_TRANSFORMER_MODEL_NAME)
+    mask_embedding = model.encode(model.tokenizer.special_tokens_map["mask_token"])
+
+    # Notice, we could have normalized the embeddings setting `normalize_embeddings=True` in `encode`. This keeps
+    # consistency with the glove function
+    emb_norm = np.zeros(embs.shape)
+    d = np.sum(embs**2, 1) ** (0.5)
+    emb_norm = (embs.T / d).T
+
+    emb_vocab = EmbeddingsWithVocab(
+        embeddings=embs, embeddings_norm=emb_norm, mask_embedding=mask_embedding, vocab=vocab, ivocab=ivocab
+    )
+    return emb_vocab
 
 
 def user_sessions(parquet_file: str, column_name: str, delim: str = " ") -> duckdb.DuckDBPyRelation:
