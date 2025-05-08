@@ -172,3 +172,4 @@ glove_ffi/_*.c
 glove_ffi/*.o
 .vscode
 data
+.venv

@@ -68,7 +68,8 @@ def levenshtein_distance(
     j = n_cols - 1
     score = nw_matrix[i, j]
     max_score = penalty * max(n_rows - 1, n_cols - 1)
-    score /= max_score
+    if max_score > 0:
+        score /= max_score
     return score, nw_matrix
 
 

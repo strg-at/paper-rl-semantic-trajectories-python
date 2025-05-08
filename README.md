@@ -17,27 +17,60 @@ git submodule update --remote --rebase
 
 ### Installing
 
-This project uses [Python Poetry](https://python-poetry.org/docs/basic-usage/) to manage its dependencies.
+This Python project utilizes modern packaging standards defined in the [pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) configuration file. Project management tasks like environment setup and dependency installation are handled using [UV](https://github.com/astral-sh/uv).
+The `pyproject.toml` configuration file can be and is also used to store 3rd party tools configurations, such as ruff, basedpyright etc.
 
-In order to install the project run:
+### Using UV
 
-```bash
-poetry install --with dev
-```
+UV is a command-line tool that needs to be installed first. You can typically install it using pip, pipx, or your system's package manager if available.
 
-If you want to use an Nvidia GPU, please follow the instructions in the comments in the `pyproject.toml` file and then run:
-
-```bash
-poetry install --with release
-```
-
-You can then activate the environment sourcing the `activate.sh` script at the root of this repository:
+Refer to the [official UV installation guide](https://github.com/astral-sh/uv?tab=readme-ov-file#installation) for the most up-to-date methods. A common way is:
 
 ```bash
-source ./activate.sh
+# Using pip (ensure pip is up-to-date)
+pip install uv
+
+# Or using pipx (recommended for CLI tools)
+pipx install uv
 ```
 
-Finally, run:
+You can then install the project dependencies in a virtual environment with:
+
+```bash
+uv sync --extra cpu  # use --extra gpu if you're running on nvidia or --extra metal if running on Mac Metal cpus
+```
+
+If you also want development tools and libraries:
+
+```bash
+uv sync --extra cpu --extra dev
+```
+
+You can then enable the environment with:
+
+```bash
+source .venv/bin/activate
+```
+
+_Notice_: UV can also manage python versions. See [Install Python](https://docs.astral.sh/uv/guides/install-python/).
+
+### Dependency management
+
+You can add a dependency with:
+
+```bash
+uv add package-name
+```
+
+If the dependency should only be used in some cases (e.g., dev dependencies), then use:
+
+```bash
+uv add --group dev package-name
+```
+
+#### Building GloVe
+
+Run:
 
 ```bash
 make all

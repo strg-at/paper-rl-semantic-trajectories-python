@@ -98,7 +98,7 @@ class WebsiteEnvironment(gym.Env):
         """
         return [self.exit_action] + self.neighbors()
 
-    def map_action_ids_to_embeddings(self, action_ids: npt.ArrayLike[int]) -> npt.NDArray[float]:  # type:ignore
+    def map_action_ids_to_embeddings(self, action_ids: npt.ArrayLike) -> npt.NDArray[np.floating]:
         """
         Converts a given list of action ids to a numpy array containing the embeddings of the given actions
         """

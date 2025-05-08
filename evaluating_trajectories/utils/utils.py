@@ -14,7 +14,7 @@ def create_experiment_hash(n_steps: int, gamma: float, save_path: str) -> tuple[
     output_dir = os.path.join(experiment_path, f"run_{round(time.time())}")
     os.makedirs(output_dir, exist_ok=True)
 
-    with open(os.path.join(experiment_path, "parameters.json")) as f:
+    with open(os.path.join(experiment_path, "parameters.json"), "w") as f:
         f.write(json_str)
 
     return output_dir, json_str

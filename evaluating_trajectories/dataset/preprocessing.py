@@ -50,7 +50,7 @@ def load_glove_embeddings(vocab_file: str, vectors_file: str) -> EmbeddingsWithV
     d = np.sum(W**2, 1) ** (0.5)
     W_norm = (W.T / d).T
 
-    mask_embedding = np.zeros(W.shape[-1])
+    mask_embedding = W_norm.mean(axis=0)
     emb_vocab = EmbeddingsWithVocab(
         embeddings=W, embeddings_norm=W_norm, mask_embedding=mask_embedding, vocab=vocab, ivocab=ivocab
     )

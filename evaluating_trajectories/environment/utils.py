@@ -1,6 +1,9 @@
 import pickle
 import random
+import typing
+from collections import Counter
 
+import duckdb
 import igraph as ig
 import numpy as np
 import numpy.typing as npt
@@ -14,14 +17,14 @@ def load_environment(
 ) -> tuple[ig.Graph, list[npt.NDArray[np.integer]]]:
     with open(graph_filepath, "rb") as f:
         graph = pickle.load(f)
-    with open(trajectories_filepath, "rb") as f:
-        trajectories = pickle.load(f)
+
+    trajectories = duckdb.sql(f"SELECT trajectory FROM '{trajectories_filepath}'").fetchnumpy()["trajectory"]
 
     return graph, trajectories
 
 
 def is_trajectory_valid(trajectory: npt.NDArray[np.integer], graph: ig.Graph, min_length: int, max_length: int) -> bool:
-    if len(trajectory) < min_length or trajectory >= max_length:
+    if len(trajectory) < min_length or len(trajectory) >= max_length:
         return False
     return np.all(trajectory < len(graph.vs))
 
@@ -43,8 +46,9 @@ def sample_n_trajectories(
     min_traj_length: int,
     max_traj_length: int,
     max_env_steps: int,
-) -> tuple[list[npt.NDArray[np.floating]], list[int]]:
-    sampled_trajectories = []
+) -> tuple[list[npt.NDArray[np.integer]], list[npt.NDArray[np.floating]], list[int]]:
+    sampled_trajectories_id = []
+    sampled_trajectories_emb = []
     starting_locations = []
 
     for _ in range(num_trajectories):
@@ -54,6 +58,17 @@ def sample_n_trajectories(
         padded_trajectory = np.pad(
             trajectory, (0, max_env_steps - len(trajectory)), constant_values=len(embeddings) - 1
         )
-        sampled_trajectories.append(embeddings[padded_trajectory])
+        sampled_trajectories_id.append(padded_trajectory)
+        sampled_trajectories_emb.append(embeddings[padded_trajectory])
 
-    return sampled_trajectories, starting_locations
+    return sampled_trajectories_id, sampled_trajectories_emb, starting_locations
+
+
+def get_trajectories_from_random_location(
+    trajectories: list[npt.NDArray[np.integer]],
+) -> list[npt.NDArray[np.integer]]:
+    n = random.randint(0, 100)
+    counter = Counter(t[0] for t in trajectories)
+    traj_id, _ = counter.most_common()[n]
+    trajs = [t for t in trajectories if t[0] == traj_id]
+    return trajs
