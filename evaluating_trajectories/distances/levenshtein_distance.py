@@ -1,9 +1,12 @@
-from typing import Callable
+from collections.abc import Sequence
+from typing import Any, Callable
 import operator
 
 import numpy as np
 import numpy.typing as npt
 from numba import njit, prange
+
+DistanceFn = Callable[[npt.NDArray[np.floating], npt.NDArray[np.floating]], float | np.floating]
 
 
 @njit
@@ -12,7 +15,7 @@ def euclid_sim(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floa
 
 
 @njit
-def cos_dist(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floating]) -> npt.NDArray[np.floating]:
+def cos_dist(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floating]) -> np.floating:
     r"""
     `Cosine similarity <https://en.wikipedia.org/wiki/Cosine_similarity#Definition>`_ implementation, where, given the ``threshold`` :math:`t`:
 
@@ -29,6 +32,11 @@ def cos_dist(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floati
     """
     cos = (vector_a @ vector_b) / (np.linalg.norm(vector_a) * np.linalg.norm(vector_b))  # type: ignore
     return 1 - cos
+
+
+@njit
+def exact_comparison_distance(element_a: int, element_b: int) -> float:
+    return int(element_a == element_b)
 
 
 @njit

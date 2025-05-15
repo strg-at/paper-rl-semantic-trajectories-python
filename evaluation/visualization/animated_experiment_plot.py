@@ -9,7 +9,39 @@ from sklearn.preprocessing import StandardScaler
 
 from evaluation.visualization import visualize_trajectory
 
-agent_traj_pattern = re.compile(r"trajectories_(\d+)\.pkl")
+agent_traj_pattern = re.compile(r".+trajectories_(\d+)\.pkl")
+
+
+@st.cache_data
+def load_graph(exp_folder):
+    with open(os.path.join(exp_folder, "graph_with_embeddings.pkl"), "rb") as f:
+        return pickle.load(f)
+
+
+@st.cache_data
+def load_target_group(exp_folder):
+    with open(os.path.join(exp_folder, "trajectories_target.pkl"), "rb") as f:
+        return pickle.load(f)
+
+
+def get_model_trajectories(exp_folder):
+    model_trajectories = os.listdir(exp_folder)
+    return list(filter(lambda p: p is not None, map(agent_traj_pattern.match, model_trajectories)))
+
+
+@st.cache_data
+def reduce_embeddings_to_2d(embeddings):
+    scaler = StandardScaler()
+    scaled_embs = scaler.fit_transform(embeddings)
+    reducer = umap.UMAP()
+    return reducer.fit_transform(scaled_embs)
+
+
+@st.cache_data
+def load_agent_trajectories(exp_folder, model_file):
+    with open(os.path.join(exp_folder, model_file), "rb") as f:
+        return pickle.load(f)
+
 
 if __name__ == "__main__":
     st.title("Trajectory visualization")
@@ -34,22 +66,13 @@ if __name__ == "__main__":
     exp_folder = os.path.join(exp_folder, selected_run)
 
     with st.spinner(text="Loading data...", show_time=True):
-        with open(os.path.join(exp_folder, "graph_with_embeddings.pkl"), "rb") as f:
-            graph = pickle.load(f)
-
-        with open(os.path.join(exp_folder, "trajectories_target.pkl"), "rb") as f:
-            target_group = pickle.load(f)
-
-        model_trajectories = os.listdir(exp_folder)
-        model_trajectories = list(filter(lambda p: p is not None, map(agent_traj_pattern.match, model_trajectories)))
+        graph = load_graph(exp_folder)
+        target_group = load_target_group(exp_folder)
+        model_trajectories = get_model_trajectories(exp_folder)
 
     with st.spinner(text="Reducing embeddings to 2d", show_time=True):
-        scaler = StandardScaler()
         embeddings = np.array(graph.vs["embedding"])
-
-        scaled_embs = scaler.fit_transform(embeddings)
-        reducer = umap.UMAP()
-        embs_2d = reducer.fit_transform(scaled_embs)
+        embs_2d = reduce_embeddings_to_2d(embeddings)
 
     model_trajectories = [m.string for m in model_trajectories]
     model_file = st.selectbox(
@@ -57,12 +80,14 @@ if __name__ == "__main__":
     )
 
     with st.spinner(text="Loading agent trajectories...", show_time=True):
-        with open(os.path.join(exp_folder, model_file), "rb") as f:
-            learned_trajs = pickle.load(f)
+        learned_trajs = load_agent_trajectories(exp_folder, model_file)
 
         group_traj_ids = target_group["trajectory_id"]
         group_trajs = [(g, f"user_{i}") for i, g in enumerate(group_traj_ids)]
-        agent_traj = (np.array(learned_trajs[0]), "agent")
+        agent_traj_idx = st.selectbox(
+            label="Select an agent trajectory to visualize", options=range(len(learned_trajs)), index=0
+        )
+        agent_traj = (np.array(learned_trajs[agent_traj_idx]), "agent")
 
     n_background_samples = st.selectbox(
         label="Number of background samples to visualize", options=[100, 500, 1000, 3000, 10_000], index=2

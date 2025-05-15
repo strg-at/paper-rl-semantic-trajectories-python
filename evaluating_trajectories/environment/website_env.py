@@ -20,12 +20,14 @@ class WebsiteEnvironment(gym.Env):
         embedding_min_val: float,
         embedding_max_val: float,
         reward: RewardClass | None = None,
+        reward_needs_embeddings: bool = True,
         render_mode=None,
     ):
         self.render_mode = render_mode
         assert render_mode is None, "Rendering is not currently supported by this environment!"
         self.graph = graph
         self.reward = reward if reward is not None else DefaultReward()
+        self.reward_needs_embeddings = reward_needs_embeddings
 
         self.observation_space = spaces.Box(
             low=embedding_min_val,
@@ -69,24 +71,23 @@ class WebsiteEnvironment(gym.Env):
         self.trajectory.append(action)
         self.agent_location = action
 
-        if len(self.trajectory) == self.max_steps:
-            return self._get_obs(), 0, True, False, self._get_info()
-
-        if terminated:
-            observation = self._get_obs()
-            return (
-                observation,
-                self.reward.compute_reward(observation),
-                terminated,
-                False,
-                self._get_info(),
-            )
-
         observation = self._get_obs()
         info = self._get_info()
+
+        if len(self.trajectory) == self.max_steps:
+            return observation, 0, True, False, info
+
+        unpadded_observation = self.trajectory
+        if self.reward_needs_embeddings:
+            unpadded_observation = self.map_action_ids_to_embeddings(self.trajectory)
+        reward = self.reward.compute_reward(unpadded_observation)
+
+        if terminated:
+            return (observation, reward, terminated, False, info)
+
         return (
             observation,
-            self.reward.compute_reward(observation),
+            reward,
             terminated,
             False,
             info,
@@ -123,12 +124,10 @@ class WebsiteEnvironment(gym.Env):
 
     def _get_obs(self) -> npt.NDArray[np.float32]:
         """
-        Returns the observation for the agent. Information (e.g., embeddings) on nodes that
-        are at distant > 1 from current location are masked.
+        Returns the observation for the agent, padded to the max trajectory length (so we don't have to deal with variable sized trajectories when training).
 
         :return: observation for the agent.
         """
-        # mask out embeddings of nodes that cannot be reached in one step
         padded_trajectory = np.full(self.max_steps, len(self.graph.vs) - 1, dtype=np.int32)
         padded_trajectory[: len(self.trajectory)] = self.trajectory
 

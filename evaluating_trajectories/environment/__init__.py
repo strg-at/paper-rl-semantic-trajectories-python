@@ -1,6 +1,6 @@
 from . import rewards
-from . import utils
+from . import trajectory_sampling
 from . import website_env
 
 
-__all__ = ["rewards", "utils", "website_env"]
+__all__ = ["rewards", "trajectory_sampling", "website_env"]

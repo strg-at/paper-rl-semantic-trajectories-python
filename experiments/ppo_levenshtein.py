@@ -3,16 +3,23 @@ import os
 import pickle
 
 import numpy as np
+import numpy.typing as npt
+import igraph as ig
 from sb3_contrib import MaskablePPO
+from stable_baselines3.common.type_aliases import MaybeCallback
+from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnNoModelImprovement
 from tqdm import tqdm
 from dataclasses import dataclass
+from torch.distributions import Distribution
 import dotenv
 
-from evaluating_trajectories import environment
+from evaluating_trajectories.environment import trajectory_sampling
 from evaluating_trajectories.dataset import preprocessing
 from evaluating_trajectories.environment.rewards import LevenshteinReward
+from evaluating_trajectories.distances.levenshtein_distance import exact_comparison_distance
 from evaluating_trajectories.environment.website_env import WebsiteEnvironment
 from evaluating_trajectories.utils import utils
+from experiments.save_trajectory_callback import SaveTrajectoryCallback
 
 dotenv.load_dotenv()
 
@@ -22,13 +29,14 @@ class TrainingConfig:
     device: str
     experiment_name: str
     n_steps: int
+    num_experiments: int
     gamma: float
     num_trajectories: int
     min_trajectory_length: int
     max_trajectory_length: int
     eval_frequency: int
     eval_episodes: int
-    train_intervals: int
+    train_timesteps: int
     embs_file: str
     graph_file: str
     trajectories_file: str
@@ -54,6 +62,9 @@ def parse_args() -> TrainingConfig:
         "--n-steps", type=int, default=int(os.getenv("N_STEPS", "1024")), help="Number of steps per PPO update"
     )
 
+    parser.add_argument(
+        "--num-experiments", type=int, default=int(os.getenv("NUM_EXPERIMENTS", "10")), help="Number of experiments"
+    )
     parser.add_argument("--gamma", type=float, default=float(os.getenv("GAMMA", "0.9")), help="Discount factor")
 
     parser.add_argument(
@@ -89,9 +100,9 @@ def parse_args() -> TrainingConfig:
     )
 
     parser.add_argument(
-        "--train-intervals",
+        "--train-timesteps",
         type=int,
-        default=int(os.getenv("TRAIN_INTERVALS", "1000")),
+        default=int(os.getenv("TRAIN_TIMESTEPS", "160000")),
         help="How often training is run",
     )
 
@@ -136,13 +147,14 @@ def parse_args() -> TrainingConfig:
         device=args.device,
         experiment_name=args.experiment_name,
         n_steps=args.n_steps,
+        num_experiments=args.num_experiments,
         gamma=args.gamma,
         num_trajectories=args.num_trajectories,
         min_trajectory_length=args.min_trajectory_length,
         max_trajectory_length=args.max_trajectory_length,
         eval_frequency=args.eval_frequency,
         eval_episodes=args.eval_episodes,
-        train_intervals=args.train_intervals,
+        train_timesteps=args.train_timesteps,
         embs_file=args.embs_file,
         graph_file=args.graph_file,
         trajectories_file=args.trajectories_file,
@@ -165,6 +177,80 @@ def print_config_summary(args: TrainingConfig):
     print("=" * 40 + "\n")
 
 
+def do_train_and_eval(
+    model: MaskablePPO,
+    eval_env: WebsiteEnvironment,
+    config: TrainingConfig,
+    output_folder: str,
+    model_name: str,
+    callback: MaybeCallback = None,
+):
+    model.learn(config.train_timesteps, callback=callback)
+
+    trajectories = []
+    for _ in range(config.eval_episodes):
+        obs, _ = eval_env.reset()
+        while True:
+            action = model.predict(obs)[0]
+            obs, _, terminated, truncated, _ = eval_env.step(int(action))
+            if terminated or truncated:
+                trajectories.append(eval_env.trajectory)
+                break
+
+    with open(
+        os.path.join(output_folder, f"{model_name}_trajectories_aftertraining.pkl"),
+        "wb",
+    ) as f:
+        pickle.dump(trajectories, f)
+
+
+def prepare_environment(
+    starting_locations,
+    target_trajectories_emb,
+    target_trajectories_id,
+    graph: ig.Graph,
+    embeddings_min: float,
+    embeddings_max: float,
+):
+    emb_env = WebsiteEnvironment(
+        graph,
+        starting_locations,
+        config.max_trajectory_length,
+        embeddings_min,
+        embeddings_max,
+        reward=LevenshteinReward(target_trajectories_emb, penalty=2),
+        reward_needs_embeddings=True,
+    )
+    emb_eval_env = WebsiteEnvironment(
+        graph,
+        starting_locations,
+        config.max_trajectory_length,
+        embeddings_min,
+        embeddings_max,
+        reward=LevenshteinReward(target_trajectories_emb, penalty=2),
+        reward_needs_embeddings=True,
+    )
+    nonemb_env = WebsiteEnvironment(
+        graph,
+        starting_locations,
+        config.max_trajectory_length,
+        embeddings_min,
+        embeddings_max,
+        reward=LevenshteinReward(target_trajectories_id, distance=exact_comparison_distance, penalty=1),
+        reward_needs_embeddings=False,
+    )
+    nonemb_eval_env = WebsiteEnvironment(
+        graph,
+        starting_locations,
+        config.max_trajectory_length,
+        embeddings_min,
+        embeddings_max,
+        reward=LevenshteinReward(target_trajectories_id, distance=exact_comparison_distance, penalty=1),
+        reward_needs_embeddings=False,
+    )
+    return emb_env, emb_eval_env, nonemb_env, nonemb_eval_env
+
+
 if __name__ == "__main__":
     config = parse_args()
     print_config_summary(config)
@@ -175,15 +261,9 @@ if __name__ == "__main__":
     embs_with_vocab = preprocessing.load_glove_embeddings(config.glove_vocab_file, config.glove_vectors_file)
 
     print("Loading environment...")
-    graph, trajectories = environment.utils.load_environment(
+    graph, trajectories = trajectory_sampling.load_environment(
         graph_filepath=config.graph_file, trajectories_filepath=config.trajectories_file
     )
-
-    # map original trajectories to graph node ids
-    trajectories = [
-        np.array(list(map(embs_with_vocab.vocab.get, map(str, t))))
-        for t in tqdm(trajectories, desc="Mapping trajectories")
-    ]
 
     # Filter the graph so that we obtain the subgraph of only those products for which we have embeddings.
     print("Loading subgraph...")
@@ -197,80 +277,72 @@ if __name__ == "__main__":
     graph.add_vertex(name="exit", embedding=embs_with_vocab.mask_embedding)
     embeddings = np.array(graph.vs["embedding"])
 
+    graph_name_id_map = {v["name"]: v.index for v in graph.vs}
+    # map original trajectories to graph node ids
+    trajectories = [
+        np.array(list(map(graph_name_id_map.get, map(str, t)))) for t in tqdm(trajectories, desc="Mapping trajectories")
+    ]
+
+    # We remove any trajectory which can't be mapped to the graph
+    trajectories = [t for t in tqdm(trajectories, desc="Filtering trajectories") if not np.any(t == None)]  # noqa: E711
+
     with open(f"{output_folder}/graph_with_embeddings.pkl", "wb") as f:
         pickle.dump(graph, f)
 
-    print("Preparing environment...")
+    # The line below is because of this issue during training https://github.com/DLR-RM/stable-baselines3/issues/1596
+    # Feel free to remove if/when that issue is fixed (notice, github's issue is already closed at the time of writing, but not fixed)
+    Distribution.set_default_validate_args(False)
 
-    # We select a random starting location and we take those as the group trajectories.
-    # We want to avoid clustering trajectories with Levenshtein if then we're training with Levenshtein as the reward function
-    trajectories_from_location = environment.utils.get_trajectories_from_random_location(trajectories)
-    group_trajectories_id, group_trajectories_emb, starting_locations = environment.utils.sample_n_trajectories(
-        trajectories_from_location,
-        embeddings,
-        config.num_trajectories,
-        graph,
-        config.min_trajectory_length,
-        config.max_trajectory_length,
-        config.max_trajectory_length,
-    )
-    env = WebsiteEnvironment(
-        graph,
-        starting_locations,
-        config.max_trajectory_length,
-        embeddings.min(),
-        embeddings.max(),
-        reward=LevenshteinReward(group_trajectories_emb),
-    )
-    eval_env = WebsiteEnvironment(
-        graph,
-        starting_locations,
-        config.max_trajectory_length,
-        embeddings.min(),
-        embeddings.max(),
-        reward=LevenshteinReward(group_trajectories_emb),
-    )
+    for e in tqdm(range(config.num_experiments), desc=f"Running {config.num_experiments} experiments..."):
+        group_trajectories_id, group_trajectories_emb, starting_locations = (
+            trajectory_sampling.sample_n_semantically_similar_trajectories(
+                trajectories,
+                num_trajectories=config.num_trajectories,
+                graph=graph,
+                min_traj_length=config.min_trajectory_length,
+                max_traj_length=config.max_trajectory_length,
+                max_env_steps=config.max_trajectory_length,
+                exit_id=len(graph.vs) - 1,
+            )
+        )
+        emb_env, emb_eval_env, nonemb_env, nonemb_eval_env = prepare_environment(
+            starting_locations,
+            group_trajectories_emb,
+            group_trajectories_id,
+            graph,
+            embeddings.min(),
+            embeddings.max(),
+        )
 
-    with open(f"{output_folder}/trajectories_target.pkl", "wb") as f:
-        pickle.dump({"trajectory_id": group_trajectories_id, "trajectory_emb": group_trajectories_emb}, f)
+        exp_folder = os.path.join(output_folder, f"experiment_{e + 1}")
+        os.makedirs(exp_folder, exist_ok=True)
 
-    print("Training...")
+        with open(os.path.join(output_folder, "trajectories_target.pkl"), "wb") as f:
+            pickle.dump({"trajectory_id": group_trajectories_id, "trajectory_emb": group_trajectories_emb}, f)
 
-    # if you run into a problem with the logits during training, set `validate_args=False` in sb3_contrib/common/maskable/distributions.py:68, see also https://github.com/DLR-RM/stable-baselines3/issues/1596
-    # unfortunately this is an issue with sb3 (or rather torch) and not with our code
-    model = MaskablePPO("MlpPolicy", env, gamma=config.gamma, verbose=1, device=config.device, n_steps=config.n_steps)
-    i = 0  # avoids type checker complaints
-    for i in range(config.train_intervals):
-        print(f"evaluation round {i}")
-        trajectories = []
-        for _ in range(config.eval_episodes):
-            obs, info = eval_env.reset()
-            while True:
-                action = model.predict(obs)[0]
-                obs, reward, terminated, truncated, info = eval_env.step(int(action))  # type: ignore
-                if terminated or truncated:
-                    trajectories.append(eval_env.trajectory)
-                    break
+        lev_emb_model = MaskablePPO(
+            "MlpPolicy", emb_env, gamma=config.gamma, verbose=1, device=config.device, n_steps=config.n_steps
+        )
+        lev_nonemb_model = MaskablePPO(
+            "MlpPolicy", nonemb_env, gamma=config.gamma, verbose=1, device=config.device, n_steps=config.n_steps
+        )
 
-        with open(f"{output_folder}/trajectories_{i * config.eval_frequency}.pkl", "wb") as f:
-            pickle.dump(trajectories, f)
+        early_stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=10)
 
-        print(f"training round {i}")
-        model.learn(config.eval_frequency, reset_num_timesteps=(i == 0))
+        emb_model_name = "levenshtein_emb"
+        nonemb_model_name = "levenshtein_nonemb"
 
-    print(f"evaluation round {i + 1}")
-    trajectories = []
-    for _ in range(config.eval_episodes):
-        obs, info = eval_env.reset()
-        while True:
-            action = model.predict(obs)[0]
-            obs, reward, terminated, truncated, info = eval_env.step(action)  # type: ignore
-            if terminated or truncated:
-                trajectories.append(obs)
-                break
+        emb_save_traj_callback = SaveTrajectoryCallback(config.eval_episodes, exp_folder, emb_model_name)
+        emb_callback = EvalCallback(
+            emb_eval_env, callback_after_eval=early_stop_callback, callback_on_new_best=emb_save_traj_callback
+        )
 
-    with open(
-        f"{output_folder}/trajectories_{(i + 1) * config.eval_frequency}.pkl",
-        "wb",
-    ) as f:
-        pickle.dump(trajectories, f)
+        noemb_save_traj_callback = SaveTrajectoryCallback(config.eval_episodes, exp_folder, nonemb_model_name)
+        nonemb_callback = EvalCallback(
+            nonemb_eval_env, callback_after_eval=early_stop_callback, callback_on_new_best=noemb_save_traj_callback
+        )
+
+        do_train_and_eval(lev_emb_model, emb_eval_env, config, exp_folder, emb_model_name, callback=emb_callback)
+        do_train_and_eval(
+            lev_nonemb_model, nonemb_eval_env, config, exp_folder, nonemb_model_name, callback=nonemb_callback
+        )
