@@ -4,7 +4,7 @@ import numpy as np
 import numpy.typing as npt
 from gymnasium import spaces
 
-from .rewards import RewardClass, DefaultReward
+from .rewards import DefaultReward, RewardClass
 
 
 class WebsiteEnvironment(gym.Env):
@@ -17,22 +17,22 @@ class WebsiteEnvironment(gym.Env):
         graph: ig.Graph,
         starting_locations: list[int],
         max_steps: int,
-        embeddings: npt.NDArray[np.float32],
-        mask_embedding: npt.NDArray[np.float32],
+        embedding_min_val: float,
+        embedding_max_val: float,
         reward: RewardClass | None = None,
+        reward_needs_embeddings: bool = True,
         render_mode=None,
     ):
         self.render_mode = render_mode
         assert render_mode is None, "Rendering is not currently supported by this environment!"
         self.graph = graph
         self.reward = reward if reward is not None else DefaultReward()
+        self.reward_needs_embeddings = reward_needs_embeddings
 
-        self.embeddings = embeddings
-        self.embeddings = np.concatenate((self.embeddings, np.expand_dims(mask_embedding, 0)), axis=0)
         self.observation_space = spaces.Box(
-            low=self.embeddings.min(),
-            high=self.embeddings.max(),
-            shape=(max_steps, self.embeddings.shape[1]),
+            low=embedding_min_val,
+            high=embedding_max_val,
+            shape=(max_steps, graph.vs[0]["embedding"].shape[-1]),
             seed=42,
         )
 
@@ -40,7 +40,7 @@ class WebsiteEnvironment(gym.Env):
         # Actions we can take are:
         # - navigate to a node (we'll mask nodes we can't travel to)
         # - exit
-        self.exit_action = len(self.embeddings) - 1
+        self.exit_action = len(self.graph.vs) - 1
         self.starting_location = starting_locations
         self.agent_location = np.random.choice(self.starting_location)
 
@@ -71,24 +71,23 @@ class WebsiteEnvironment(gym.Env):
         self.trajectory.append(action)
         self.agent_location = action
 
-        if len(self.trajectory) == self.max_steps:
-            return self._get_obs(), 0, True, False, self._get_info()
-
-        if terminated:
-            observation = self._get_obs()
-            return (
-                observation,
-                self.reward.compute_reward(observation),
-                terminated,
-                False,
-                self._get_info(),
-            )
-
         observation = self._get_obs()
         info = self._get_info()
+
+        if len(self.trajectory) == self.max_steps:
+            return observation, 0, True, False, info
+
+        unpadded_observation = self.trajectory
+        if self.reward_needs_embeddings:
+            unpadded_observation = self.map_action_ids_to_embeddings(self.trajectory)
+        reward = self.reward.compute_reward(unpadded_observation)
+
+        if terminated:
+            return (observation, reward, terminated, False, info)
+
         return (
             observation,
-            self.reward.compute_reward(observation),
+            reward,
             terminated,
             False,
             info,
@@ -100,11 +99,12 @@ class WebsiteEnvironment(gym.Env):
         """
         return [self.exit_action] + self.neighbors()
 
-    def map_action_ids_to_embeddings(self, action_ids: list[int]) -> npt.NDArray[float]:  # type:ignore
+    def map_action_ids_to_embeddings(self, action_ids: npt.ArrayLike) -> npt.NDArray[np.floating]:
         """
         Converts a given list of action ids to a numpy array containing the embeddings of the given actions
         """
-        return self.embeddings[action_ids]
+        embs = self.graph.vs[action_ids]["embedding"]
+        return np.array(embs)
 
     def neighbors(self) -> list[int]:
         """
@@ -124,16 +124,14 @@ class WebsiteEnvironment(gym.Env):
 
     def _get_obs(self) -> npt.NDArray[np.float32]:
         """
-        Returns the observation for the agent. Information (e.g., embeddings) on nodes that
-        are at distant > 1 from current location are masked.
+        Returns the observation for the agent, padded to the max trajectory length (so we don't have to deal with variable sized trajectories when training).
 
         :return: observation for the agent.
         """
-        # mask out embeddings of nodes that cannot be reached in one step
-        padded_trajectory = np.full(self.max_steps, len(self.embeddings) - 1, dtype=np.int32)
+        padded_trajectory = np.full(self.max_steps, len(self.graph.vs) - 1, dtype=np.int32)
         padded_trajectory[: len(self.trajectory)] = self.trajectory
 
-        return self.embeddings[padded_trajectory]
+        return self.map_action_ids_to_embeddings(padded_trajectory)
 
     def _get_info(self) -> dict:
         return {}

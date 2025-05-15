@@ -26,60 +26,65 @@ dependencies = [
   "pot >=0.9.4,<1.0.0",
   "sb3-contrib >=2.3.0,<3.0.0",
   "python-dotenv >=1.0.1,<2.0.0",
-  "torch ==2.6.0; extra != 'cpu'",
   "transformers (>=4.51.3,<5.0.0)",
+  "sentence-transformers (>=4.1.0,<5.0.0)",
+  "streamlit>=1.45.0",
+]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.28.4",
+    "debugpy>=1.8.14",
+    "ipython>=9.0.2",
+    "ruff>=0.11.2",
+]
+textgen = [
+    "llama-cpp-python>=0.3.7",
+]
+tinygrad = [
+    "tinygrad",
 ]
 
 [project.optional-dependencies]
 cpu = [
-  "torch (==2.6.0+cpu)"
+  "torch>=2.6.0",
+]
+cu124 = [
+  "torch>=2.6.0",
+]
+metal = [
+  "torch>=2.6.0",
 ]
 
-[tool.poetry.dependencies]
+[tool.uv]
+conflicts = [
+  [
+    { extra = "cpu" },
+    { extra = "cu124" },
+    { extra = "metal" },
+  ],
+]
+
+[tool.uv.sources]
 torch = [
-    { markers = "extra == 'cpu'", source = "pytorch-cpu-src"},
-    { markers = "extra != 'cpu'"}
- ]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.group.textgen]
-optional = true
-
-[tool.poetry.group.textgen.dependencies]
-llama-cpp-python = "^0.3.7"
-
-[tool.poetry.group.tinygrad]
-optional = true
-
-[tool.poetry.group.tinygrad.dependencies]
+  { index = "pytorch-cpu", extra = "cpu" },
+  { index = "pytorch-cu124", extra = "cu124" },
+]
 tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
 
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.7.1"
-ipython = "^9.1.0"
-
-[tool.poetry.group.lsp-dev]
-optional = true
-
-[tool.poetry.group.lsp-dev.dependencies]
-black = "^24.4.2"
-basedpyright = "^1.24.0"
-
-[[tool.poetry.source]]
-name = "pytorch-cpu-src"
+[[tool.uv.index]]
+name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
+explicit = true
 
-[[tool.poetry.source]]
-name = "pytorch-cuda-src"
-url = "https://download.pytorch.org/whl/cu126"
-priority = "explicit"
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 ignore = ["E501"]
@@ -88,6 +93,7 @@ line-length = 120
 [tool.basedpyright]
 reportMissingTypeStubs = false
 typeCheckingMode = "standard"
+include = ["bin/", "evaluating_trajectories", "evaluation", "experiments"]
 
 [tool.black]
 line-length = 120
