@@ -2,20 +2,40 @@ version = 1
 revision = 2
 requires-python = ">=3.11, <4.0"
 resolution-markers = [
-    "python_full_version >= '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
 ]
 conflicts = [[
     { package = "evaluating-trajectories", extra = "cpu" },
-    { package = "evaluating-trajectories", extra = "cu124" },
+    { package = "evaluating-trajectories", extra = "cuda" },
     { package = "evaluating-trajectories", extra = "metal" },
 ]]
 
@@ -37,7 +57,7 @@ dependencies = [
     { name = "jsonschema" },
     { name = "narwhals" },
     { name = "packaging" },
-    { name = "typing-extensions", marker = "python_full_version < '3.14' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.14' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/16/b1/f2969c7bdb8ad8bbdda031687defdce2c19afba2aa2c8e1d2a17f78376d8/altair-5.5.0.tar.gz", hash = "sha256:d960ebe6178c56de3855a68c47b516be38640b73fb3b5111c2a9ca90546dd73d", size = 705305, upload-time = "2024-11-23T23:39:58.542Z" }
 wheels = [
@@ -199,7 +219,7 @@ name = "click"
 version = "8.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593, upload-time = "2024-12-21T18:38:44.339Z" }
 wheels = [
@@ -366,6 +386,7 @@ dependencies = [
     { name = "cffi" },
     { name = "duckdb" },
     { name = "gymnasium" },
+    { name = "hdbscan" },
     { name = "igraph" },
     { name = "numba" },
     { name = "numpy" },
@@ -387,22 +408,28 @@ dependencies = [
 
 [package.optional-dependencies]
 cpu = [
-    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
-cu124 = [
-    { name = "torch", version = "2.6.0+cu124", source = { registry = "https://download.pytorch.org/whl/cu124" } },
+cuda = [
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" } },
 ]
 metal = [
     { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" } },
 ]
 
 [package.dev-dependencies]
+clustering = [
+    { name = "faiss-cpu" },
+]
 dev = [
     { name = "basedpyright" },
     { name = "debugpy" },
     { name = "ipython" },
     { name = "ruff" },
+]
+experimental = [
+    { name = "ty" },
 ]
 textgen = [
     { name = "llama-cpp-python" },
@@ -416,6 +443,7 @@ requires-dist = [
     { name = "cffi", specifier = ">=1.17.0,<2.0.0" },
     { name = "duckdb", specifier = ">=1.0.0,<2.0.0" },
     { name = "gymnasium", specifier = ">=0.29.1,<1.0.0" },
+    { name = "hdbscan", specifier = ">=0.8.40" },
     { name = "igraph", specifier = ">=0.11.6,<1.0.0" },
     { name = "numba", specifier = ">=0.60.0,<1.0.0" },
     { name = "numpy", specifier = ">=2.0.1,<3.0.0" },
@@ -430,22 +458,24 @@ requires-dist = [
     { name = "stable-baselines3", specifier = ">=2.3.2,<3.0.0" },
     { name = "streamlit", specifier = ">=1.45.0" },
     { name = "tensorboard", specifier = ">=2.17.1,<3.0.0" },
-    { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.6.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "evaluating-trajectories", extra = "cpu" } },
-    { name = "torch", marker = "extra == 'cu124'", specifier = ">=2.6.0", index = "https://download.pytorch.org/whl/cu124", conflict = { package = "evaluating-trajectories", extra = "cu124" } },
-    { name = "torch", marker = "extra == 'metal'", specifier = ">=2.6.0" },
+    { name = "torch", marker = "extra == 'cpu'", specifier = ">=2.7.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "evaluating-trajectories", extra = "cpu" } },
+    { name = "torch", marker = "extra == 'cuda'", specifier = ">=2.7.0" },
+    { name = "torch", marker = "extra == 'metal'", specifier = ">=2.7.0" },
     { name = "tqdm", specifier = ">=4.66.5,<5.0.0" },
     { name = "transformers", specifier = ">=4.51.3,<5.0.0" },
     { name = "umap-learn", specifier = ">=0.5.6,<1.0.0" },
 ]
-provides-extras = ["cpu", "cu124", "metal"]
+provides-extras = ["cpu", "cuda", "metal"]
 
 [package.metadata.requires-dev]
+clustering = [{ name = "faiss-cpu", specifier = ">=1.11.0" }]
 dev = [
     { name = "basedpyright", specifier = ">=1.28.4" },
     { name = "debugpy", specifier = ">=1.8.14" },
     { name = "ipython", specifier = ">=9.0.2" },
     { name = "ruff", specifier = ">=0.11.2" },
 ]
+experimental = [{ name = "ty", specifier = ">=0.0.1a10" }]
 textgen = [{ name = "llama-cpp-python", specifier = ">=0.3.7" }]
 tinygrad = [{ name = "tinygrad", git = "https://github.com/tinygrad/tinygrad.git" }]
 
@@ -456,6 +486,33 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/91/50/a9d80c47ff289c611ff12e63f7c5d13942c65d68125160cefd768c73e6e4/executing-2.2.0.tar.gz", hash = "sha256:5d108c028108fe2551d1a7b2e8b713341e2cb4fc0aa7dcf966fa4327a5226755", size = 978693, upload-time = "2025-01-22T15:41:29.403Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7b/8f/c4d9bafc34ad7ad5d8dc16dd1347ee0e507a52c3adb6bfa8887e1c6a26ba/executing-2.2.0-py2.py3-none-any.whl", hash = "sha256:11387150cad388d62750327a53d3339fad4888b39a6fe233c3afbb54ecffd3aa", size = 26702, upload-time = "2025-01-22T15:41:25.929Z" },
+]
+
+[[package]]
+name = "faiss-cpu"
+version = "1.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e7/9a/e33fc563f007924dd4ec3c5101fe5320298d6c13c158a24a9ed849058569/faiss_cpu-1.11.0.tar.gz", hash = "sha256:44877b896a2b30a61e35ea4970d008e8822545cb340eca4eff223ac7f40a1db9", size = 70218, upload-time = "2025-04-28T07:48:30.459Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/83/8aefc4d07624a868e046cc23ede8a59bebda57f09f72aee2150ef0855a82/faiss_cpu-1.11.0-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:a90d1c81d0ecf2157e1d2576c482d734d10760652a5b2fcfa269916611e41f1c", size = 3307997, upload-time = "2025-04-28T07:47:41.905Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/64/f97e91d89dc6327e08f619fe387d7d9945bc4be3b0f1ca1e494a41c92ebe/faiss_cpu-1.11.0-cp311-cp311-macosx_14_0_x86_64.whl", hash = "sha256:2c39a388b059fb82cd97fbaa7310c3580ced63bf285be531453bfffbe89ea3dd", size = 7886308, upload-time = "2025-04-28T07:47:44.677Z" },
+    { url = "https://files.pythonhosted.org/packages/44/0a/7c17b6df017b0bc127c6aa4066b028281e67ab83d134c7433c4e75cd6bb6/faiss_cpu-1.11.0-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:a4e3433ffc7f9b8707a7963db04f8676a5756868d325644db2db9d67a618b7a0", size = 3778441, upload-time = "2025-04-28T07:47:46.914Z" },
+    { url = "https://files.pythonhosted.org/packages/53/45/7c85551025d9f0237d891b5cffdc5d4a366011d53b4b0a423b972cc52cea/faiss_cpu-1.11.0-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:926645f1b6829623bc88e93bc8ca872504d604718ada3262e505177939aaee0a", size = 31295136, upload-time = "2025-04-28T07:47:49.299Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/9a/accade34b8668b21206c0c4cf0b96cd0b750b693ba5b255c1c10cfee460f/faiss_cpu-1.11.0-cp311-cp311-win_amd64.whl", hash = "sha256:931db6ed2197c03a7fdf833b057c13529afa2cec8a827aa081b7f0543e4e671b", size = 15003710, upload-time = "2025-04-28T07:47:52.226Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/d3/7178fa07047fd770964a83543329bb5e3fc1447004cfd85186ccf65ec3ee/faiss_cpu-1.11.0-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:356437b9a46f98c25831cdae70ca484bd6c05065af6256d87f6505005e9135b9", size = 3313807, upload-time = "2025-04-28T07:47:54.533Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/71/25f5f7b70a9f22a3efe19e7288278da460b043a3b60ad98e4e47401ed5aa/faiss_cpu-1.11.0-cp312-cp312-macosx_14_0_x86_64.whl", hash = "sha256:c4a3d35993e614847f3221c6931529c0bac637a00eff0d55293e1db5cb98c85f", size = 7913537, upload-time = "2025-04-28T07:47:56.723Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/c8/a5cb8466c981ad47750e1d5fda3d4223c82f9da947538749a582b3a2d35c/faiss_cpu-1.11.0-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:8f9af33e0b8324e8199b93eb70ac4a951df02802a9dcff88e9afc183b11666f0", size = 3785180, upload-time = "2025-04-28T07:47:59.004Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/37/eaf15a7d80e1aad74f56cf737b31b4547a1a664ad3c6e4cfaf90e82454a8/faiss_cpu-1.11.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:48b7e7876829e6bdf7333041800fa3c1753bb0c47e07662e3ef55aca86981430", size = 31287630, upload-time = "2025-04-28T07:48:01.248Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/5c/902a78347e9c47baaf133e47863134e564c39f9afe105795b16ee986b0df/faiss_cpu-1.11.0-cp312-cp312-win_amd64.whl", hash = "sha256:bdc199311266d2be9d299da52361cad981393327b2b8aa55af31a1b75eaaf522", size = 15005398, upload-time = "2025-04-28T07:48:04.232Z" },
+    { url = "https://files.pythonhosted.org/packages/92/90/d2329ce56423cc61f4c20ae6b4db001c6f88f28bf5a7ef7f8bbc246fd485/faiss_cpu-1.11.0-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:0c98e5feff83b87348e44eac4d578d6f201780dae6f27f08a11d55536a20b3a8", size = 3313807, upload-time = "2025-04-28T07:48:06.486Z" },
+    { url = "https://files.pythonhosted.org/packages/24/14/8af8f996d54e6097a86e6048b1a2c958c52dc985eb4f935027615079939e/faiss_cpu-1.11.0-cp313-cp313-macosx_14_0_x86_64.whl", hash = "sha256:796e90389427b1c1fb06abdb0427bb343b6350f80112a2e6090ac8f176ff7416", size = 7913539, upload-time = "2025-04-28T07:48:08.338Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/2b/437c2f36c3aa3cffe041479fced1c76420d3e92e1f434f1da3be3e6f32b1/faiss_cpu-1.11.0-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:2b6e355dda72b3050991bc32031b558b8f83a2b3537a2b9e905a84f28585b47e", size = 3785181, upload-time = "2025-04-28T07:48:10.594Z" },
+    { url = "https://files.pythonhosted.org/packages/66/75/955527414371843f558234df66fa0b62c6e86e71e4022b1be9333ac6004c/faiss_cpu-1.11.0-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:6c482d07194638c169b4422774366e7472877d09181ea86835e782e6304d4185", size = 31287635, upload-time = "2025-04-28T07:48:12.93Z" },
+    { url = "https://files.pythonhosted.org/packages/50/51/35b7a3f47f7859363a367c344ae5d415ea9eda65db0a7d497c7ea2c0b576/faiss_cpu-1.11.0-cp313-cp313-win_amd64.whl", hash = "sha256:13eac45299532b10e911bff1abbb19d1bf5211aa9e72afeade653c3f1e50e042", size = 15005455, upload-time = "2025-04-28T07:48:16.173Z" },
 ]
 
 [[package]]
@@ -596,6 +653,25 @@ wheels = [
 ]
 
 [[package]]
+name = "hdbscan"
+version = "0.8.40"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "joblib" },
+    { name = "numpy" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c1/84/6b010387b795f774e1ec695df3c8660c15abd041783647d5e7e4076bfc6b/hdbscan-0.8.40.tar.gz", hash = "sha256:c9e383ff17beee0591075ff65d524bda5b5a35dfb01d218245a7ba30c8d48a17", size = 6904096, upload-time = "2024-11-18T16:14:05.384Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/26/6b/88b8c8023c0c0b27589ad83c82084a1b751917a3e09bdf7fcacf7e6bd523/hdbscan-0.8.40-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:5e958f0d7a33cd2b5e8e927b47f7360bf8a3e7d72355dd65a701e8aabe407b27", size = 1491349, upload-time = "2024-11-18T16:16:10.666Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/ef/32c8a0b3dc6e6c4e433b85b30c3723d8eb48d115c0185b82ab89e1a0ef89/hdbscan-0.8.40-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6e0d6197ee045b173e1f16e6884386f335a56091e373a839dd24f7331a8fa9ed", size = 4576215, upload-time = "2024-11-18T16:14:11.241Z" },
+    { url = "https://files.pythonhosted.org/packages/64/b1/96c347c7740efa1ac803be64155159284f92fafcff88c1077344e64eead5/hdbscan-0.8.40-cp311-cp311-win_amd64.whl", hash = "sha256:127cbe8c858dc77adfde33a3e1ce4f3bea810f78b01d2bd47b1147d4b5a50472", size = 732173, upload-time = "2024-11-18T16:18:40.361Z" },
+    { url = "https://files.pythonhosted.org/packages/33/ff/4739886abb990dc6feb7b02eafb38a7eaf090fffef6336e70a03d693f433/hdbscan-0.8.40-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:353eaa22e42bee69df095744dbb8b29360e516bd9dcb84580dceeeb755f004cc", size = 1497291, upload-time = "2024-11-18T16:16:54.731Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/cb/6b4254f8a33e075118512e55acf3485c155ea52c6c35d69a985bdc59297c/hdbscan-0.8.40-cp312-cp312-win_amd64.whl", hash = "sha256:1b55a935ed7b329adac52072e1c4028979dfc54312ca08de2deece9c97d6ebb1", size = 726198, upload-time = "2024-11-18T16:18:09.99Z" },
+]
+
+[[package]]
 name = "hf-xet"
 version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -617,7 +693,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "filelock" },
     { name = "fsspec" },
-    { name = "hf-xet", marker = "platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "hf-xet", marker = "platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -664,17 +740,17 @@ name = "ipython"
 version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
     { name = "decorator" },
     { name = "ipython-pygments-lexers" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (sys_platform == 'emscripten' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'emscripten' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'win32' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (sys_platform == 'win32' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'win32' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform == 'emscripten' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'emscripten' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'win32' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform == 'win32' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'win32' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
     { name = "prompt-toolkit" },
     { name = "pygments" },
     { name = "stack-data" },
     { name = "traitlets" },
-    { name = "typing-extensions", marker = "python_full_version < '3.12' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9d/02/63a84444a7409b3c0acd1de9ffe524660e0e5d82ee473e78b45e5bfb64a4/ipython-9.2.0.tar.gz", hash = "sha256:62a9373dbc12f28f9feaf4700d052195bf89806279fc8ca11f3f54017d04751b", size = 4424394, upload-time = "2025-04-25T17:55:40.498Z" }
 wheels = [
@@ -833,25 +909,20 @@ sdist = { url = "https://files.pythonhosted.org/packages/95/4e/da912ff2bf9bf855c
 
 [[package]]
 name = "llvmlite"
-version = "0.44.0"
+version = "0.43.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/89/6a/95a3d3610d5c75293d5dbbb2a76480d5d4eeba641557b69fe90af6c5b84e/llvmlite-0.44.0.tar.gz", hash = "sha256:07667d66a5d150abed9157ab6c0b9393c9356f229784a4385c02f99e94fc94d4", size = 171880, upload-time = "2025-01-20T11:14:41.342Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/3d/f513755f285db51ab363a53e898b85562e950f79a2e6767a364530c2f645/llvmlite-0.43.0.tar.gz", hash = "sha256:ae2b5b5c3ef67354824fb75517c8db5fbe93bc02cd9671f3c62271626bc041d5", size = 157069, upload-time = "2024-06-13T18:09:32.641Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/e2/86b245397052386595ad726f9742e5223d7aea999b18c518a50e96c3aca4/llvmlite-0.44.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:eed7d5f29136bda63b6d7804c279e2b72e08c952b7c5df61f45db408e0ee52f3", size = 28132305, upload-time = "2025-01-20T11:12:53.936Z" },
-    { url = "https://files.pythonhosted.org/packages/ff/ec/506902dc6870249fbe2466d9cf66d531265d0f3a1157213c8f986250c033/llvmlite-0.44.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:ace564d9fa44bb91eb6e6d8e7754977783c68e90a471ea7ce913bff30bd62427", size = 26201090, upload-time = "2025-01-20T11:12:59.847Z" },
-    { url = "https://files.pythonhosted.org/packages/99/fe/d030f1849ebb1f394bb3f7adad5e729b634fb100515594aca25c354ffc62/llvmlite-0.44.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c5d22c3bfc842668168a786af4205ec8e3ad29fb1bc03fd11fd48460d0df64c1", size = 42361858, upload-time = "2025-01-20T11:13:07.623Z" },
-    { url = "https://files.pythonhosted.org/packages/d7/7a/ce6174664b9077fc673d172e4c888cb0b128e707e306bc33fff8c2035f0d/llvmlite-0.44.0-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:f01a394e9c9b7b1d4e63c327b096d10f6f0ed149ef53d38a09b3749dcf8c9610", size = 41184200, upload-time = "2025-01-20T11:13:20.058Z" },
-    { url = "https://files.pythonhosted.org/packages/5f/c6/258801143975a6d09a373f2641237992496e15567b907a4d401839d671b8/llvmlite-0.44.0-cp311-cp311-win_amd64.whl", hash = "sha256:d8489634d43c20cd0ad71330dde1d5bc7b9966937a263ff1ec1cebb90dc50955", size = 30331193, upload-time = "2025-01-20T11:13:26.976Z" },
-    { url = "https://files.pythonhosted.org/packages/15/86/e3c3195b92e6e492458f16d233e58a1a812aa2bfbef9bdd0fbafcec85c60/llvmlite-0.44.0-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:1d671a56acf725bf1b531d5ef76b86660a5ab8ef19bb6a46064a705c6ca80aad", size = 28132297, upload-time = "2025-01-20T11:13:32.57Z" },
-    { url = "https://files.pythonhosted.org/packages/d6/53/373b6b8be67b9221d12b24125fd0ec56b1078b660eeae266ec388a6ac9a0/llvmlite-0.44.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:5f79a728e0435493611c9f405168682bb75ffd1fbe6fc360733b850c80a026db", size = 26201105, upload-time = "2025-01-20T11:13:38.744Z" },
-    { url = "https://files.pythonhosted.org/packages/cb/da/8341fd3056419441286c8e26bf436923021005ece0bff5f41906476ae514/llvmlite-0.44.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c0143a5ef336da14deaa8ec26c5449ad5b6a2b564df82fcef4be040b9cacfea9", size = 42361901, upload-time = "2025-01-20T11:13:46.711Z" },
-    { url = "https://files.pythonhosted.org/packages/53/ad/d79349dc07b8a395a99153d7ce8b01d6fcdc9f8231355a5df55ded649b61/llvmlite-0.44.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:d752f89e31b66db6f8da06df8b39f9b91e78c5feea1bf9e8c1fba1d1c24c065d", size = 41184247, upload-time = "2025-01-20T11:13:56.159Z" },
-    { url = "https://files.pythonhosted.org/packages/e2/3b/a9a17366af80127bd09decbe2a54d8974b6d8b274b39bf47fbaedeec6307/llvmlite-0.44.0-cp312-cp312-win_amd64.whl", hash = "sha256:eae7e2d4ca8f88f89d315b48c6b741dcb925d6a1042da694aa16ab3dd4cbd3a1", size = 30332380, upload-time = "2025-01-20T11:14:02.442Z" },
-    { url = "https://files.pythonhosted.org/packages/89/24/4c0ca705a717514c2092b18476e7a12c74d34d875e05e4d742618ebbf449/llvmlite-0.44.0-cp313-cp313-macosx_10_14_x86_64.whl", hash = "sha256:319bddd44e5f71ae2689859b7203080716448a3cd1128fb144fe5c055219d516", size = 28132306, upload-time = "2025-01-20T11:14:09.035Z" },
-    { url = "https://files.pythonhosted.org/packages/01/cf/1dd5a60ba6aee7122ab9243fd614abcf22f36b0437cbbe1ccf1e3391461c/llvmlite-0.44.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:9c58867118bad04a0bb22a2e0068c693719658105e40009ffe95c7000fcde88e", size = 26201090, upload-time = "2025-01-20T11:14:15.401Z" },
-    { url = "https://files.pythonhosted.org/packages/d2/1b/656f5a357de7135a3777bd735cc7c9b8f23b4d37465505bd0eaf4be9befe/llvmlite-0.44.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:46224058b13c96af1365290bdfebe9a6264ae62fb79b2b55693deed11657a8bf", size = 42361904, upload-time = "2025-01-20T11:14:22.949Z" },
-    { url = "https://files.pythonhosted.org/packages/d8/e1/12c5f20cb9168fb3464a34310411d5ad86e4163c8ff2d14a2b57e5cc6bac/llvmlite-0.44.0-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:aa0097052c32bf721a4efc03bd109d335dfa57d9bffb3d4c24cc680711b8b4fc", size = 41184245, upload-time = "2025-01-20T11:14:31.731Z" },
-    { url = "https://files.pythonhosted.org/packages/d0/81/e66fc86539293282fd9cb7c9417438e897f369e79ffb62e1ae5e5154d4dd/llvmlite-0.44.0-cp313-cp313-win_amd64.whl", hash = "sha256:2fb7c4f2fb86cbae6dca3db9ab203eeea0e22d73b99bc2341cdf9de93612e930", size = 30331193, upload-time = "2025-01-20T11:14:38.578Z" },
+    { url = "https://files.pythonhosted.org/packages/95/8c/de3276d773ab6ce3ad676df5fab5aac19696b2956319d65d7dd88fb10f19/llvmlite-0.43.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:3e8d0618cb9bfe40ac38a9633f2493d4d4e9fcc2f438d39a4e854f39cc0f5f98", size = 31064409, upload-time = "2024-06-13T18:08:34.006Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/e1/38deed89ced4cf378c61e232265cfe933ccde56ae83c901aa68b477d14b1/llvmlite-0.43.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:e0a9a1a39d4bf3517f2af9d23d479b4175ead205c592ceeb8b89af48a327ea57", size = 28793149, upload-time = "2024-06-13T18:08:37.42Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/b2/4429433eb2dc8379e2cb582502dca074c23837f8fd009907f78a24de4c25/llvmlite-0.43.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c1da416ab53e4f7f3bc8d4eeba36d801cc1894b9fbfbf2022b29b6bad34a7df2", size = 42857277, upload-time = "2024-06-13T18:08:40.822Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/99/5d00a7d671b1ba1751fc9f19d3b36f3300774c6eebe2bcdb5f6191763eb4/llvmlite-0.43.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:977525a1e5f4059316b183fb4fd34fa858c9eade31f165427a3977c95e3ee749", size = 43871781, upload-time = "2024-06-13T18:08:46.41Z" },
+    { url = "https://files.pythonhosted.org/packages/20/ab/ed5ed3688c6ba4f0b8d789da19fd8e30a9cf7fc5852effe311bc5aefe73e/llvmlite-0.43.0-cp311-cp311-win_amd64.whl", hash = "sha256:d5bd550001d26450bd90777736c69d68c487d17bf371438f975229b2b8241a91", size = 28107433, upload-time = "2024-06-13T18:08:50.834Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/67/9443509e5d2b6d8587bae3ede5598fa8bd586b1c7701696663ea8af15b5b/llvmlite-0.43.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:f99b600aa7f65235a5a05d0b9a9f31150c390f31261f2a0ba678e26823ec38f7", size = 31064409, upload-time = "2024-06-13T18:08:54.375Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/9c/24139d3712d2d352e300c39c0e00d167472c08b3bd350c3c33d72c88ff8d/llvmlite-0.43.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:35d80d61d0cda2d767f72de99450766250560399edc309da16937b93d3b676e7", size = 28793145, upload-time = "2024-06-13T18:08:57.953Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/f1/4c205a48488e574ee9f6505d50e84370a978c90f08dab41a42d8f2c576b6/llvmlite-0.43.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:eccce86bba940bae0d8d48ed925f21dbb813519169246e2ab292b5092aba121f", size = 42857276, upload-time = "2024-06-13T18:09:02.067Z" },
+    { url = "https://files.pythonhosted.org/packages/00/5f/323c4d56e8401c50185fd0e875fcf06b71bf825a863699be1eb10aa2a9cb/llvmlite-0.43.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:df6509e1507ca0760787a199d19439cc887bfd82226f5af746d6977bd9f66844", size = 43871781, upload-time = "2024-06-13T18:09:06.667Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/94/dea10e263655ce78d777e78d904903faae39d1fc440762be4a9dc46bed49/llvmlite-0.43.0-cp312-cp312-win_amd64.whl", hash = "sha256:7a2872ee80dcf6b5dbdc838763d26554c2a18aa833d31a2635bff16aafefb9c9", size = 28107442, upload-time = "2024-06-13T18:09:10.709Z" },
 ]
 
 [[package]]
@@ -1032,101 +1103,58 @@ wheels = [
 
 [[package]]
 name = "numba"
-version = "0.61.2"
+version = "0.60.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llvmlite" },
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1c/a0/e21f57604304aa03ebb8e098429222722ad99176a4f979d34af1d1ee80da/numba-0.61.2.tar.gz", hash = "sha256:8750ee147940a6637b80ecf7f95062185ad8726c8c28a2295b8ec1160a196f7d", size = 2820615, upload-time = "2025-04-09T02:58:07.659Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/93/2849300a9184775ba274aba6f82f303343669b0592b7bb0849ea713dabb0/numba-0.60.0.tar.gz", hash = "sha256:5df6158e5584eece5fc83294b949fd30b9f1125df7708862205217e068aabf16", size = 2702171, upload-time = "2024-06-13T18:11:19.869Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3f/97/c99d1056aed767503c228f7099dc11c402906b42a4757fec2819329abb98/numba-0.61.2-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:efd3db391df53aaa5cfbee189b6c910a5b471488749fd6606c3f33fc984c2ae2", size = 2775825, upload-time = "2025-04-09T02:57:43.442Z" },
-    { url = "https://files.pythonhosted.org/packages/95/9e/63c549f37136e892f006260c3e2613d09d5120672378191f2dc387ba65a2/numba-0.61.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:49c980e4171948ffebf6b9a2520ea81feed113c1f4890747ba7f59e74be84b1b", size = 2778695, upload-time = "2025-04-09T02:57:44.968Z" },
-    { url = "https://files.pythonhosted.org/packages/97/c8/8740616c8436c86c1b9a62e72cb891177d2c34c2d24ddcde4c390371bf4c/numba-0.61.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:3945615cd73c2c7eba2a85ccc9c1730c21cd3958bfcf5a44302abae0fb07bb60", size = 3829227, upload-time = "2025-04-09T02:57:46.63Z" },
-    { url = "https://files.pythonhosted.org/packages/fc/06/66e99ae06507c31d15ff3ecd1f108f2f59e18b6e08662cd5f8a5853fbd18/numba-0.61.2-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:bbfdf4eca202cebade0b7d43896978e146f39398909a42941c9303f82f403a18", size = 3523422, upload-time = "2025-04-09T02:57:48.222Z" },
-    { url = "https://files.pythonhosted.org/packages/0f/a4/2b309a6a9f6d4d8cfba583401c7c2f9ff887adb5d54d8e2e130274c0973f/numba-0.61.2-cp311-cp311-win_amd64.whl", hash = "sha256:76bcec9f46259cedf888041b9886e257ae101c6268261b19fda8cfbc52bec9d1", size = 2831505, upload-time = "2025-04-09T02:57:50.108Z" },
-    { url = "https://files.pythonhosted.org/packages/b4/a0/c6b7b9c615cfa3b98c4c63f4316e3f6b3bbe2387740277006551784218cd/numba-0.61.2-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:34fba9406078bac7ab052efbf0d13939426c753ad72946baaa5bf9ae0ebb8dd2", size = 2776626, upload-time = "2025-04-09T02:57:51.857Z" },
-    { url = "https://files.pythonhosted.org/packages/92/4a/fe4e3c2ecad72d88f5f8cd04e7f7cff49e718398a2fac02d2947480a00ca/numba-0.61.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:4ddce10009bc097b080fc96876d14c051cc0c7679e99de3e0af59014dab7dfe8", size = 2779287, upload-time = "2025-04-09T02:57:53.658Z" },
-    { url = "https://files.pythonhosted.org/packages/9a/2d/e518df036feab381c23a624dac47f8445ac55686ec7f11083655eb707da3/numba-0.61.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:5b1bb509d01f23d70325d3a5a0e237cbc9544dd50e50588bc581ba860c213546", size = 3885928, upload-time = "2025-04-09T02:57:55.206Z" },
-    { url = "https://files.pythonhosted.org/packages/10/0f/23cced68ead67b75d77cfcca3df4991d1855c897ee0ff3fe25a56ed82108/numba-0.61.2-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:48a53a3de8f8793526cbe330f2a39fe9a6638efcbf11bd63f3d2f9757ae345cd", size = 3577115, upload-time = "2025-04-09T02:57:56.818Z" },
-    { url = "https://files.pythonhosted.org/packages/68/1d/ddb3e704c5a8fb90142bf9dc195c27db02a08a99f037395503bfbc1d14b3/numba-0.61.2-cp312-cp312-win_amd64.whl", hash = "sha256:97cf4f12c728cf77c9c1d7c23707e4d8fb4632b46275f8f3397de33e5877af18", size = 2831929, upload-time = "2025-04-09T02:57:58.45Z" },
-    { url = "https://files.pythonhosted.org/packages/0b/f3/0fe4c1b1f2569e8a18ad90c159298d862f96c3964392a20d74fc628aee44/numba-0.61.2-cp313-cp313-macosx_10_14_x86_64.whl", hash = "sha256:3a10a8fc9afac40b1eac55717cece1b8b1ac0b946f5065c89e00bde646b5b154", size = 2771785, upload-time = "2025-04-09T02:57:59.96Z" },
-    { url = "https://files.pythonhosted.org/packages/e9/71/91b277d712e46bd5059f8a5866862ed1116091a7cb03bd2704ba8ebe015f/numba-0.61.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:7d3bcada3c9afba3bed413fba45845f2fb9cd0d2b27dd58a1be90257e293d140", size = 2773289, upload-time = "2025-04-09T02:58:01.435Z" },
-    { url = "https://files.pythonhosted.org/packages/0d/e0/5ea04e7ad2c39288c0f0f9e8d47638ad70f28e275d092733b5817cf243c9/numba-0.61.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:bdbca73ad81fa196bd53dc12e3aaf1564ae036e0c125f237c7644fe64a4928ab", size = 3893918, upload-time = "2025-04-09T02:58:02.933Z" },
-    { url = "https://files.pythonhosted.org/packages/17/58/064f4dcb7d7e9412f16ecf80ed753f92297e39f399c905389688cf950b81/numba-0.61.2-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:5f154aaea625fb32cfbe3b80c5456d514d416fcdf79733dd69c0df3a11348e9e", size = 3584056, upload-time = "2025-04-09T02:58:04.538Z" },
-    { url = "https://files.pythonhosted.org/packages/af/a4/6d3a0f2d3989e62a18749e1e9913d5fa4910bbb3e3311a035baea6caf26d/numba-0.61.2-cp313-cp313-win_amd64.whl", hash = "sha256:59321215e2e0ac5fa928a8020ab00b8e57cda8a97384963ac0dfa4d4e6aa54e7", size = 2831846, upload-time = "2025-04-09T02:58:06.125Z" },
+    { url = "https://files.pythonhosted.org/packages/98/ad/df18d492a8f00d29a30db307904b9b296e37507034eedb523876f3a2e13e/numba-0.60.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:a17b70fc9e380ee29c42717e8cc0bfaa5556c416d94f9aa96ba13acb41bdece8", size = 2647254, upload-time = "2024-06-13T18:10:41.69Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/51/a4dc2c01ce7a850b8e56ff6d5381d047a5daea83d12bad08aa071d34b2ee/numba-0.60.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:3fb02b344a2a80efa6f677aa5c40cd5dd452e1b35f8d1c2af0dfd9ada9978e4b", size = 2649970, upload-time = "2024-06-13T18:10:44.682Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/4c/8889ac94c0b33dca80bed11564b8c6d9ea14d7f094e674c58e5c5b05859b/numba-0.60.0-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:5f4fde652ea604ea3c86508a3fb31556a6157b2c76c8b51b1d45eb40c8598703", size = 3412492, upload-time = "2024-06-13T18:10:47.1Z" },
+    { url = "https://files.pythonhosted.org/packages/57/03/2b4245b05b71c0cee667e6a0b51606dfa7f4157c9093d71c6b208385a611/numba-0.60.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:4142d7ac0210cc86432b818338a2bc368dc773a2f5cf1e32ff7c5b378bd63ee8", size = 3705018, upload-time = "2024-06-13T18:10:49.539Z" },
+    { url = "https://files.pythonhosted.org/packages/79/89/2d924ca60dbf949f18a6fec223a2445f5f428d9a5f97a6b29c2122319015/numba-0.60.0-cp311-cp311-win_amd64.whl", hash = "sha256:cac02c041e9b5bc8cf8f2034ff6f0dbafccd1ae9590dc146b3a02a45e53af4e2", size = 2686920, upload-time = "2024-06-13T18:10:51.937Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/5c/b5ec752c475e78a6c3676b67c514220dbde2725896bbb0b6ec6ea54b2738/numba-0.60.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:d7da4098db31182fc5ffe4bc42c6f24cd7d1cb8a14b59fd755bfee32e34b8404", size = 2647866, upload-time = "2024-06-13T18:10:54.453Z" },
+    { url = "https://files.pythonhosted.org/packages/65/42/39559664b2e7c15689a638c2a38b3b74c6e69a04e2b3019b9f7742479188/numba-0.60.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:38d6ea4c1f56417076ecf8fc327c831ae793282e0ff51080c5094cb726507b1c", size = 2650208, upload-time = "2024-06-13T18:10:56.779Z" },
+    { url = "https://files.pythonhosted.org/packages/67/88/c4459ccc05674ef02119abf2888ccd3e2fed12a323f52255f4982fc95876/numba-0.60.0-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:62908d29fb6a3229c242e981ca27e32a6e606cc253fc9e8faeb0e48760de241e", size = 3466946, upload-time = "2024-06-13T18:10:58.961Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/41/ac11cf33524def12aa5bd698226ae196a1185831c05ed29dc0c56eaa308b/numba-0.60.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:0ebaa91538e996f708f1ab30ef4d3ddc344b64b5227b67a57aa74f401bb68b9d", size = 3761463, upload-time = "2024-06-13T18:11:01.657Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/bd/0fe29fcd1b6a8de479a4ed25c6e56470e467e3611c079d55869ceef2b6d1/numba-0.60.0-cp312-cp312-win_amd64.whl", hash = "sha256:f75262e8fe7fa96db1dca93d53a194a38c46da28b112b8a4aca168f0df860347", size = 2707588, upload-time = "2024-06-13T18:11:04.261Z" },
 ]
 
 [[package]]
 name = "numpy"
-version = "2.2.5"
+version = "2.0.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/dc/b2/ce4b867d8cd9c0ee84938ae1e6a6f7926ebf928c9090d036fc3c6a04f946/numpy-2.2.5.tar.gz", hash = "sha256:a9c0d994680cd991b1cb772e8b297340085466a6fe964bc9d4e80f5e2f43c291", size = 20273920, upload-time = "2025-04-19T23:27:42.561Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/75/10dd1f8116a8b796cb2c737b674e02d02e80454bda953fa7e65d8c12b016/numpy-2.0.2.tar.gz", hash = "sha256:883c987dee1880e2a864ab0dc9892292582510604156762362d9326444636e78", size = 18902015, upload-time = "2024-08-26T20:19:40.945Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f5/fb/e4e4c254ba40e8f0c78218f9e86304628c75b6900509b601c8433bdb5da7/numpy-2.2.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:c42365005c7a6c42436a54d28c43fe0e01ca11eb2ac3cefe796c25a5f98e5e9b", size = 21256475, upload-time = "2025-04-19T22:34:24.174Z" },
-    { url = "https://files.pythonhosted.org/packages/81/32/dd1f7084f5c10b2caad778258fdaeedd7fbd8afcd2510672811e6138dfac/numpy-2.2.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:498815b96f67dc347e03b719ef49c772589fb74b8ee9ea2c37feae915ad6ebda", size = 14461474, upload-time = "2025-04-19T22:34:46.578Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/65/937cdf238ef6ac54ff749c0f66d9ee2b03646034c205cea9b6c51f2f3ad1/numpy-2.2.5-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:6411f744f7f20081b1b4e7112e0f4c9c5b08f94b9f086e6f0adf3645f85d3a4d", size = 5426875, upload-time = "2025-04-19T22:34:56.281Z" },
-    { url = "https://files.pythonhosted.org/packages/25/17/814515fdd545b07306eaee552b65c765035ea302d17de1b9cb50852d2452/numpy-2.2.5-cp311-cp311-macosx_14_0_x86_64.whl", hash = "sha256:9de6832228f617c9ef45d948ec1cd8949c482238d68b2477e6f642c33a7b0a54", size = 6969176, upload-time = "2025-04-19T22:35:07.518Z" },
-    { url = "https://files.pythonhosted.org/packages/e5/32/a66db7a5c8b5301ec329ab36d0ecca23f5e18907f43dbd593c8ec326d57c/numpy-2.2.5-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:369e0d4647c17c9363244f3468f2227d557a74b6781cb62ce57cf3ef5cc7c610", size = 14374850, upload-time = "2025-04-19T22:35:31.347Z" },
-    { url = "https://files.pythonhosted.org/packages/ad/c9/1bf6ada582eebcbe8978f5feb26584cd2b39f94ededeea034ca8f84af8c8/numpy-2.2.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:262d23f383170f99cd9191a7c85b9a50970fe9069b2f8ab5d786eca8a675d60b", size = 16430306, upload-time = "2025-04-19T22:35:57.573Z" },
-    { url = "https://files.pythonhosted.org/packages/6a/f0/3f741863f29e128f4fcfdb99253cc971406b402b4584663710ee07f5f7eb/numpy-2.2.5-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:aa70fdbdc3b169d69e8c59e65c07a1c9351ceb438e627f0fdcd471015cd956be", size = 15884767, upload-time = "2025-04-19T22:36:22.245Z" },
-    { url = "https://files.pythonhosted.org/packages/98/d9/4ccd8fd6410f7bf2d312cbc98892e0e43c2fcdd1deae293aeb0a93b18071/numpy-2.2.5-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:37e32e985f03c06206582a7323ef926b4e78bdaa6915095ef08070471865b906", size = 18219515, upload-time = "2025-04-19T22:36:49.822Z" },
-    { url = "https://files.pythonhosted.org/packages/b1/56/783237243d4395c6dd741cf16eeb1a9035ee3d4310900e6b17e875d1b201/numpy-2.2.5-cp311-cp311-win32.whl", hash = "sha256:f5045039100ed58fa817a6227a356240ea1b9a1bc141018864c306c1a16d4175", size = 6607842, upload-time = "2025-04-19T22:37:01.624Z" },
-    { url = "https://files.pythonhosted.org/packages/98/89/0c93baaf0094bdaaaa0536fe61a27b1dce8a505fa262a865ec142208cfe9/numpy-2.2.5-cp311-cp311-win_amd64.whl", hash = "sha256:b13f04968b46ad705f7c8a80122a42ae8f620536ea38cf4bdd374302926424dd", size = 12949071, upload-time = "2025-04-19T22:37:21.098Z" },
-    { url = "https://files.pythonhosted.org/packages/e2/f7/1fd4ff108cd9d7ef929b8882692e23665dc9c23feecafbb9c6b80f4ec583/numpy-2.2.5-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:ee461a4eaab4f165b68780a6a1af95fb23a29932be7569b9fab666c407969051", size = 20948633, upload-time = "2025-04-19T22:37:52.4Z" },
-    { url = "https://files.pythonhosted.org/packages/12/03/d443c278348371b20d830af155ff2079acad6a9e60279fac2b41dbbb73d8/numpy-2.2.5-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ec31367fd6a255dc8de4772bd1658c3e926d8e860a0b6e922b615e532d320ddc", size = 14176123, upload-time = "2025-04-19T22:38:15.058Z" },
-    { url = "https://files.pythonhosted.org/packages/2b/0b/5ca264641d0e7b14393313304da48b225d15d471250376f3fbdb1a2be603/numpy-2.2.5-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:47834cde750d3c9f4e52c6ca28a7361859fcaf52695c7dc3cc1a720b8922683e", size = 5163817, upload-time = "2025-04-19T22:38:24.885Z" },
-    { url = "https://files.pythonhosted.org/packages/04/b3/d522672b9e3d28e26e1613de7675b441bbd1eaca75db95680635dd158c67/numpy-2.2.5-cp312-cp312-macosx_14_0_x86_64.whl", hash = "sha256:2c1a1c6ccce4022383583a6ded7bbcda22fc635eb4eb1e0a053336425ed36dfa", size = 6698066, upload-time = "2025-04-19T22:38:35.782Z" },
-    { url = "https://files.pythonhosted.org/packages/a0/93/0f7a75c1ff02d4b76df35079676b3b2719fcdfb39abdf44c8b33f43ef37d/numpy-2.2.5-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9d75f338f5f79ee23548b03d801d28a505198297534f62416391857ea0479571", size = 14087277, upload-time = "2025-04-19T22:38:57.697Z" },
-    { url = "https://files.pythonhosted.org/packages/b0/d9/7c338b923c53d431bc837b5b787052fef9ae68a56fe91e325aac0d48226e/numpy-2.2.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3a801fef99668f309b88640e28d261991bfad9617c27beda4a3aec4f217ea073", size = 16135742, upload-time = "2025-04-19T22:39:22.689Z" },
-    { url = "https://files.pythonhosted.org/packages/2d/10/4dec9184a5d74ba9867c6f7d1e9f2e0fb5fe96ff2bf50bb6f342d64f2003/numpy-2.2.5-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:abe38cd8381245a7f49967a6010e77dbf3680bd3627c0fe4362dd693b404c7f8", size = 15581825, upload-time = "2025-04-19T22:39:45.794Z" },
-    { url = "https://files.pythonhosted.org/packages/80/1f/2b6fcd636e848053f5b57712a7d1880b1565eec35a637fdfd0a30d5e738d/numpy-2.2.5-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:5a0ac90e46fdb5649ab6369d1ab6104bfe5854ab19b645bf5cda0127a13034ae", size = 17899600, upload-time = "2025-04-19T22:40:13.427Z" },
-    { url = "https://files.pythonhosted.org/packages/ec/87/36801f4dc2623d76a0a3835975524a84bd2b18fe0f8835d45c8eae2f9ff2/numpy-2.2.5-cp312-cp312-win32.whl", hash = "sha256:0cd48122a6b7eab8f06404805b1bd5856200e3ed6f8a1b9a194f9d9054631beb", size = 6312626, upload-time = "2025-04-19T22:40:25.223Z" },
-    { url = "https://files.pythonhosted.org/packages/8b/09/4ffb4d6cfe7ca6707336187951992bd8a8b9142cf345d87ab858d2d7636a/numpy-2.2.5-cp312-cp312-win_amd64.whl", hash = "sha256:ced69262a8278547e63409b2653b372bf4baff0870c57efa76c5703fd6543282", size = 12645715, upload-time = "2025-04-19T22:40:44.528Z" },
-    { url = "https://files.pythonhosted.org/packages/e2/a0/0aa7f0f4509a2e07bd7a509042967c2fab635690d4f48c6c7b3afd4f448c/numpy-2.2.5-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:059b51b658f4414fff78c6d7b1b4e18283ab5fa56d270ff212d5ba0c561846f4", size = 20935102, upload-time = "2025-04-19T22:41:16.234Z" },
-    { url = "https://files.pythonhosted.org/packages/7e/e4/a6a9f4537542912ec513185396fce52cdd45bdcf3e9d921ab02a93ca5aa9/numpy-2.2.5-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:47f9ed103af0bc63182609044b0490747e03bd20a67e391192dde119bf43d52f", size = 14191709, upload-time = "2025-04-19T22:41:38.472Z" },
-    { url = "https://files.pythonhosted.org/packages/be/65/72f3186b6050bbfe9c43cb81f9df59ae63603491d36179cf7a7c8d216758/numpy-2.2.5-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:261a1ef047751bb02f29dfe337230b5882b54521ca121fc7f62668133cb119c9", size = 5149173, upload-time = "2025-04-19T22:41:47.823Z" },
-    { url = "https://files.pythonhosted.org/packages/e5/e9/83e7a9432378dde5802651307ae5e9ea07bb72b416728202218cd4da2801/numpy-2.2.5-cp313-cp313-macosx_14_0_x86_64.whl", hash = "sha256:4520caa3807c1ceb005d125a75e715567806fed67e315cea619d5ec6e75a4191", size = 6684502, upload-time = "2025-04-19T22:41:58.689Z" },
-    { url = "https://files.pythonhosted.org/packages/ea/27/b80da6c762394c8ee516b74c1f686fcd16c8f23b14de57ba0cad7349d1d2/numpy-2.2.5-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3d14b17b9be5f9c9301f43d2e2a4886a33b53f4e6fdf9ca2f4cc60aeeee76372", size = 14084417, upload-time = "2025-04-19T22:42:19.897Z" },
-    { url = "https://files.pythonhosted.org/packages/aa/fc/ebfd32c3e124e6a1043e19c0ab0769818aa69050ce5589b63d05ff185526/numpy-2.2.5-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2ba321813a00e508d5421104464510cc962a6f791aa2fca1c97b1e65027da80d", size = 16133807, upload-time = "2025-04-19T22:42:44.433Z" },
-    { url = "https://files.pythonhosted.org/packages/bf/9b/4cc171a0acbe4666f7775cfd21d4eb6bb1d36d3a0431f48a73e9212d2278/numpy-2.2.5-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:a4cbdef3ddf777423060c6f81b5694bad2dc9675f110c4b2a60dc0181543fac7", size = 15575611, upload-time = "2025-04-19T22:43:09.928Z" },
-    { url = "https://files.pythonhosted.org/packages/a3/45/40f4135341850df48f8edcf949cf47b523c404b712774f8855a64c96ef29/numpy-2.2.5-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:54088a5a147ab71a8e7fdfd8c3601972751ded0739c6b696ad9cb0343e21ab73", size = 17895747, upload-time = "2025-04-19T22:43:36.983Z" },
-    { url = "https://files.pythonhosted.org/packages/f8/4c/b32a17a46f0ffbde8cc82df6d3daeaf4f552e346df143e1b188a701a8f09/numpy-2.2.5-cp313-cp313-win32.whl", hash = "sha256:c8b82a55ef86a2d8e81b63da85e55f5537d2157165be1cb2ce7cfa57b6aef38b", size = 6309594, upload-time = "2025-04-19T22:47:10.523Z" },
-    { url = "https://files.pythonhosted.org/packages/13/ae/72e6276feb9ef06787365b05915bfdb057d01fceb4a43cb80978e518d79b/numpy-2.2.5-cp313-cp313-win_amd64.whl", hash = "sha256:d8882a829fd779f0f43998e931c466802a77ca1ee0fe25a3abe50278616b1471", size = 12638356, upload-time = "2025-04-19T22:47:30.253Z" },
-    { url = "https://files.pythonhosted.org/packages/79/56/be8b85a9f2adb688e7ded6324e20149a03541d2b3297c3ffc1a73f46dedb/numpy-2.2.5-cp313-cp313t-macosx_10_13_x86_64.whl", hash = "sha256:e8b025c351b9f0e8b5436cf28a07fa4ac0204d67b38f01433ac7f9b870fa38c6", size = 20963778, upload-time = "2025-04-19T22:44:09.251Z" },
-    { url = "https://files.pythonhosted.org/packages/ff/77/19c5e62d55bff507a18c3cdff82e94fe174957bad25860a991cac719d3ab/numpy-2.2.5-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:8dfa94b6a4374e7851bbb6f35e6ded2120b752b063e6acdd3157e4d2bb922eba", size = 14207279, upload-time = "2025-04-19T22:44:31.383Z" },
-    { url = "https://files.pythonhosted.org/packages/75/22/aa11f22dc11ff4ffe4e849d9b63bbe8d4ac6d5fae85ddaa67dfe43be3e76/numpy-2.2.5-cp313-cp313t-macosx_14_0_arm64.whl", hash = "sha256:97c8425d4e26437e65e1d189d22dff4a079b747ff9c2788057bfb8114ce1e133", size = 5199247, upload-time = "2025-04-19T22:44:40.361Z" },
-    { url = "https://files.pythonhosted.org/packages/4f/6c/12d5e760fc62c08eded0394f62039f5a9857f758312bf01632a81d841459/numpy-2.2.5-cp313-cp313t-macosx_14_0_x86_64.whl", hash = "sha256:352d330048c055ea6db701130abc48a21bec690a8d38f8284e00fab256dc1376", size = 6711087, upload-time = "2025-04-19T22:44:51.188Z" },
-    { url = "https://files.pythonhosted.org/packages/ef/94/ece8280cf4218b2bee5cec9567629e61e51b4be501e5c6840ceb593db945/numpy-2.2.5-cp313-cp313t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8b4c0773b6ada798f51f0f8e30c054d32304ccc6e9c5d93d46cb26f3d385ab19", size = 14059964, upload-time = "2025-04-19T22:45:12.451Z" },
-    { url = "https://files.pythonhosted.org/packages/39/41/c5377dac0514aaeec69115830a39d905b1882819c8e65d97fc60e177e19e/numpy-2.2.5-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:55f09e00d4dccd76b179c0f18a44f041e5332fd0e022886ba1c0bbf3ea4a18d0", size = 16121214, upload-time = "2025-04-19T22:45:37.734Z" },
-    { url = "https://files.pythonhosted.org/packages/db/54/3b9f89a943257bc8e187145c6bc0eb8e3d615655f7b14e9b490b053e8149/numpy-2.2.5-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:02f226baeefa68f7d579e213d0f3493496397d8f1cff5e2b222af274c86a552a", size = 15575788, upload-time = "2025-04-19T22:46:01.908Z" },
-    { url = "https://files.pythonhosted.org/packages/b1/c4/2e407e85df35b29f79945751b8f8e671057a13a376497d7fb2151ba0d290/numpy-2.2.5-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:c26843fd58f65da9491165072da2cccc372530681de481ef670dcc8e27cfb066", size = 17893672, upload-time = "2025-04-19T22:46:28.585Z" },
-    { url = "https://files.pythonhosted.org/packages/29/7e/d0b44e129d038dba453f00d0e29ebd6eaf2f06055d72b95b9947998aca14/numpy-2.2.5-cp313-cp313t-win32.whl", hash = "sha256:1a161c2c79ab30fe4501d5a2bbfe8b162490757cf90b7f05be8b80bc02f7bb8e", size = 6377102, upload-time = "2025-04-19T22:46:39.949Z" },
-    { url = "https://files.pythonhosted.org/packages/63/be/b85e4aa4bf42c6502851b971f1c326d583fcc68227385f92089cf50a7b45/numpy-2.2.5-cp313-cp313t-win_amd64.whl", hash = "sha256:d403c84991b5ad291d3809bace5e85f4bbf44a04bdc9a88ed2bb1807b3360bb8", size = 12750096, upload-time = "2025-04-19T22:47:00.147Z" },
-]
-
-[[package]]
-name = "nvidia-cublas-cu12"
-version = "12.4.5.8"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/7f/7fbae15a3982dc9595e49ce0f19332423b260045d0a6afe93cdbe2f1f624/nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0f8aa1706812e00b9f19dfe0cdb3999b092ccb8ca168c0db5b8ea712456fd9b3", size = 363333771, upload-time = "2024-06-18T19:28:09.881Z" },
-    { url = "https://files.pythonhosted.org/packages/ae/71/1c91302526c45ab494c23f61c7a84aa568b8c1f9d196efa5993957faf906/nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl", hash = "sha256:2fc8da60df463fdefa81e323eef2e36489e1c94335b5358bcb38360adf75ac9b", size = 363438805, upload-time = "2024-04-03T20:57:06.025Z" },
-    { url = "https://files.pythonhosted.org/packages/e2/2a/4f27ca96232e8b5269074a72e03b4e0d43aa68c9b965058b1684d07c6ff8/nvidia_cublas_cu12-12.4.5.8-py3-none-win_amd64.whl", hash = "sha256:5a796786da89203a0657eda402bcdcec6180254a8ac22d72213abc42069522dc", size = 396895858, upload-time = "2024-04-03T21:03:31.996Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/cf/034500fb83041aa0286e0fb16e7c76e5c8b67c0711bb6e9e9737a717d5fe/numpy-2.0.2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:49ca4decb342d66018b01932139c0961a8f9ddc7589611158cb3c27cbcf76448", size = 21169137, upload-time = "2024-08-26T20:07:45.345Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/d9/32de45561811a4b87fbdee23b5797394e3d1504b4a7cf40c10199848893e/numpy-2.0.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:11a76c372d1d37437857280aa142086476136a8c0f373b2e648ab2c8f18fb195", size = 13703552, upload-time = "2024-08-26T20:08:06.666Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/ca/2f384720020c7b244d22508cb7ab23d95f179fcfff33c31a6eeba8d6c512/numpy-2.0.2-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:807ec44583fd708a21d4a11d94aedf2f4f3c3719035c76a2bbe1fe8e217bdc57", size = 5298957, upload-time = "2024-08-26T20:08:15.83Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/78/a3e4f9fb6aa4e6fdca0c5428e8ba039408514388cf62d89651aade838269/numpy-2.0.2-cp311-cp311-macosx_14_0_x86_64.whl", hash = "sha256:8cafab480740e22f8d833acefed5cc87ce276f4ece12fdaa2e8903db2f82897a", size = 6905573, upload-time = "2024-08-26T20:08:27.185Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/72/cfc3a1beb2caf4efc9d0b38a15fe34025230da27e1c08cc2eb9bfb1c7231/numpy-2.0.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a15f476a45e6e5a3a79d8a14e62161d27ad897381fecfa4a09ed5322f2085669", size = 13914330, upload-time = "2024-08-26T20:08:48.058Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/a8/c17acf65a931ce551fee11b72e8de63bf7e8a6f0e21add4c937c83563538/numpy-2.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:13e689d772146140a252c3a28501da66dfecd77490b498b168b501835041f951", size = 19534895, upload-time = "2024-08-26T20:09:16.536Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/86/8767f3d54f6ae0165749f84648da9dcc8cd78ab65d415494962c86fac80f/numpy-2.0.2-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:9ea91dfb7c3d1c56a0e55657c0afb38cf1eeae4544c208dc465c3c9f3a7c09f9", size = 19937253, upload-time = "2024-08-26T20:09:46.263Z" },
+    { url = "https://files.pythonhosted.org/packages/df/87/f76450e6e1c14e5bb1eae6836478b1028e096fd02e85c1c37674606ab752/numpy-2.0.2-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:c1c9307701fec8f3f7a1e6711f9089c06e6284b3afbbcd259f7791282d660a15", size = 14414074, upload-time = "2024-08-26T20:10:08.483Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/ca/0f0f328e1e59f73754f06e1adfb909de43726d4f24c6a3f8805f34f2b0fa/numpy-2.0.2-cp311-cp311-win32.whl", hash = "sha256:a392a68bd329eafac5817e5aefeb39038c48b671afd242710b451e76090e81f4", size = 6470640, upload-time = "2024-08-26T20:10:19.732Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/57/3a3f14d3a759dcf9bf6e9eda905794726b758819df4663f217d658a58695/numpy-2.0.2-cp311-cp311-win_amd64.whl", hash = "sha256:286cd40ce2b7d652a6f22efdfc6d1edf879440e53e76a75955bc0c826c7e64dc", size = 15910230, upload-time = "2024-08-26T20:10:43.413Z" },
+    { url = "https://files.pythonhosted.org/packages/45/40/2e117be60ec50d98fa08c2f8c48e09b3edea93cfcabd5a9ff6925d54b1c2/numpy-2.0.2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:df55d490dea7934f330006d0f81e8551ba6010a5bf035a249ef61a94f21c500b", size = 20895803, upload-time = "2024-08-26T20:11:13.916Z" },
+    { url = "https://files.pythonhosted.org/packages/46/92/1b8b8dee833f53cef3e0a3f69b2374467789e0bb7399689582314df02651/numpy-2.0.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:8df823f570d9adf0978347d1f926b2a867d5608f434a7cff7f7908c6570dcf5e", size = 13471835, upload-time = "2024-08-26T20:11:34.779Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/19/e2793bde475f1edaea6945be141aef6c8b4c669b90c90a300a8954d08f0a/numpy-2.0.2-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:9a92ae5c14811e390f3767053ff54eaee3bf84576d99a2456391401323f4ec2c", size = 5038499, upload-time = "2024-08-26T20:11:43.902Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/ff/ddf6dac2ff0dd50a7327bcdba45cb0264d0e96bb44d33324853f781a8f3c/numpy-2.0.2-cp312-cp312-macosx_14_0_x86_64.whl", hash = "sha256:a842d573724391493a97a62ebbb8e731f8a5dcc5d285dfc99141ca15a3302d0c", size = 6633497, upload-time = "2024-08-26T20:11:55.09Z" },
+    { url = "https://files.pythonhosted.org/packages/72/21/67f36eac8e2d2cd652a2e69595a54128297cdcb1ff3931cfc87838874bd4/numpy-2.0.2-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c05e238064fc0610c840d1cf6a13bf63d7e391717d247f1bf0318172e759e692", size = 13621158, upload-time = "2024-08-26T20:12:14.95Z" },
+    { url = "https://files.pythonhosted.org/packages/39/68/e9f1126d757653496dbc096cb429014347a36b228f5a991dae2c6b6cfd40/numpy-2.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0123ffdaa88fa4ab64835dcbde75dcdf89c453c922f18dced6e27c90d1d0ec5a", size = 19236173, upload-time = "2024-08-26T20:12:44.049Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/e9/1f5333281e4ebf483ba1c888b1d61ba7e78d7e910fdd8e6499667041cc35/numpy-2.0.2-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:96a55f64139912d61de9137f11bf39a55ec8faec288c75a54f93dfd39f7eb40c", size = 19634174, upload-time = "2024-08-26T20:13:13.634Z" },
+    { url = "https://files.pythonhosted.org/packages/71/af/a469674070c8d8408384e3012e064299f7a2de540738a8e414dcfd639996/numpy-2.0.2-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:ec9852fb39354b5a45a80bdab5ac02dd02b15f44b3804e9f00c556bf24b4bded", size = 14099701, upload-time = "2024-08-26T20:13:34.851Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/3d/08ea9f239d0e0e939b6ca52ad403c84a2bce1bde301a8eb4888c1c1543f1/numpy-2.0.2-cp312-cp312-win32.whl", hash = "sha256:671bec6496f83202ed2d3c8fdc486a8fc86942f2e69ff0e986140339a63bcbe5", size = 6174313, upload-time = "2024-08-26T20:13:45.653Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/b5/4ac39baebf1fdb2e72585c8352c56d063b6126be9fc95bd2bb5ef5770c20/numpy-2.0.2-cp312-cp312-win_amd64.whl", hash = "sha256:cfd41e13fdc257aa5778496b8caa5e856dc4896d4ccf01841daee1d96465467a", size = 15606179, upload-time = "2024-08-26T20:14:08.786Z" },
 ]
 
 [[package]]
 name = "nvidia-cublas-cu12"
 version = "12.6.4.1"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/af/eb/ff4b8c503fa1f1796679dce648854d58751982426e4e4b37d6fce49d259c/nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:08ed2686e9875d01b58e3cb379c6896df8e76c75e0d4a7f7dace3d7b6d9ef8eb", size = 393138322, upload-time = "2024-11-20T17:40:25.65Z" },
     { url = "https://files.pythonhosted.org/packages/97/0d/f1f0cadbf69d5b9ef2e4f744c9466cb0a850741d08350736dfdb4aa89569/nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:235f728d6e2a409eddf1df58d5b0921cf80cfa9e72b9f2775ccb7b4a87984668", size = 390794615, upload-time = "2024-11-20T17:39:52.715Z" },
@@ -1135,26 +1163,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-cuda-cupti-cu12"
-version = "12.4.127"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/93/b5/9fb3d00386d3361b03874246190dfec7b206fd74e6e287b26a8fcb359d95/nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:79279b35cf6f91da114182a5ce1864997fd52294a87a16179ce275773799458a", size = 12354556, upload-time = "2024-06-18T19:30:40.546Z" },
-    { url = "https://files.pythonhosted.org/packages/67/42/f4f60238e8194a3106d06a058d494b18e006c10bb2b915655bd9f6ea4cb1/nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:9dec60f5ac126f7bb551c055072b69d85392b13311fcc1bcda2202d172df30fb", size = 13813957, upload-time = "2024-04-03T20:55:01.564Z" },
-    { url = "https://files.pythonhosted.org/packages/f3/79/8cf313ec17c58ccebc965568e5bcb265cdab0a1df99c4e674bb7a3b99bfe/nvidia_cuda_cupti_cu12-12.4.127-py3-none-win_amd64.whl", hash = "sha256:5688d203301ab051449a2b1cb6690fbe90d2b372f411521c86018b950f3d7922", size = 9938035, upload-time = "2024-04-03T21:01:01.109Z" },
-]
-
-[[package]]
-name = "nvidia-cuda-cupti-cu12"
 version = "12.6.80"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e6/8b/2f6230cb715646c3a9425636e513227ce5c93c4d65823a734f4bb86d43c3/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:166ee35a3ff1587f2490364f90eeeb8da06cd867bd5b701bf7f9a02b78bc63fc", size = 8236764, upload-time = "2024-11-20T17:35:41.03Z" },
     { url = "https://files.pythonhosted.org/packages/25/0f/acb326ac8fd26e13c799e0b4f3b2751543e1834f04d62e729485872198d4/nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_aarch64.whl", hash = "sha256:358b4a1d35370353d52e12f0a7d1769fc01ff74a191689d3870b2123156184c4", size = 8236756, upload-time = "2024-10-01T16:57:45.507Z" },
@@ -1165,26 +1175,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-cuda-nvrtc-cu12"
-version = "12.4.127"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/77/aa/083b01c427e963ad0b314040565ea396f914349914c298556484f799e61b/nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0eedf14185e04b76aa05b1fea04133e59f465b6f960c0cbf4e37c3cb6b0ea198", size = 24133372, upload-time = "2024-06-18T19:32:00.576Z" },
-    { url = "https://files.pythonhosted.org/packages/2c/14/91ae57cd4db3f9ef7aa99f4019cfa8d54cb4caa7e00975df6467e9725a9f/nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a178759ebb095827bd30ef56598ec182b85547f1508941a3d560eb7ea1fbf338", size = 24640306, upload-time = "2024-04-03T20:56:01.463Z" },
-    { url = "https://files.pythonhosted.org/packages/7c/30/8c844bfb770f045bcd8b2c83455c5afb45983e1a8abf0c4e5297b481b6a5/nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-win_amd64.whl", hash = "sha256:a961b2f1d5f17b14867c619ceb99ef6fcec12e46612711bcec78eb05068a60ec", size = 19751955, upload-time = "2024-04-03T21:01:51.133Z" },
-]
-
-[[package]]
-name = "nvidia-cuda-nvrtc-cu12"
 version = "12.6.77"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/2f/72df534873235983cc0a5371c3661bebef7c4682760c275590b972c7b0f9/nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:5847f1d6e5b757f1d2b3991a01082a44aad6f10ab3c5c0213fa3e25bddc25a13", size = 23162955, upload-time = "2024-10-01T16:59:50.922Z" },
     { url = "https://files.pythonhosted.org/packages/75/2e/46030320b5a80661e88039f59060d1790298b4718944a65a7f2aeda3d9e9/nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl", hash = "sha256:35b0cc6ee3a9636d5409133e79273ce1f3fd087abb0532d2d2e8fff1fe9efc53", size = 23650380, upload-time = "2024-10-01T17:00:14.643Z" },
@@ -1193,26 +1185,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-cuda-runtime-cu12"
-version = "12.4.127"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a1/aa/b656d755f474e2084971e9a297def515938d56b466ab39624012070cb773/nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:961fe0e2e716a2a1d967aab7caee97512f71767f852f67432d572e36cb3a11f3", size = 894177, upload-time = "2024-06-18T19:32:52.877Z" },
-    { url = "https://files.pythonhosted.org/packages/ea/27/1795d86fe88ef397885f2e580ac37628ed058a92ed2c39dc8eac3adf0619/nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:64403288fa2136ee8e467cdc9c9427e0434110899d07c779f25b5c068934faa5", size = 883737, upload-time = "2024-04-03T20:54:51.355Z" },
-    { url = "https://files.pythonhosted.org/packages/a8/8b/450e93fab75d85a69b50ea2d5fdd4ff44541e0138db16f9cd90123ef4de4/nvidia_cuda_runtime_cu12-12.4.127-py3-none-win_amd64.whl", hash = "sha256:09c2e35f48359752dfa822c09918211844a3d93c100a715d79b59591130c5e1e", size = 878808, upload-time = "2024-04-03T21:00:49.77Z" },
-]
-
-[[package]]
-name = "nvidia-cuda-runtime-cu12"
 version = "12.6.77"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/ea/590b2ac00d772a8abd1c387a92b46486d2679ca6622fd25c18ff76265663/nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:6116fad3e049e04791c0256a9778c16237837c08b27ed8c8401e2e45de8d60cd", size = 908052, upload-time = "2024-11-20T17:35:19.905Z" },
     { url = "https://files.pythonhosted.org/packages/b7/3d/159023799677126e20c8fd580cca09eeb28d5c5a624adc7f793b9aa8bbfa/nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:d461264ecb429c84c8879a7153499ddc7b19b5f8d84c204307491989a365588e", size = 908040, upload-time = "2024-10-01T16:57:22.221Z" },
@@ -1223,30 +1197,10 @@ wheels = [
 
 [[package]]
 name = "nvidia-cudnn-cu12"
-version = "9.1.0.70"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-dependencies = [
-    { name = "nvidia-cublas-cu12", version = "12.4.5.8", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/fd/713452cd72343f682b1c7b9321e23829f00b842ceaedcda96e742ea0b0b3/nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl", hash = "sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f", size = 664752741, upload-time = "2024-04-22T15:24:15.253Z" },
-    { url = "https://files.pythonhosted.org/packages/3f/d0/f90ee6956a628f9f04bf467932c0a25e5a7e706a684b896593c06c82f460/nvidia_cudnn_cu12-9.1.0.70-py3-none-win_amd64.whl", hash = "sha256:6278562929433d68365a07a4a1546c237ba2849852c0d4b2262a486e805b977a", size = 679925892, upload-time = "2024-04-22T15:24:53.333Z" },
-]
-
-[[package]]
-name = "nvidia-cudnn-cu12"
 version = "9.5.1.17"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 dependencies = [
-    { name = "nvidia-cublas-cu12", version = "12.6.4.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/99/93/a201a12d3ec1caa8c6ac34c1c2f9eeb696b886f0c36ff23c638b46603bd0/nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:9fd4584468533c61873e5fda8ca41bac3a38bcb2d12350830c69b0a96a7e4def", size = 570523509, upload-time = "2024-10-25T19:53:03.148Z" },
@@ -1256,31 +1210,10 @@ wheels = [
 
 [[package]]
 name = "nvidia-cufft-cu12"
-version = "11.2.1.3"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-dependencies = [
-    { name = "nvidia-nvjitlink-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/8a/0e728f749baca3fbeffad762738276e5df60851958be7783af121a7221e7/nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_aarch64.whl", hash = "sha256:5dad8008fc7f92f5ddfa2101430917ce2ffacd86824914c82e28990ad7f00399", size = 211422548, upload-time = "2024-06-18T19:33:39.396Z" },
-    { url = "https://files.pythonhosted.org/packages/27/94/3266821f65b92b3138631e9c8e7fe1fb513804ac934485a8d05776e1dd43/nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:f083fc24912aa410be21fa16d157fed2055dab1cc4b6934a0e03cba69eb242b9", size = 211459117, upload-time = "2024-04-03T20:57:40.402Z" },
-    { url = "https://files.pythonhosted.org/packages/f6/ee/3f3f8e9874f0be5bbba8fb4b62b3de050156d159f8b6edc42d6f1074113b/nvidia_cufft_cu12-11.2.1.3-py3-none-win_amd64.whl", hash = "sha256:d802f4954291101186078ccbe22fc285a902136f974d369540fd4a5333d1440b", size = 210576476, upload-time = "2024-04-03T21:04:06.422Z" },
-]
-
-[[package]]
-name = "nvidia-cufft-cu12"
 version = "11.3.0.4"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", version = "12.6.85", source = { registry = "https://pypi.org/simple" } },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1f/37/c50d2b2f2c07e146776389e3080f4faf70bcc4fa6e19d65bb54ca174ebc3/nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:d16079550df460376455cba121db6564089176d9bac9e4f360493ca4741b22a6", size = 200164144, upload-time = "2024-11-20T17:40:58.288Z" },
@@ -1301,26 +1234,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-curand-cu12"
-version = "10.3.5.147"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/9c/a79180e4d70995fdf030c6946991d0171555c6edf95c265c6b2bf7011112/nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_aarch64.whl", hash = "sha256:1f173f09e3e3c76ab084aba0de819c49e56614feae5c12f69883f4ae9bb5fad9", size = 56314811, upload-time = "2024-06-18T19:34:48.575Z" },
-    { url = "https://files.pythonhosted.org/packages/8a/6d/44ad094874c6f1b9c654f8ed939590bdc408349f137f9b98a3a23ccec411/nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl", hash = "sha256:a88f583d4e0bb643c49743469964103aa59f7f708d862c3ddb0fc07f851e3b8b", size = 56305206, upload-time = "2024-04-03T20:58:08.722Z" },
-    { url = "https://files.pythonhosted.org/packages/1c/22/2573503d0d4e45673c263a313f79410e110eb562636b0617856fdb2ff5f6/nvidia_curand_cu12-10.3.5.147-py3-none-win_amd64.whl", hash = "sha256:f307cc191f96efe9e8f05a87096abc20d08845a841889ef78cb06924437f6771", size = 55799918, upload-time = "2024-04-03T21:04:34.45Z" },
-]
-
-[[package]]
-name = "nvidia-curand-cu12"
 version = "10.3.7.77"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/42/ac/36543605358a355632f1a6faa3e2d5dfb91eab1e4bc7d552040e0383c335/nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:6e82df077060ea28e37f48a3ec442a8f47690c7499bff392a5938614b56c98d8", size = 56289881, upload-time = "2024-10-01T17:04:18.981Z" },
     { url = "https://files.pythonhosted.org/packages/73/1b/44a01c4e70933637c93e6e1a8063d1e998b50213a6b65ac5a9169c47e98e/nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:a42cd1344297f70b9e39a1e4f467a4e1c10f1da54ff7a85c12197f6c652c8bdf", size = 56279010, upload-time = "2024-11-20T17:42:50.958Z" },
@@ -1331,35 +1246,12 @@ wheels = [
 
 [[package]]
 name = "nvidia-cusolver-cu12"
-version = "11.6.1.9"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-dependencies = [
-    { name = "nvidia-cublas-cu12", version = "12.4.5.8", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cusparse-cu12", version = "12.3.1.170", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-nvjitlink-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/6b/a5c33cf16af09166845345275c34ad2190944bcc6026797a39f8e0a282e0/nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_aarch64.whl", hash = "sha256:d338f155f174f90724bbde3758b7ac375a70ce8e706d70b018dd3375545fc84e", size = 127634111, upload-time = "2024-06-18T19:35:01.793Z" },
-    { url = "https://files.pythonhosted.org/packages/3a/e1/5b9089a4b2a4790dfdea8b3a006052cfecff58139d5a4e34cb1a51df8d6f/nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl", hash = "sha256:19e33fa442bcfd085b3086c4ebf7e8debc07cfe01e11513cc6d332fd918ac260", size = 127936057, upload-time = "2024-04-03T20:58:28.735Z" },
-    { url = "https://files.pythonhosted.org/packages/f2/be/d435b7b020e854d5d5a682eb5de4328fd62f6182507406f2818280e206e2/nvidia_cusolver_cu12-11.6.1.9-py3-none-win_amd64.whl", hash = "sha256:e77314c9d7b694fcebc84f58989f3aa4fb4cb442f12ca1a9bde50f5e8f6d1b9c", size = 125224015, upload-time = "2024-04-03T21:04:53.339Z" },
-]
-
-[[package]]
-name = "nvidia-cusolver-cu12"
 version = "11.7.1.2"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 dependencies = [
-    { name = "nvidia-cublas-cu12", version = "12.6.4.1", source = { registry = "https://pypi.org/simple" } },
-    { name = "nvidia-cusparse-cu12", version = "12.5.4.2", source = { registry = "https://pypi.org/simple" } },
-    { name = "nvidia-nvjitlink-cu12", version = "12.6.85", source = { registry = "https://pypi.org/simple" } },
+    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/93/17/dbe1aa865e4fdc7b6d4d0dd308fdd5aaab60f939abfc0ea1954eac4fb113/nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:0ce237ef60acde1efc457335a2ddadfd7610b892d94efee7b776c64bb1cac9e0", size = 157833628, upload-time = "2024-10-01T17:05:05.591Z" },
@@ -1371,31 +1263,10 @@ wheels = [
 
 [[package]]
 name = "nvidia-cusparse-cu12"
-version = "12.3.1.170"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-dependencies = [
-    { name = "nvidia-nvjitlink-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/a9/c0d2f83a53d40a4a41be14cea6a0bf9e668ffcf8b004bd65633f433050c0/nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_aarch64.whl", hash = "sha256:9d32f62896231ebe0480efd8a7f702e143c98cfaa0e8a76df3386c1ba2b54df3", size = 207381987, upload-time = "2024-06-18T19:35:32.989Z" },
-    { url = "https://files.pythonhosted.org/packages/db/f7/97a9ea26ed4bbbfc2d470994b8b4f338ef663be97b8f677519ac195e113d/nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl", hash = "sha256:ea4f11a2904e2a8dc4b1833cc1b5181cde564edd0d5cd33e3c168eff2d1863f1", size = 207454763, upload-time = "2024-04-03T20:58:59.995Z" },
-    { url = "https://files.pythonhosted.org/packages/a2/e0/3155ca539760a8118ec94cc279b34293309bcd14011fc724f87f31988843/nvidia_cusparse_cu12-12.3.1.170-py3-none-win_amd64.whl", hash = "sha256:9bc90fb087bc7b4c15641521f31c0371e9a612fc2ba12c338d3ae032e6b6797f", size = 204684315, upload-time = "2024-04-03T21:05:26.031Z" },
-]
-
-[[package]]
-name = "nvidia-cusparse-cu12"
 version = "12.5.4.2"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", version = "12.6.85", source = { registry = "https://pypi.org/simple" } },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/eb/eb/6681efd0aa7df96b4f8067b3ce7246833dd36830bb4cec8896182773db7d/nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:d25b62fb18751758fe3c93a4a08eff08effedfe4edf1c6bb5afd0890fe88f887", size = 216451147, upload-time = "2024-11-20T17:44:18.055Z" },
@@ -1407,26 +1278,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-cusparselt-cu12"
-version = "0.6.2"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/98/8e/675498726c605c9441cf46653bd29cb1b8666da1fb1469ffa25f67f20c58/nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:067a7f6d03ea0d4841c85f0c6f1991c5dda98211f6302cb83a4ab234ee95bef8", size = 149422781, upload-time = "2024-07-23T17:35:27.203Z" },
-    { url = "https://files.pythonhosted.org/packages/78/a8/bcbb63b53a4b1234feeafb65544ee55495e1bb37ec31b999b963cbccfd1d/nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:df2c24502fd76ebafe7457dbc4716b2fec071aabaed4fb7691a201cde03704d9", size = 150057751, upload-time = "2024-07-23T02:35:53.074Z" },
-    { url = "https://files.pythonhosted.org/packages/56/8f/2c33082238b6c5e783a877dc8786ab62619e3e6171c083bd3bba6e3fe75e/nvidia_cusparselt_cu12-0.6.2-py3-none-win_amd64.whl", hash = "sha256:0057c91d230703924c0422feabe4ce768841f9b4b44d28586b6f6d2eb86fbe70", size = 148755794, upload-time = "2024-07-23T02:35:00.261Z" },
-]
-
-[[package]]
-name = "nvidia-cusparselt-cu12"
 version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/da/4de092c61c6dea1fc9c936e69308a02531d122e12f1f649825934ad651b5/nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_aarch64.whl", hash = "sha256:8371549623ba601a06322af2133c4a44350575f5a3108fb75f3ef20b822ad5f1", size = 156402859, upload-time = "2024-10-16T02:23:17.184Z" },
     { url = "https://files.pythonhosted.org/packages/3b/9a/72ef35b399b0e183bc2e8f6f558036922d453c4d8237dab26c666a04244b/nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:e5c8a26c36445dd2e6812f1177978a24e2d37cacce7e090f297a688d1ec44f46", size = 156785796, upload-time = "2024-10-15T21:29:17.709Z" },
@@ -1435,24 +1288,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-nccl-cu12"
-version = "2.21.5"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/99/12cd266d6233f47d00daf3a72739872bdc10267d0383508b0b9c84a18bb6/nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl", hash = "sha256:8579076d30a8c24988834445f8d633c697d42397e92ffc3f63fa26766d25e0a0", size = 188654414, upload-time = "2024-04-03T15:32:57.427Z" },
-]
-
-[[package]]
-name = "nvidia-nccl-cu12"
 version = "2.26.2"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/69/5b/ca2f213f637305633814ae8c36b153220e40a07ea001966dcd87391f3acb/nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:5c196e95e832ad30fbbb50381eb3cbd1fadd5675e587a548563993609af19522", size = 291671495, upload-time = "2025-03-13T00:30:07.805Z" },
     { url = "https://files.pythonhosted.org/packages/67/ca/f42388aed0fddd64ade7493dbba36e1f534d4e6fdbdd355c6a90030ae028/nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:694cf3879a206553cc9d7dbda76b13efaf610fdb70a50cba303de1b0d1530ac6", size = 201319755, upload-time = "2025-03-13T00:29:55.296Z" },
@@ -1460,26 +1297,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-nvjitlink-cu12"
-version = "12.4.127"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/02/45/239d52c05074898a80a900f49b1615d81c07fceadd5ad6c4f86a987c0bc4/nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4abe7fef64914ccfa909bc2ba39739670ecc9e820c83ccc7a6ed414122599b83", size = 20552510, upload-time = "2024-06-18T20:20:13.871Z" },
-    { url = "https://files.pythonhosted.org/packages/ff/ff/847841bacfbefc97a00036e0fce5a0f086b640756dc38caea5e1bb002655/nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:06b3b9b25bf3f8af351d664978ca26a16d2c5127dbd53c0497e28d1fb9611d57", size = 21066810, upload-time = "2024-04-03T20:59:46.957Z" },
-    { url = "https://files.pythonhosted.org/packages/81/19/0babc919031bee42620257b9a911c528f05fb2688520dcd9ca59159ffea8/nvidia_nvjitlink_cu12-12.4.127-py3-none-win_amd64.whl", hash = "sha256:fd9020c501d27d135f983c6d3e244b197a7ccad769e34df53a42e276b0e25fa1", size = 95336325, upload-time = "2024-04-03T21:06:25.073Z" },
-]
-
-[[package]]
-name = "nvidia-nvjitlink-cu12"
 version = "12.6.85"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9d/d7/c5383e47c7e9bf1c99d5bd2a8c935af2b6d705ad831a7ec5c97db4d82f4f/nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:eedc36df9e88b682efe4309aa16b5b4e78c2407eac59e8c10a6a47535164369a", size = 19744971, upload-time = "2024-11-20T17:46:53.366Z" },
     { url = "https://files.pythonhosted.org/packages/31/db/dc71113d441f208cdfe7ae10d4983884e13f464a6252450693365e166dcf/nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:cf4eaa7d4b6b543ffd69d6abfb11efdeb2db48270d94dfd3a452c24150829e41", size = 19270338, upload-time = "2024-11-20T17:46:29.758Z" },
@@ -1488,26 +1307,8 @@ wheels = [
 
 [[package]]
 name = "nvidia-nvtx-cu12"
-version = "12.4.127"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/39/471f581edbb7804b39e8063d92fc8305bdc7a80ae5c07dbe6ea5c50d14a5/nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_aarch64.whl", hash = "sha256:7959ad635db13edf4fc65c06a6e9f9e55fc2f92596db928d169c0bb031e88ef3", size = 100417, upload-time = "2024-06-18T20:16:22.484Z" },
-    { url = "https://files.pythonhosted.org/packages/87/20/199b8713428322a2f22b722c62b8cc278cc53dffa9705d744484b5035ee9/nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl", hash = "sha256:781e950d9b9f60d8241ccea575b32f5105a5baf4c2351cab5256a24869f12a1a", size = 99144, upload-time = "2024-04-03T20:56:12.406Z" },
-    { url = "https://files.pythonhosted.org/packages/54/1b/f77674fbb73af98843be25803bbd3b9a4f0a96c75b8d33a2854a5c7d2d77/nvidia_nvtx_cu12-12.4.127-py3-none-win_amd64.whl", hash = "sha256:641dccaaa1139f3ffb0d3164b4b84f9d253397e38246a4f2f36728b48566d485", size = 66307, upload-time = "2024-04-03T21:02:01.959Z" },
-]
-
-[[package]]
-name = "nvidia-nvtx-cu12"
 version = "12.6.77"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b9/93/80f8a520375af9d7ee44571a6544653a176e53c2b8ccce85b97b83c2491b/nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:f44f8d86bb7d5629988d61c8d3ae61dddb2015dee142740536bc7481b022fe4b", size = 90549, upload-time = "2024-11-20T17:38:17.387Z" },
     { url = "https://files.pythonhosted.org/packages/2b/53/36e2fd6c7068997169b49ffc8c12d5af5e5ff209df6e1a2c4d373b3a638f/nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_aarch64.whl", hash = "sha256:adcaabb9d436c9761fca2b13959a2d237c5f9fd406c8e4b723c695409ff88059", size = 90539, upload-time = "2024-10-01T17:00:27.179Z" },
@@ -1731,8 +1532,77 @@ wheels = [
 
 [[package]]
 name = "pyarrow"
+version = "19.0.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7f/09/a9046344212690f0632b9c709f9bf18506522feb333c894d0de81d62341a/pyarrow-19.0.1.tar.gz", hash = "sha256:3bf266b485df66a400f282ac0b6d1b500b9d2ae73314a153dbe97d6d5cc8a99e", size = 1129437, upload-time = "2025-02-18T18:55:57.027Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a0/55/f1a8d838ec07fe3ca53edbe76f782df7b9aafd4417080eebf0b42aab0c52/pyarrow-19.0.1-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:cc55d71898ea30dc95900297d191377caba257612f384207fe9f8293b5850f90", size = 30713987, upload-time = "2025-02-18T18:52:20.463Z" },
+    { url = "https://files.pythonhosted.org/packages/13/12/428861540bb54c98a140ae858a11f71d041ef9e501e6b7eb965ca7909505/pyarrow-19.0.1-cp311-cp311-macosx_12_0_x86_64.whl", hash = "sha256:7a544ec12de66769612b2d6988c36adc96fb9767ecc8ee0a4d270b10b1c51e00", size = 32135613, upload-time = "2025-02-18T18:52:25.29Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/8a/23d7cc5ae2066c6c736bce1db8ea7bc9ac3ef97ac7e1c1667706c764d2d9/pyarrow-19.0.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0148bb4fc158bfbc3d6dfe5001d93ebeed253793fff4435167f6ce1dc4bddeae", size = 41149147, upload-time = "2025-02-18T18:52:30.975Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/7a/845d151bb81a892dfb368bf11db584cf8b216963ccce40a5cf50a2492a18/pyarrow-19.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f24faab6ed18f216a37870d8c5623f9c044566d75ec586ef884e13a02a9d62c5", size = 42178045, upload-time = "2025-02-18T18:52:36.859Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/31/e7282d79a70816132cf6cae7e378adfccce9ae10352d21c2fecf9d9756dd/pyarrow-19.0.1-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:4982f8e2b7afd6dae8608d70ba5bd91699077323f812a0448d8b7abdff6cb5d3", size = 40532998, upload-time = "2025-02-18T18:52:42.578Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/82/20f3c290d6e705e2ee9c1fa1d5a0869365ee477e1788073d8b548da8b64c/pyarrow-19.0.1-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:49a3aecb62c1be1d822f8bf629226d4a96418228a42f5b40835c1f10d42e4db6", size = 42084055, upload-time = "2025-02-18T18:52:48.749Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/77/e62aebd343238863f2c9f080ad2ef6ace25c919c6ab383436b5b81cbeef7/pyarrow-19.0.1-cp311-cp311-win_amd64.whl", hash = "sha256:008a4009efdb4ea3d2e18f05cd31f9d43c388aad29c636112c2966605ba33466", size = 25283133, upload-time = "2025-02-18T18:52:54.549Z" },
+    { url = "https://files.pythonhosted.org/packages/78/b4/94e828704b050e723f67d67c3535cf7076c7432cd4cf046e4bb3b96a9c9d/pyarrow-19.0.1-cp312-cp312-macosx_12_0_arm64.whl", hash = "sha256:80b2ad2b193e7d19e81008a96e313fbd53157945c7be9ac65f44f8937a55427b", size = 30670749, upload-time = "2025-02-18T18:53:00.062Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/3b/4692965e04bb1df55e2c314c4296f1eb12b4f3052d4cf43d29e076aedf66/pyarrow-19.0.1-cp312-cp312-macosx_12_0_x86_64.whl", hash = "sha256:ee8dec072569f43835932a3b10c55973593abc00936c202707a4ad06af7cb294", size = 32128007, upload-time = "2025-02-18T18:53:06.581Z" },
+    { url = "https://files.pythonhosted.org/packages/22/f7/2239af706252c6582a5635c35caa17cb4d401cd74a87821ef702e3888957/pyarrow-19.0.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4d5d1ec7ec5324b98887bdc006f4d2ce534e10e60f7ad995e7875ffa0ff9cb14", size = 41144566, upload-time = "2025-02-18T18:53:11.958Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/e3/c9661b2b2849cfefddd9fd65b64e093594b231b472de08ff658f76c732b2/pyarrow-19.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f3ad4c0eb4e2a9aeb990af6c09e6fa0b195c8c0e7b272ecc8d4d2b6574809d34", size = 42202991, upload-time = "2025-02-18T18:53:17.678Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/4f/a2c0ed309167ef436674782dfee4a124570ba64299c551e38d3fdaf0a17b/pyarrow-19.0.1-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:d383591f3dcbe545f6cc62daaef9c7cdfe0dff0fb9e1c8121101cabe9098cfa6", size = 40507986, upload-time = "2025-02-18T18:53:26.263Z" },
+    { url = "https://files.pythonhosted.org/packages/27/2e/29bb28a7102a6f71026a9d70d1d61df926887e36ec797f2e6acfd2dd3867/pyarrow-19.0.1-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:b4c4156a625f1e35d6c0b2132635a237708944eb41df5fbe7d50f20d20c17832", size = 42087026, upload-time = "2025-02-18T18:53:33.063Z" },
+    { url = "https://files.pythonhosted.org/packages/16/33/2a67c0f783251106aeeee516f4806161e7b481f7d744d0d643d2f30230a5/pyarrow-19.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:5bd1618ae5e5476b7654c7b55a6364ae87686d4724538c24185bbb2952679960", size = 25250108, upload-time = "2025-02-18T18:53:38.462Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/8d/275c58d4b00781bd36579501a259eacc5c6dfb369be4ddeb672ceb551d2d/pyarrow-19.0.1-cp313-cp313-macosx_12_0_arm64.whl", hash = "sha256:e45274b20e524ae5c39d7fc1ca2aa923aab494776d2d4b316b49ec7572ca324c", size = 30653552, upload-time = "2025-02-18T18:53:44.357Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/9e/e6aca5cc4ef0c7aec5f8db93feb0bde08dbad8c56b9014216205d271101b/pyarrow-19.0.1-cp313-cp313-macosx_12_0_x86_64.whl", hash = "sha256:d9dedeaf19097a143ed6da37f04f4051aba353c95ef507764d344229b2b740ae", size = 32103413, upload-time = "2025-02-18T18:53:52.971Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/fa/a7033f66e5d4f1308c7eb0dfcd2ccd70f881724eb6fd1776657fdf65458f/pyarrow-19.0.1-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6ebfb5171bb5f4a52319344ebbbecc731af3f021e49318c74f33d520d31ae0c4", size = 41134869, upload-time = "2025-02-18T18:53:59.471Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/92/34d2569be8e7abdc9d145c98dc410db0071ac579b92ebc30da35f500d630/pyarrow-19.0.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f2a21d39fbdb948857f67eacb5bbaaf36802de044ec36fbef7a1c8f0dd3a4ab2", size = 42192626, upload-time = "2025-02-18T18:54:06.062Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/1f/80c617b1084fc833804dc3309aa9d8daacd46f9ec8d736df733f15aebe2c/pyarrow-19.0.1-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:99bc1bec6d234359743b01e70d4310d0ab240c3d6b0da7e2a93663b0158616f6", size = 40496708, upload-time = "2025-02-18T18:54:12.347Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/90/83698fcecf939a611c8d9a78e38e7fed7792dcc4317e29e72cf8135526fb/pyarrow-19.0.1-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:1b93ef2c93e77c442c979b0d596af45e4665d8b96da598db145b0fec014b9136", size = 42075728, upload-time = "2025-02-18T18:54:19.364Z" },
+    { url = "https://files.pythonhosted.org/packages/40/49/2325f5c9e7a1c125c01ba0c509d400b152c972a47958768e4e35e04d13d8/pyarrow-19.0.1-cp313-cp313-win_amd64.whl", hash = "sha256:d9d46e06846a41ba906ab25302cf0fd522f81aa2a85a71021826f34639ad31ef", size = 25242568, upload-time = "2025-02-18T18:54:25.846Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/72/135088d995a759d4d916ec4824cb19e066585b4909ebad4ab196177aa825/pyarrow-19.0.1-cp313-cp313t-macosx_12_0_arm64.whl", hash = "sha256:c0fe3dbbf054a00d1f162fda94ce236a899ca01123a798c561ba307ca38af5f0", size = 30702371, upload-time = "2025-02-18T18:54:30.665Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/01/00beeebd33d6bac701f20816a29d2018eba463616bbc07397fdf99ac4ce3/pyarrow-19.0.1-cp313-cp313t-macosx_12_0_x86_64.whl", hash = "sha256:96606c3ba57944d128e8a8399da4812f56c7f61de8c647e3470b417f795d0ef9", size = 32116046, upload-time = "2025-02-18T18:54:35.995Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/c9/23b1ea718dfe967cbd986d16cf2a31fe59d015874258baae16d7ea0ccabc/pyarrow-19.0.1-cp313-cp313t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8f04d49a6b64cf24719c080b3c2029a3a5b16417fd5fd7c4041f94233af732f3", size = 41091183, upload-time = "2025-02-18T18:54:42.662Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/d4/b4a3aa781a2c715520aa8ab4fe2e7fa49d33a1d4e71c8fc6ab7b5de7a3f8/pyarrow-19.0.1-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5a9137cf7e1640dce4c190551ee69d478f7121b5c6f323553b319cac936395f6", size = 42171896, upload-time = "2025-02-18T18:54:49.808Z" },
+    { url = "https://files.pythonhosted.org/packages/23/1b/716d4cd5a3cbc387c6e6745d2704c4b46654ba2668260d25c402626c5ddb/pyarrow-19.0.1-cp313-cp313t-manylinux_2_28_aarch64.whl", hash = "sha256:7c1bca1897c28013db5e4c83944a2ab53231f541b9e0c3f4791206d0c0de389a", size = 40464851, upload-time = "2025-02-18T18:54:57.073Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/bd/54907846383dcc7ee28772d7e646f6c34276a17da740002a5cefe90f04f7/pyarrow-19.0.1-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:58d9397b2e273ef76264b45531e9d552d8ec8a6688b7390b5be44c02a37aade8", size = 42085744, upload-time = "2025-02-18T18:55:08.562Z" },
+]
+
+[[package]]
+name = "pyarrow"
 version = "20.0.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cuda' and extra != 'extra-23-evaluating-trajectories-metal'",
+]
 sdist = { url = "https://files.pythonhosted.org/packages/a2/ee/a7810cb9f3d6e9238e61d312076a9859bf3668fd21c69744de9532383912/pyarrow-20.0.0.tar.gz", hash = "sha256:febc4a913592573c8d5805091a6c2b5064c8bd6e002131f01061797d91c783c1", size = 1125187, upload-time = "2025-04-27T12:34:23.264Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/47/a2/b7930824181ceadd0c63c1042d01fa4ef63eee233934826a7a2a9af6e463/pyarrow-20.0.0-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:24ca380585444cb2a31324c546a9a56abbe87e26069189e14bdba19c86c049f0", size = 30856035, upload-time = "2025-04-27T12:28:40.78Z" },
@@ -1901,7 +1771,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "rpds-py" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2f/db/98b5c277be99dd18bfd91dd04e1b759cad18d1a338188c936e92f921c7e2/referencing-0.36.2.tar.gz", hash = "sha256:df2e89862cd09deabbdba16944cc3f10feb6b3e6f18e902f7cc25609a34775aa", size = 74744, upload-time = "2025-01-25T08:48:16.138Z" }
 wheels = [
@@ -2208,10 +2078,9 @@ dependencies = [
     { name = "pillow" },
     { name = "scikit-learn" },
     { name = "scipy" },
-    { name = "torch", version = "2.6.0+cu124", source = { registry = "https://download.pytorch.org/whl/cu124" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-metal' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124')" },
-    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cuda' or extra == 'extra-23-evaluating-trajectories-metal' or extra != 'extra-23-evaluating-trajectories-cpu'" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
     { name = "tqdm" },
     { name = "transformers" },
     { name = "typing-extensions" },
@@ -2258,10 +2127,9 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "torch", version = "2.6.0+cu124", source = { registry = "https://download.pytorch.org/whl/cu124" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-metal' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124')" },
-    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "torch", version = "2.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cuda' or extra == 'extra-23-evaluating-trajectories-metal' or extra != 'extra-23-evaluating-trajectories-cpu'" },
+    { name = "torch", version = "2.7.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/df/25/e71fabe1fdce82118a12bd8a92900d9b5c33d2a7e545ebcf5a582a5d23e9/stable_baselines3-2.6.0.tar.gz", hash = "sha256:972ef537a9a8f2b9de06cdca87ef1f33df5fc8239cfe64fed88976d7c799c2f7", size = 214085, upload-time = "2025-03-24T14:33:14.562Z" }
 wheels = [
@@ -2297,14 +2165,15 @@ dependencies = [
     { name = "pandas" },
     { name = "pillow" },
     { name = "protobuf" },
-    { name = "pyarrow" },
+    { name = "pyarrow", version = "19.0.1", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'aarch64' or platform_machine == 'x86_64' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "pyarrow", version = "20.0.0", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
     { name = "pydeck" },
     { name = "requests" },
     { name = "tenacity" },
     { name = "toml" },
     { name = "tornado" },
     { name = "typing-extensions" },
-    { name = "watchdog", marker = "sys_platform != 'darwin' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "watchdog", marker = "sys_platform != 'darwin' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c0/52/83d46b4c5044477e9c6dee779704a9d4041610439533af9c0a5084921098/streamlit-1.45.0.tar.gz", hash = "sha256:4e99014e113a11a7163b9da5ac079efb1ae5f8575a09c5a6a9c43cd6877a2a88", size = 9462166, upload-time = "2025-04-29T17:34:33.458Z" }
 wheels = [
@@ -2313,34 +2182,8 @@ wheels = [
 
 [[package]]
 name = "sympy"
-version = "1.13.1"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-dependencies = [
-    { name = "mpmath", marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/99/5a5b6f19ff9f083671ddf7b9632028436167cd3d33e11015754e41b249a4/sympy-1.13.1.tar.gz", hash = "sha256:9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f", size = 7533040, upload-time = "2024-07-19T09:26:51.238Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/fe/81695a1aa331a842b582453b605175f419fe8540355886031328089d840a/sympy-1.13.1-py3-none-any.whl", hash = "sha256:db36cdc64bf61b9b24578b6f7bab1ecdd2452cf008f34faa33776680c26d66f8", size = 6189177, upload-time = "2024-07-19T09:26:48.863Z" },
-]
-
-[[package]]
-name = "sympy"
 version = "1.14.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version >= '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-    "python_full_version < '3.12' and extra != 'extra-23-evaluating-trajectories-cpu' and extra != 'extra-23-evaluating-trajectories-cu124' and extra != 'extra-23-evaluating-trajectories-metal'",
-]
 dependencies = [
     { name = "mpmath" },
 ]
@@ -2447,61 +2290,20 @@ wheels = [
 
 [[package]]
 name = "torch"
-version = "2.6.0+cu124"
-source = { registry = "https://download.pytorch.org/whl/cu124" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-dependencies = [
-    { name = "filelock", marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "fsspec", marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "jinja2", marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "networkx", marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cublas-cu12", version = "12.4.5.8", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cuda-cupti-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cuda-nvrtc-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cuda-runtime-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cudnn-cu12", version = "9.1.0.70", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cufft-cu12", version = "11.2.1.3", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-curand-cu12", version = "10.3.5.147", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cusolver-cu12", version = "11.6.1.9", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cusparse-cu12", version = "12.3.1.170", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-cusparselt-cu12", version = "0.6.2", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-nccl-cu12", version = "2.21.5", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-nvjitlink-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "nvidia-nvtx-cu12", version = "12.4.127", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "setuptools", marker = "(python_full_version >= '3.12' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "sympy", version = "1.13.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "triton", version = "3.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-23-evaluating-trajectories-cu124') or (platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'linux' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "typing-extensions", marker = "extra == 'extra-23-evaluating-trajectories-cu124' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal')" },
-]
-wheels = [
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp311-cp311-linux_x86_64.whl", hash = "sha256:d4c3e9a8d31a7c0fcbb9da17c31a1917e1fac26c566a4cfbd8c9568ad7cade79" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp311-cp311-win_amd64.whl", hash = "sha256:6a1fb2714e9323f11edb6e8abf7aad5f79e45ad25c081cde87681a18d99c29eb" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp312-cp312-linux_x86_64.whl", hash = "sha256:a393b506844035c0dac2f30ea8478c343b8e95a429f06f3b3cadfc7f53adb597" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp312-cp312-win_amd64.whl", hash = "sha256:3313061c1fec4c7310cf47944e84513dcd27b6173b72a349bb7ca68d0ee6e9c0" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp313-cp313-linux_x86_64.whl", hash = "sha256:0f3bc53c988ce9568cd876a2a5316761e84a8704135ec8068f5f81b4417979cb" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp313-cp313-win_amd64.whl", hash = "sha256:519330eef09534acad8110b6f423d2fe58c1d8e9ada999ed077a637a0021f908" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp313-cp313t-linux_x86_64.whl", hash = "sha256:35cba404c0d742406cdcba1609085874bc60facdfbc50e910c47a92405fef44c" },
-]
-
-[[package]]
-name = "torch"
 version = "2.7.0"
 source = { registry = "https://download.pytorch.org/whl/cpu" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'darwin'",
-    "python_full_version < '3.12' and sys_platform == 'darwin'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin'",
 ]
 dependencies = [
-    { name = "filelock", marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "fsspec", marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "jinja2", marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "networkx", marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "setuptools", marker = "(python_full_version >= '3.12' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (python_full_version < '3.12' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (python_full_version < '3.12' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version < '3.12' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "sympy", version = "1.14.0", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "typing-extensions", marker = "(sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "filelock", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "fsspec", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "jinja2", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "networkx", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "setuptools", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "sympy", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "typing-extensions", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0-cp311-none-macosx_11_0_arm64.whl", hash = "sha256:0a8d43caa342b9986101ec5feb5bbf1d86570b5caa01e9cb426378311258fdde" },
@@ -2515,31 +2317,35 @@ name = "torch"
 version = "2.7.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64'",
 ]
 dependencies = [
     { name = "filelock" },
     { name = "fsspec" },
     { name = "jinja2" },
     { name = "networkx" },
-    { name = "nvidia-cublas-cu12", version = "12.6.4.1", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-cupti-cu12", version = "12.6.80", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-nvrtc-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cuda-runtime-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cudnn-cu12", version = "9.5.1.17", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cufft-cu12", version = "11.3.0.4", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cuda-runtime-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cudnn-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cufft-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-cufile-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-curand-cu12", version = "10.3.7.77", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusolver-cu12", version = "11.7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparse-cu12", version = "12.5.4.2", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparselt-cu12", version = "0.6.3", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nccl-cu12", version = "2.26.2", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvjitlink-cu12", version = "12.6.85", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-nvtx-cu12", version = "12.6.77", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-curand-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cusolver-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cusparselt-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-nccl-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-nvtx-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "setuptools", marker = "python_full_version >= '3.12'" },
-    { name = "sympy", version = "1.14.0", source = { registry = "https://pypi.org/simple" } },
-    { name = "triton", version = "3.3.0", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "sympy" },
+    { name = "triton", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "typing-extensions" },
 ]
 wheels = [
@@ -2566,30 +2372,37 @@ name = "torch"
 version = "2.7.0+cpu"
 source = { registry = "https://download.pytorch.org/whl/cpu" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform != 'darwin'",
-    "python_full_version < '3.12' and sys_platform != 'darwin'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform != 'darwin'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and sys_platform != 'darwin'",
+    "python_full_version >= '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform != 'darwin'",
+    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform == 'darwin'",
+    "python_full_version >= '3.12' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform != 'darwin'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and sys_platform != 'darwin'",
+    "python_full_version < '3.12' and platform_machine != 'aarch64' and platform_machine != 'x86_64' and sys_platform != 'darwin'",
+    "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform == 'darwin'",
+    "python_full_version < '3.12' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
 ]
 dependencies = [
-    { name = "filelock", marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "fsspec", marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "jinja2", marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "networkx", marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "setuptools", marker = "(python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (python_full_version < '3.12' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (python_full_version < '3.12' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version < '3.12' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (sys_platform == 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "sympy", version = "1.14.0", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
-    { name = "typing-extensions", marker = "(sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "filelock", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "fsspec", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "jinja2", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "networkx", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "setuptools", marker = "(python_full_version >= '3.12' and platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (python_full_version >= '3.12' and platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (python_full_version < '3.12' and platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (python_full_version < '3.12' and platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version < '3.12' and platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version < '3.12' and platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (python_full_version < '3.12' and platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version < '3.12' and platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (python_full_version >= '3.12' and sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra != 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "sympy", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "typing-extensions", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cpu') or (platform_machine == 'aarch64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (platform_machine == 'x86_64' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cpu') or (sys_platform != 'darwin' and extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 wheels = [
-    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:ce510375ed79223db3ec144fe14cbcffc8a361ac57f39674397ff2d8db3b2c21" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:6b7edcbf8bb0b9ac2e6c001434797c5ec3f25394f91eb0ed7aeeeeed9ad4500f" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp311-cp311-win_amd64.whl", hash = "sha256:e32f385dc0b5007ca410035c3b91ef4b1b34b142e9bcdb31d3f0224b7748e992" },
-    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:a845b6f3bda3c40f736847dede95d8bfec81fb7e11458cd25973ba13542cf1f6" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:64123c05615e27368c7a7816f6e39c6d219998693beabde0b0b9cedf91b5ed8b" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-win_amd64.whl", hash = "sha256:69e25c973bdd7ea24b0fa9f9792114950afaeb8f819e5723819b923f50989175" },
-    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp312-cp312-win_arm64.whl", hash = "sha256:1d7a6f33868276770a657beec7f77c7726b4da9d0739eff1b3ae64cc9a09d8e3" },
-    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:addf9107939522ffb3b60d2900fee838a77dbe098e2643e01164f46f8612f9c0" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:3b09aa2c8d30fa567a8d13270fbf9af7ee472fdfafbc7dfdc87c607bf46001f7" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313-win_amd64.whl", hash = "sha256:99ca8f4cb53484c45bb668657069c17139c07367ea20ddef2c0ce8412f42da2f" },
-    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-manylinux_2_28_aarch64.whl", hash = "sha256:1bc9e6a4e2463582ae020d76ea0753ed9c84526e235089414d25c2c6d16ae866" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:7b31fa6b1d026542b4ed8ce7ec7ee5489413cd9bd6479c14c5ad559c15d92e3b" },
     { url = "https://download.pytorch.org/whl/cpu/torch-2.7.0%2Bcpu-cp313-cp313t-win_amd64.whl", hash = "sha256:b42cfe122faed26c6ffee1c97d64e6a1f72a081b64d457a2c97244c1497f4adc" },
 ]
@@ -2617,7 +2430,7 @@ name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cu124') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cu124' and extra == 'extra-23-evaluating-trajectories-metal')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-cuda') or (extra == 'extra-23-evaluating-trajectories-cpu' and extra == 'extra-23-evaluating-trajectories-metal') or (extra == 'extra-23-evaluating-trajectories-cuda' and extra == 'extra-23-evaluating-trajectories-metal')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
@@ -2656,34 +2469,41 @@ wheels = [
 
 [[package]]
 name = "triton"
-version = "3.2.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a7/2e/757d2280d4fefe7d33af7615124e7e298ae7b8e3bc4446cdb8e88b0f9bab/triton-3.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8009a1fb093ee8546495e96731336a33fb8856a38e45bb4ab6affd6dbc3ba220", size = 253157636, upload-time = "2025-01-22T19:12:51.322Z" },
-    { url = "https://files.pythonhosted.org/packages/06/00/59500052cb1cf8cf5316be93598946bc451f14072c6ff256904428eaf03c/triton-3.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8d9b215efc1c26fa7eefb9a157915c92d52e000d2bf83e5f69704047e63f125c", size = 253159365, upload-time = "2025-01-22T19:13:24.648Z" },
-    { url = "https://files.pythonhosted.org/packages/c7/30/37a3384d1e2e9320331baca41e835e90a3767303642c7a80d4510152cbcf/triton-3.2.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e5dfa23ba84541d7c0a531dfce76d8bcd19159d50a4a8b14ad01e91734a5c1b0", size = 253154278, upload-time = "2025-01-22T19:13:54.221Z" },
-]
-
-[[package]]
-name = "triton"
 version = "3.3.0"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version < '3.12'",
-]
 dependencies = [
-    { name = "setuptools" },
+    { name = "setuptools", marker = "platform_machine == 'x86_64'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3c/c5/4874a81131cc9e934d88377fbc9d24319ae1fb540f3333b4e9c696ebc607/triton-3.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3161a2bf073d6b22c4e2f33f951f3e5e3001462b2570e6df9cd57565bdec2984", size = 156528461, upload-time = "2025-04-09T20:27:32.599Z" },
     { url = "https://files.pythonhosted.org/packages/11/53/ce18470914ab6cfbec9384ee565d23c4d1c55f0548160b1c7b33000b11fd/triton-3.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:b68c778f6c4218403a6bd01be7484f6dc9e20fe2083d22dd8aef33e3b87a10a3", size = 156504509, upload-time = "2025-04-09T20:27:40.413Z" },
     { url = "https://files.pythonhosted.org/packages/7d/74/4bf2702b65e93accaa20397b74da46fb7a0356452c1bb94dbabaf0582930/triton-3.3.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:47bc87ad66fa4ef17968299acacecaab71ce40a238890acc6ad197c3abe2b8f1", size = 156516468, upload-time = "2025-04-09T20:27:48.196Z" },
     { url = "https://files.pythonhosted.org/packages/0a/93/f28a696fa750b9b608baa236f8225dd3290e5aff27433b06143adc025961/triton-3.3.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ce4700fc14032af1e049005ae94ba908e71cd6c2df682239aed08e49bc71b742", size = 156580729, upload-time = "2025-04-09T20:27:55.424Z" },
+]
+
+[[package]]
+name = "ty"
+version = "0.0.1a10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/23/b4/27b44dda3ffd5b10720cb8abf206609e163e9357926caa4d821be565f916/ty-0.0.1a10.tar.gz", hash = "sha256:f57455fd1fef1d6c2ee54cf482b20f6ace2b5ce7645dc30d5249d58cc92a312c", size = 3075686, upload-time = "2025-06-13T20:33:14.698Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/8f/5632f6b84c9f502a769787933e26983041239812e03ef97c7395249feae0/ty-0.0.1a10-py3-none-linux_armv6l.whl", hash = "sha256:e50f0f5704ff2a6a28b998cedb016af775202f4608a53c7aa100c7bd373dc2cb", size = 6600200, upload-time = "2025-06-13T20:32:41.693Z" },
+    { url = "https://files.pythonhosted.org/packages/40/0d/a22fac3cff8e4ef86255fedeb7d92a876c2535cac76a986a7c5dde6c7cbb/ty-0.0.1a10-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:bcb82dcadfa646a4266370704513a0b095f391f09f5a4cc32a4941d50b5950f8", size = 6720354, upload-time = "2025-06-13T20:32:47.926Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/a8/c66f2653202ba74a293188d66631416f4081b52b03c85e33ae2a64f0d55c/ty-0.0.1a10-py3-none-macosx_11_0_arm64.whl", hash = "sha256:1668a490f903a83e2ec114a3490b1cc46e1237e8e4a9d2d2cadcaacca3c0e475", size = 6368296, upload-time = "2025-06-13T20:32:49.637Z" },
+    { url = "https://files.pythonhosted.org/packages/11/21/1a45908116d1a4f90a500d295058d22f7ffd6a538f6e9d953cdec42af399/ty-0.0.1a10-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:896ad652b181fd55b2fd95bd0e6e3fe320b5122a8a0e3f2964a46ae740de7c6a", size = 6503030, upload-time = "2025-06-13T20:32:51.155Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/3f/2c6346075da30e61d8c795f56967a695f96068d6a3b53c2ed0252cd9ad72/ty-0.0.1a10-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:01a171276feaa47a91baa0a8301bfb4a0dfbcdd2100135bacb209ec21b25c5ae", size = 6472872, upload-time = "2025-06-13T20:32:53.876Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/5e/e4fbd4ed8b3ab8e3dfcc0448d4ed1711ff95ea4935ecfd04ec7b57ec35cb/ty-0.0.1a10-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:25b0f822a1070f49aa5c1477323bcfb359a6fd7b026f5ea67773fbdfd8c7b195", size = 7248847, upload-time = "2025-06-13T20:32:55.148Z" },
+    { url = "https://files.pythonhosted.org/packages/89/38/cb81bfcefabf59a8754b75100227fb231b5361c0dd7411afa895b1e1c535/ty-0.0.1a10-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:e87acad504b5ea9d5cb83303b89b0a908e21b3ac2e4ac565ee3d30c9de88f717", size = 7671011, upload-time = "2025-06-13T20:32:56.722Z" },
+    { url = "https://files.pythonhosted.org/packages/af/ae/059135dadcc3e326cf9ddc4cc5abcc618037644155d9591a78b9313861b7/ty-0.0.1a10-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:96481beaa86a2c89b87b402308e910e0a800bc9cf8fb33fdaf337966e46bc898", size = 7322529, upload-time = "2025-06-13T20:32:58.62Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/32/cba32da1ce59991eb2f2eb40ae20547b66f8d2c4ab462d2690267e627d32/ty-0.0.1a10-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:ff7d8e76b089b9aef5a9f7d9d0cb79f3f70a212fe7a78ec215ec78bfb65c9b05", size = 7227676, upload-time = "2025-06-13T20:33:00.232Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/7d/c539ea79a48b7d72911b830dfe502b5a78589b1a9f0d346eea164e15678a/ty-0.0.1a10-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1cd4adcc7e7505d6717a27bc51158a2cd3139a870c77aba71231a25bd552f415", size = 7014588, upload-time = "2025-06-13T20:33:02.035Z" },
+    { url = "https://files.pythonhosted.org/packages/26/0c/ef43f59c8dd62ed9be3573ed6a858c78c6032d6c929446b43cab8c909ab9/ty-0.0.1a10-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:1c02470cf022c6f1704f0e0a2c15a7eb86e51ece4e1a0e7db0b16ff22b97d085", size = 6401198, upload-time = "2025-06-13T20:33:03.356Z" },
+    { url = "https://files.pythonhosted.org/packages/22/3c/922f8e7a829c03bc6ca8ac14416f7b5180177018664c199dc9b0bc8b5ef0/ty-0.0.1a10-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:3b09c0da356b8b706a6e82898a21f78ae61bec96cf17b1cd50b6c9483e436003", size = 6495134, upload-time = "2025-06-13T20:33:04.688Z" },
+    { url = "https://files.pythonhosted.org/packages/d2/90/9ae44bfd1fb3102731b5b581a7e82825bad45e736e40a091540c880e96b1/ty-0.0.1a10-py3-none-musllinux_1_2_i686.whl", hash = "sha256:39878e974f1c25a0f45f99aa026da79a429dbf00b48b24c1dcc1d7dccc6765ad", size = 6913996, upload-time = "2025-06-13T20:33:06.435Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/ec/a62e279ac0bd097733c435a11a9cef9e66dff7af3b9f157186117ad63448/ty-0.0.1a10-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:c2cae00b4a5c1d1ee6a70d62542f16c4531e5af06bcf4d7376808f915ab01bf0", size = 7080426, upload-time = "2025-06-13T20:33:08.093Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/b0/7f97a73ab1f0282e3b87215cacefabbdc6e19fa99d93e6931ec52fec28a4/ty-0.0.1a10-py3-none-win32.whl", hash = "sha256:9788bf5e55242b8bcb1d6f7111e75aa5bb8a56a30e25d97483abb8ae17bc802b", size = 6303169, upload-time = "2025-06-13T20:33:09.775Z" },
+    { url = "https://files.pythonhosted.org/packages/13/ca/6cccb751923ccf73f74a4ea44e20e73ec80d1471915d06a199af350d4f9c/ty-0.0.1a10-py3-none-win_amd64.whl", hash = "sha256:12aded32a30e9e38310be7d409d5a4621dbc50637d333ffe441e5cb2e3eb0b33", size = 6837036, upload-time = "2025-06-13T20:33:11.09Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/30/19c6c8b9dbbbd60bfbe9a56941ad9f8ee09ad83cd08dd63145404959e953/ty-0.0.1a10-py3-none-win_arm64.whl", hash = "sha256:39c9483dcecde4bff0113a096afcec227e264fe60f2fcf925b9e65dbdbc78df3", size = 6461965, upload-time = "2025-06-13T20:33:13.074Z" },
 ]
 
 [[package]]

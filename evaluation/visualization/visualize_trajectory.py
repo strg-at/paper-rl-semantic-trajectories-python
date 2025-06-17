@@ -53,10 +53,6 @@ def trajectory_scatter_visualization_2d(
 
     # Rest of the function remains the same
     _, trajectory_names, paths, colors = _trajectory_path_names_colors(trajectories, emb_reduced)
-    # starting_points = [
-    #     go.Scatter(x=[p[0][0]], y=[p[0][1]], mode="markers", marker=dict(color=colors[i]), name=trajectory_names[i])
-    #     for i, p in enumerate(paths)
-    # ]
     max_len = max(len(p) for p in paths)
     data = _path_scatter_2d(paths, trajectory_names, colors, max_len)
 

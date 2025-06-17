@@ -173,3 +173,4 @@ glove_ffi/*.o
 .vscode
 data
 .venv
+.direnv

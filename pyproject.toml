@@ -29,6 +29,7 @@ dependencies = [
   "transformers (>=4.51.3,<5.0.0)",
   "sentence-transformers (>=4.1.0,<5.0.0)",
   "streamlit>=1.45.0",
+  "hdbscan>=0.8.40",
 ]
 
 [dependency-groups]
@@ -44,23 +45,30 @@ textgen = [
 tinygrad = [
     "tinygrad",
 ]
+clustering = [
+    # If you're running on GPU, compile this from source. See FAISS' Github page
+    "faiss-cpu>=1.11.0",
+]
+experimental = [
+    "ty>=0.0.1a10",
+]
 
 [project.optional-dependencies]
 cpu = [
-  "torch>=2.6.0",
+  "torch>=2.7.0",
 ]
-cu124 = [
-  "torch>=2.6.0",
+cuda = [
+  "torch>=2.7.0",
 ]
 metal = [
-  "torch>=2.6.0",
+  "torch>=2.7.0",
 ]
 
 [tool.uv]
 conflicts = [
   [
     { extra = "cpu" },
-    { extra = "cu124" },
+    { extra = "cuda" },
     { extra = "metal" },
   ],
 ]
@@ -68,7 +76,8 @@ conflicts = [
 [tool.uv.sources]
 torch = [
   { index = "pytorch-cpu", extra = "cpu" },
-  { index = "pytorch-cu124", extra = "cu124" },
+  # Currently commented, as the latest cuda is included in the standard package of torch
+  # { index = "pytorch-cu124", extra = "cu124" },
 ]
 tinygrad = {git = "https://github.com/tinygrad/tinygrad.git"}
 
@@ -88,6 +97,7 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 ignore = ["E501"]
+extend-select = ["I", "ICN"]
 line-length = 120
 
 [tool.basedpyright]

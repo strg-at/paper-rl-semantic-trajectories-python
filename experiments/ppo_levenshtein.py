@@ -1,22 +1,24 @@
 import argparse
+import logging
 import os
 import pickle
+from dataclasses import asdict, dataclass
+from typing import Literal
 
-import numpy as np
-import numpy.typing as npt
-import igraph as ig
-from sb3_contrib import MaskablePPO
-from stable_baselines3.common.type_aliases import MaybeCallback
-from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnNoModelImprovement
-from tqdm import tqdm
-from dataclasses import dataclass
-from torch.distributions import Distribution
 import dotenv
+import igraph as ig
+import numpy as np
+from sb3_contrib import MaskablePPO
+from sb3_contrib.common.maskable.utils import get_action_masks
+from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnNoModelImprovement
+from stable_baselines3.common.type_aliases import MaybeCallback
+from torch.distributions import Distribution
+from tqdm import tqdm
 
-from evaluating_trajectories.environment import trajectory_sampling
 from evaluating_trajectories.dataset import preprocessing
-from evaluating_trajectories.environment.rewards import LevenshteinReward
 from evaluating_trajectories.distances.levenshtein_distance import exact_comparison_distance
+from evaluating_trajectories.environment import trajectory_sampling
+from evaluating_trajectories.environment.rewards import LevenshteinReward
 from evaluating_trajectories.environment.website_env import WebsiteEnvironment
 from evaluating_trajectories.utils import utils
 from experiments.save_trajectory_callback import SaveTrajectoryCallback
@@ -34,6 +36,11 @@ class TrainingConfig:
     num_trajectories: int
     min_trajectory_length: int
     max_trajectory_length: int
+    skip_consecutive_duplicates: bool
+    pad_target_trajectories: bool
+    sampling_strategy: Literal["cosine_simil", "spherical_kmeans"]
+    select_cluster_closest_to_num_trajectories: bool
+    levenshtein_reward_strategy: Literal["plain", "diff", "shift"]
     eval_frequency: int
     eval_episodes: int
     train_timesteps: int
@@ -68,7 +75,10 @@ def parse_args() -> TrainingConfig:
     parser.add_argument("--gamma", type=float, default=float(os.getenv("GAMMA", "0.9")), help="Discount factor")
 
     parser.add_argument(
-        "--num-trajectories", type=int, default=int(os.getenv("NUM_TRAJECTORIES", "10")), help="Number of trajectories"
+        "--num-trajectories",
+        type=int,
+        default=int(os.getenv("NUM_TRAJECTORIES", "256")),
+        help="Number of trajectories (will split in train and test)",
     )
 
     parser.add_argument(
@@ -84,7 +94,36 @@ def parse_args() -> TrainingConfig:
         default=int(os.getenv("MAX_TRAJECTORY_LENGTH", "16")),
         help="Maximum trajectory length",
     )
-
+    parser.add_argument(
+        "--skip-consecutive-duplicates",
+        action="store_true",
+        default=os.getenv("SKIP_CONSECUTIVE_DUPLICATES", "False") in ["True", "true", "1"],
+        help="Remove duplicate node visits when they occur consecutively in sequence",
+    )
+    parser.add_argument(
+        "--pad-target-trajectories",
+        action="store_true",
+        default=os.getenv("PAD_TARGET_TRAJECTORIES", "False") in ["True", "true", "1"],
+        help="Pad target trajectories to max trajectory length",
+    )
+    parser.add_argument(
+        "--sampling-strategy",
+        default=os.getenv("SAMPLING_STRATEGY", "cosine_simil"),
+        choices=["cosine_simil", "kmeans"],
+        help="Sampling strategy for selecting trajectories",
+    )
+    parser.add_argument(
+        "--select-cluster-closest-to-num-trajectories",
+        action="store_true",
+        default=os.getenv("SELECT_CLUSTER_CLOSEST_TO_NUM_TRAJECTORIES", "False") in ["True", "true", "1"],
+        help="Select cluster closest to the number of trajectories (instead of random)",
+    )
+    parser.add_argument(
+        "--levenshtein-reward-strategy",
+        default=os.getenv("LEVENSHTEIN_REWARD_STRATEGY", "plain"),
+        choices=["plain", "diff", "shift"],
+        help="Levenshtein reward strategy (see comment in environment/rewards.py)",
+    )
     parser.add_argument(
         "--eval-frequency",
         type=int,
@@ -152,6 +191,11 @@ def parse_args() -> TrainingConfig:
         num_trajectories=args.num_trajectories,
         min_trajectory_length=args.min_trajectory_length,
         max_trajectory_length=args.max_trajectory_length,
+        skip_consecutive_duplicates=args.skip_consecutive_duplicates,
+        pad_target_trajectories=args.pad_target_trajectories,
+        sampling_strategy=args.sampling_strategy,
+        select_cluster_closest_to_num_trajectories=args.select_cluster_closest_to_num_trajectories,
+        levenshtein_reward_strategy=args.levenshtein_reward_strategy,
         eval_frequency=args.eval_frequency,
         eval_episodes=args.eval_episodes,
         train_timesteps=args.train_timesteps,
@@ -191,7 +235,8 @@ def do_train_and_eval(
     for _ in range(config.eval_episodes):
         obs, _ = eval_env.reset()
         while True:
-            action = model.predict(obs)[0]
+            action_masks = get_action_masks(eval_env)
+            action = model.predict(obs, action_masks=action_masks)[0]
             obs, _, terminated, truncated, _ = eval_env.step(int(action))
             if terminated or truncated:
                 trajectories.append(eval_env.trajectory)
@@ -218,7 +263,7 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_emb, penalty=2),
+        reward=LevenshteinReward(target_trajectories_emb, strategy=config.levenshtein_reward_strategy, penalty=2),
         reward_needs_embeddings=True,
     )
     emb_eval_env = WebsiteEnvironment(
@@ -227,7 +272,7 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_emb, penalty=2),
+        reward=LevenshteinReward(target_trajectories_emb, strategy=config.levenshtein_reward_strategy, penalty=2),
         reward_needs_embeddings=True,
     )
     nonemb_env = WebsiteEnvironment(
@@ -236,7 +281,12 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_id, distance=exact_comparison_distance, penalty=1),
+        reward=LevenshteinReward(
+            target_trajectories_id,
+            distance=exact_comparison_distance,
+            strategy=config.levenshtein_reward_strategy,
+            penalty=1,
+        ),
         reward_needs_embeddings=False,
     )
     nonemb_eval_env = WebsiteEnvironment(
@@ -245,7 +295,12 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_id, distance=exact_comparison_distance, penalty=1),
+        reward=LevenshteinReward(
+            target_trajectories_id,
+            distance=exact_comparison_distance,
+            strategy=config.levenshtein_reward_strategy,
+            penalty=1,
+        ),
         reward_needs_embeddings=False,
     )
     return emb_env, emb_eval_env, nonemb_env, nonemb_eval_env
@@ -255,7 +310,7 @@ if __name__ == "__main__":
     config = parse_args()
     print_config_summary(config)
 
-    output_folder, _ = utils.create_experiment_hash(config.n_steps, config.gamma, ".experiments")
+    output_folder = utils.create_experiment_hash_dir(asdict(config), ".experiments")
 
     print("Loading embeddings...")
     embs_with_vocab = preprocessing.load_glove_embeddings(config.glove_vocab_file, config.glove_vectors_file)
@@ -294,21 +349,57 @@ if __name__ == "__main__":
     Distribution.set_default_validate_args(False)
 
     for e in tqdm(range(config.num_experiments), desc=f"Running {config.num_experiments} experiments..."):
-        group_trajectories_id, group_trajectories_emb, starting_locations = (
-            trajectory_sampling.sample_n_semantically_similar_trajectories(
-                trajectories,
-                num_trajectories=config.num_trajectories,
-                graph=graph,
-                min_traj_length=config.min_trajectory_length,
-                max_traj_length=config.max_trajectory_length,
-                max_env_steps=config.max_trajectory_length,
-                exit_id=len(graph.vs) - 1,
+        if config.sampling_strategy == "cosine_simil":
+            group_trajectories_id, group_trajectories_emb, starting_locations = (
+                trajectory_sampling.sample_n_semantically_similar_trajectories(
+                    trajectories,
+                    num_trajectories=config.num_trajectories,
+                    graph=graph,
+                    min_traj_length=config.min_trajectory_length,
+                    max_traj_length=config.max_trajectory_length,
+                    max_env_steps=config.max_trajectory_length,
+                    exit_id=len(graph.vs) - 1,
+                    min_similarity=0.85,
+                    remove_consecutive_duplicates=config.skip_consecutive_duplicates,
+                    do_padding=config.pad_target_trajectories,
+                )
             )
+        else:
+            group_trajectories_id, group_trajectories_emb, starting_locations = (
+                trajectory_sampling.sample_with_faiss_kmeans(
+                    trajectories,
+                    num_trajectories=config.num_trajectories,
+                    graph=graph,
+                    min_traj_length=config.min_trajectory_length,
+                    max_traj_length=config.max_trajectory_length,
+                    remove_consecutive_duplicates=config.skip_consecutive_duplicates,
+                    select_cluster_closest_to_num_trajectories=config.select_cluster_closest_to_num_trajectories,
+                )
+            )
+
+        if len(group_trajectories_id) > config.num_trajectories and len(group_trajectories_id) != len(
+            group_trajectories_emb
+        ):
+            logging.warning(
+                f"Experiment {e}: number of sampled trajectories does not match the expected number ({config.num_trajectories}) or the sampled trajectories are inconsistent ({len(group_trajectories_id)}, {len(group_trajectories_emb)}). Skipping..."
+            )
+            continue
+
+        total_num_samples = len(group_trajectories_id)
+        training_size = round(total_num_samples * 0.8)
+        logging.info(
+            f"Experiment {e}: Total number of sampled trajectories: {total_num_samples}, "
+            f"Training size: {training_size}, Evaluation size: {total_num_samples - training_size}"
         )
+        group_trajectories_id_tr = group_trajectories_id[:training_size]
+        group_trajectories_emb_tr = group_trajectories_emb[:training_size]
+        group_trajectories_id_te = group_trajectories_id[training_size:]
+        group_trajectories_emb_te = group_trajectories_emb[training_size:]
+
         emb_env, emb_eval_env, nonemb_env, nonemb_eval_env = prepare_environment(
             starting_locations,
-            group_trajectories_emb,
-            group_trajectories_id,
+            group_trajectories_emb_tr,
+            group_trajectories_id_tr,
             graph,
             embeddings.min(),
             embeddings.max(),
@@ -317,8 +408,26 @@ if __name__ == "__main__":
         exp_folder = os.path.join(output_folder, f"experiment_{e + 1}")
         os.makedirs(exp_folder, exist_ok=True)
 
-        with open(os.path.join(output_folder, "trajectories_target.pkl"), "wb") as f:
+        with open(os.path.join(exp_folder, "trajectories_target.pkl"), "wb") as f:
             pickle.dump({"trajectory_id": group_trajectories_id, "trajectory_emb": group_trajectories_emb}, f)
+
+        with open(os.path.join(exp_folder, "trajectories_target_train.pkl"), "wb") as f:
+            pickle.dump(
+                {
+                    "trajectory_id": group_trajectories_id_tr,
+                    "trajectory_emb": group_trajectories_emb_tr,
+                },
+                f,
+            )
+
+        with open(os.path.join(exp_folder, "trajectories_target_test.pkl"), "wb") as f:
+            pickle.dump(
+                {
+                    "trajectory_id": group_trajectories_id_te,
+                    "trajectory_emb": group_trajectories_emb_te,
+                },
+                f,
+            )
 
         lev_emb_model = MaskablePPO(
             "MlpPolicy", emb_env, gamma=config.gamma, verbose=1, device=config.device, n_steps=config.n_steps
@@ -346,3 +455,6 @@ if __name__ == "__main__":
         do_train_and_eval(
             lev_nonemb_model, nonemb_eval_env, config, exp_folder, nonemb_model_name, callback=nonemb_callback
         )
+
+        lev_emb_model.save(os.path.join(exp_folder, "model_with_cosine_levensth.zip"))
+        lev_nonemb_model.save(os.path.join(exp_folder, "model_with_exact_levensth.zip"))
