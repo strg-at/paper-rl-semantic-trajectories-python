@@ -5,12 +5,12 @@ import numpy as np
 import ot
 
 
-def wasserstein(x, y, weights_x, weights_y):
+def wasserstein(x, y, weights_x, weights_y) -> float:
     M = ot.dist(x, y, metric="cosine")
     return ot.emd2(weights_x, weights_y, M, check_marginals=False)
 
 
-def wasserstein_uniform(x, y):
+def wasserstein_uniform(x, y) -> float:
     samples_x = x.shape[0]
     samples_y = y.shape[0]
     weights_x = np.ones((samples_x,)) / samples_x

@@ -37,13 +37,13 @@ pipx install uv
 You can then install the project dependencies in a virtual environment with:
 
 ```bash
-uv sync --extra cpu  # use --extra gpu if you're running on nvidia or --extra metal if running on Mac Metal cpus
+uv sync --extra cpu  # use --extra cuda if you're running on nvidia or --extra metal if running on Mac Metal cpus
 ```
 
 If you also want development tools and libraries:
 
 ```bash
-uv sync --extra cpu --extra dev
+uv sync --extra cpu --group dev
 ```
 
 You can then enable the environment with:
@@ -51,6 +51,15 @@ You can then enable the environment with:
 ```bash
 source .venv/bin/activate
 ```
+
+If you want to run the experiments, you should also install the `clustering` group with:
+
+```bash
+uv sync --group clustering --extra cuda
+```
+
+This will install `faiss-cpu`. If you're running on GPU, you might want to
+compile FAISS from source. See [FAISS' Github instructions](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md).
 
 _Notice_: UV can also manage python versions. See [Install Python](https://docs.astral.sh/uv/guides/install-python/).
 

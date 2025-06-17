@@ -1,4 +1,5 @@
 from stable_baselines3.common.callbacks import BaseCallback
+from sb3_contrib.common.maskable.utils import get_action_masks
 import pickle
 import os
 
@@ -20,7 +21,8 @@ class SaveTrajectoryCallback(BaseCallback):
             truncated = False
             trajectory = [int(eval_env.envs[0].agent_location)]
             while not (terminated or truncated):
-                action, _ = self.model.predict(obs)
+                action_masks = get_action_masks(eval_env.envs[0])
+                action, _ = self.model.predict(obs, action_masks=action_masks)
                 obs, _, terminated, truncated_dict = eval_env.step(action)
                 truncated = truncated_dict[0]["TimeLimit.truncated"]
                 trajectory.append(int(action))

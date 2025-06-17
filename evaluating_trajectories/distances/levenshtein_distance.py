@@ -1,6 +1,6 @@
+import operator
 from collections.abc import Sequence
 from typing import Any, Callable
-import operator
 
 import numpy as np
 import numpy.typing as npt

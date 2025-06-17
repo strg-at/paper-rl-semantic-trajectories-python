@@ -57,6 +57,7 @@ class WebsiteEnvironment(gym.Env):
         self.trajectory = [self.agent_location]
         observation = self._get_obs()
         info = self._get_info()
+        self.reward.reset()
         return observation, info
 
     def step(self, action: int) -> tuple[npt.NDArray, float, bool, bool, dict]:
@@ -68,7 +69,8 @@ class WebsiteEnvironment(gym.Env):
         """
 
         terminated = action == self.exit_action
-        self.trajectory.append(action)
+        if not terminated:
+            self.trajectory.append(action)
         self.agent_location = action
 
         observation = self._get_obs()
