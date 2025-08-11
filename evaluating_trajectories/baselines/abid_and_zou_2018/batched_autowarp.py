@@ -1,162 +1,224 @@
 import torch
-import tqdm
-import numpy as np
-import random
-from scipy.spatial.distance import pdist, squareform
+from torch.utils.data import DataLoader
+import torch.nn as nn
+import torch.nn.functional as F
 
+import evaluating_trajectories.models.lstm as lstm
+import experiments.experiment_betacv as exp_betacv
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def compute_latent_representations(trajectories, encoder, max_len):
+
+def compute_latents_for_threshold(dataloader: DataLoader, encoder: exp_betacv.EncoderForAutowarp, max_len: int) -> torch.Tensor:
+    """
+    Works with your discrete-ID encoder (nn.Embedding inside).
+    Returns H: (N, H) final hidden state per trajectory (no grad).
+    """
+    device = next(encoder.parameters()).device
     encoder.eval()
-    latents = []
+    chunks = []
     with torch.no_grad():
-        for traj in trajectories:
-            input_seq = torch.tensor(traj[:max_len], dtype=torch.long).unsqueeze(0).to(DEVICE)
-            _, hidden = encoder(input_seq)
-            h_n, _ = hidden
-            vec = h_n.squeeze()   # No .cpu().numpy()
-            latents.append(vec)
-    return torch.stack(latents)
+        for x, _ in dataloader: # x: (B, T, D)
+            x = x[:, :max_len].to(device)
+            h = encoder(x) # h: (B, H)  (wrapper returns latent directly)
+            chunks.append(h)
+    return torch.cat(chunks, dim=0) 
 
 
-def soft_dtw_matrix(x, y, alpha, gamma, epsilon):
-    x = x.to(dtype=torch.float64)
-    y = y.to(dtype=torch.float64)
+def _sigma_eps(x, eps_over_1_minus):
+    # x >= 0 scalar tensor, y = eps/(1-eps)
+    return eps_over_1_minus * torch.tanh(x / (eps_over_1_minus + 1e-12))
 
-    if x.size(0) < 2 or y.size(0) < 2:
-        print("Skipping short sequences:", x.size(0), y.size(0))
-        return alpha * 0.0 + gamma * 0.0 + epsilon * 0.0
+def warping_distance(X, Y, raw_alpha, raw_gamma, raw_epsilon):
+    """
+    X: (n, D), Y: (m, D) continuous trajectories
+    Returns scalar distance with Eq. (1) exactly:
+      diag:        σ(||X[i]-Y[j]||, ε/(1-ε))
+      horiz/vert:  (α/(1-α))*σ(||X[i]-Y[j]||, ε/(1-ε)) + γ
+    """
+    device = X.device
+    n, m = X.size(0), Y.size(0)
 
-    L1, L2 = x.size(0), y.size(0)
-    D = torch.cdist(x.unsqueeze(1), y.unsqueeze(1), p=2)
-    D = alpha * D + gamma
-    if torch.isnan(D).any() or torch.isinf(D).any():
-        print("D contains nan/inf at start")
-        return alpha * 0.0 + gamma * 0.0 + epsilon * 0.0
+    alpha    = torch.sigmoid(raw_alpha)     # (0,1)
+    gamma    = F.softplus(raw_gamma)        # >= 0
+    epsilon  = torch.sigmoid(raw_epsilon)   # (0,1)
+    a_scaled = alpha / (1 - alpha + 1e-12)
+    eps_par  = epsilon / (1 - epsilon + 1e-12)
 
-    # Initialize R first, then set [0,0]
-    R = torch.zeros((L1 + 1, L2 + 1), device=x.device, dtype=torch.float64) + float("inf")
-    R[0, 0] = 0.0
-    R[1:, 0] = float('inf')
-    R[0, 1:] = float('inf')
+    # DP table
+    dp = torch.full((n+1, m+1), float('inf'), device=device, dtype=X.dtype)
+    dp[0, 0] = X.new_tensor(0.0)
 
-    epsilon = torch.clamp(epsilon, min=1e-3)
+    null = torch.zeros(X.size(1), device=device)
 
-    for i in range(1, L1 + 1):
-        for j in range(1, L2 + 1):
-            rmin = torch.stack([
-                -R[i - 1, j],
-                -R[i, j - 1],
-                -R[i - 1, j - 1]
-            ])
-            finite_mask = torch.isfinite(rmin)
-            if not finite_mask.any():
-                R[i, j] = 1e6  # No valid path, assign large value
+    for i in range(0, n+1):
+        for j in range(0, m+1):
+            if i == 0 and j == 0: 
                 continue
-            softmin = -epsilon * torch.logsumexp(rmin[finite_mask] / -epsilon, dim=0)
-            if torch.isnan(softmin) or torch.isinf(softmin):
-                print(f"NaN/Inf detected at i={i}, j={j}, rmin={rmin}, epsilon={epsilon}")
-                return alpha * 0.0 + gamma * 0.0 + epsilon * 0.0 
-            R[i, j] = D[i - 1, j - 1] + softmin
-            if torch.isnan(R[i, j]) or torch.isinf(R[i, j]):
-                print(f"NaN/Inf in R at {i},{j}")
-                return alpha * 0.0 + gamma * 0.0 + epsilon * 0.0 
+            # End-state vectors (use null when index == 0)
+            xi = X[i-1] if i>0 else null
+            yj = Y[j-1] if j>0 else null
+            dist = torch.norm(xi - yj)
+            s = _sigma_eps(dist, eps_par)
 
-    return R[L1, L2]
+            candidates = []
+            # diagonal: (i-1, j-1) -> (i, j)
+            if i>0 and j>0:
+                candidates.append(dp[i-1, j-1] + s)
+            # vertical: (i-1, j) -> (i, j)
+            if i>0:
+                candidates.append(dp[i-1, j] + a_scaled*s + gamma)
+            # horizontal: (i, j-1) -> (i, j)
+            if j>0:
+                candidates.append(dp[i, j-1] + a_scaled*s + gamma)
 
-
-def compute_distance_matrix(latents):
-    # Ensure latents is on CPU and NumPy for scipy
-    latents_np = latents.detach().cpu().numpy()
-    return squareform(pdist(latents_np, metric='euclidean'))
-
-
-def sample_pairs(dist_matrix, threshold, num_pairs):
-    N = dist_matrix.shape[0]
-    all_pairs = [(i, j) for i in range(N) for j in range(i + 1, N)]
-    close_pairs = [pair for pair in all_pairs if dist_matrix[pair[0], pair[1]] < threshold]
-
-    Pc = random.sample(close_pairs, min(len(close_pairs), num_pairs))
-    Pall = random.sample(all_pairs, min(len(all_pairs), num_pairs))
-    return Pc, Pall
+            dp[i, j] = torch.min(torch.stack(candidates))
+    return dp[n, m]
 
 
-def autowarp_distance(latent_i, latent_j, alpha, gamma, epsilon):
-    return soft_dtw_matrix(latent_i, latent_j, alpha, gamma, epsilon)
+def distance_matrix(H: torch.Tensor) -> torch.Tensor:
+    """Compute pairwise Euclidean distances between latent representations"""
+    return torch.cdist(H, H)  # (N, N)
 
 
-def align_warping(latents, alpha, gamma, epsilon, pairs):
-    total = torch.tensor(0.0, device=DEVICE)
-    count = 0
+def precompute_pairs(D_lat: torch.Tensor, percentile: int):
+    """Extract pairs for close/all sampling based on latent distances"""
+    iu = torch.triu_indices(D_lat.size(0), D_lat.size(1), offset=1)
+    tri = D_lat[iu[0], iu[1]]
+    delta = torch.quantile(tri, percentile/100.0)
+    
+    # Close pairs: latent distance < threshold
+    close_mask = D_lat < delta
+    Ci, Cj = torch.where(torch.triu(close_mask, diagonal=1))
+    
+    # All pairs
+    Ai, Aj = iu[0], iu[1]
+    
+    if Ci.numel() == 0:
+        raise RuntimeError(f"No close pairs found with percentile {percentile}. Try increasing percentile or check latent representations.")
+    
+    return (Ci, Cj, Ai, Aj, delta)
+
+
+def build_originals(dataset: exp_betacv.TrajectoryDataset, max_len: int, embedding_weight: torch.Tensor) -> list[torch.Tensor]:
+    """
+    Convert discrete token sequences to continuous trajectories via embedding lookup.
+    embedding_weight: (vocab_size, D) tensor with frozen weights
+    Returns list of (Li, D) tensors
+    """
+    trajectories = []
+    device = embedding_weight.device
+    
+    for seq in dataset.sequences:
+        ids = seq[:max_len].to(device)
+        continuous_traj = embedding_weight.index_select(0, ids)
+        trajectories.append(continuous_traj)
+    
+    return trajectories
+
+
+def sum_over_pairs(trajectories: list[torch.Tensor], alpha, gamma, epsilon, pairs: list[tuple[int,int]]) -> torch.Tensor:
+    """Compute sum of warping distances over given pairs"""
+    total = torch.zeros((), device=DEVICE)
+    
     for i, j in pairs:
-        xi, xj = latents[i], latents[j]
-        if xi.shape[0] < 2 or xj.shape[0] < 2:
+        traj_A, traj_B = trajectories[i], trajectories[j]
+        
+        # Skip very short trajectories
+        if traj_A.size(0) < 2 or traj_B.size(0) < 2:
             continue
-        d = autowarp_distance(xi, xj, alpha, gamma, epsilon)
-        if torch.isnan(d) or torch.isinf(d):
-            continue
-        total += d.squeeze() if d.dim() > 0 else d
-        count += 1
-    return total  # return sum not mean
+            
+        dist = warping_distance(traj_A, traj_B, alpha, gamma, epsilon)
+        
+        if torch.isfinite(dist):
+            total = total + dist
+    
+    return total
 
 
 def batched_autowarp(
-    trajectories,
-    encoder,
-    max_len,
-    percentile=20,
-    lr=0.01,
-    batch_size=32,
-    max_iters=100,
-    convergence_tol=1e-4
+    dataloader: DataLoader,
+    encoder: exp_betacv.EncoderForAutowarp,
+    dataset: exp_betacv.TrajectoryDataset,
+    max_len: int,
+    percentile: int = 20, # this needs to be low, so close pairs are only pairs below the 20th percentile
+    lr: float = 0.01,
+    pair_batch_size: int = 64,
+    max_iters: int = 50,
+    convergence_tol: float = 1e-4,
+    embedding_weight: torch.Tensor | None = None,
 ):
-    # latent representations
-    latents = compute_latent_representations(trajectories, encoder, max_len)
-    dist_matrix = compute_distance_matrix(latents)
+    """
+    Batched Autowarp (single run, no restarts):
+      1) get latents h from encoder
+      2) define δ from pairwise latent distances
+      3) minimize betaCV over raw α, γ, ε with correct transforms
+    """
+    device = next(encoder.parameters()).device
+    print(f"Running Autowarp on device: {device}")
 
-    # distance threshold δ
-    distances = dist_matrix[np.triu_indices_from(dist_matrix, k=1)]
-    threshold = np.percentile(distances, percentile)
-    # initialize parameters α, γ, ε randomly between 0 and 1
-    alpha = torch.rand(1, requires_grad=True, device=DEVICE)
-    gamma = torch.rand(1, requires_grad=True, device=DEVICE)
-    epsilon = torch.rand(1, requires_grad=True, device=DEVICE)
+    # Step 1: latents H
+    print("Computing latent representations...")
+    H = compute_latents_for_threshold(dataloader, encoder, max_len)  # (N, H)
+    print(f"Computed {H.size(0)} latent representations of dimension {H.size(1)}")
 
-    optimizer = torch.optim.SGD([alpha, gamma, epsilon], lr=lr)
+    # Step 2: originals (continuous) via frozen embedding
+    if embedding_weight is None:
+        raise ValueError("embedding_weight is required to convert discrete tokens to continuous trajectories.")
+    trajectories = build_originals(dataset, max_len=max_len, embedding_weight=embedding_weight)
 
+    D_latent = distance_matrix(H)
+    Ci, Cj, Ai, Aj, delta = precompute_pairs(D_latent, percentile)
+    print(f"Found {len(Ci)} close pairs and {len(Ai)} total pairs (threshold: {float(delta):.4f})")
+
+    # randomly initialize raw parameters
+    raw_alpha   = torch.randn((), device=device, requires_grad=True)
+    raw_gamma   = torch.randn((), device=device, requires_grad=True)
+    raw_epsilon = torch.randn((), device=device, requires_grad=True)
+    optimizer = torch.optim.Adam([raw_alpha, raw_gamma, raw_epsilon], lr=lr)
+
+    print("Starting parameter optimization...")
     prev_beta = None
-    beta_val = 0.0  # initialize beta_val to ensure it is always defined
+    current_beta = None
 
-    for step in tqdm.tqdm(range(max_iters), desc="Autowarp optimization"):
-        # sample trajectory pairs
-        Pc, Pall = sample_pairs(dist_matrix, threshold, batch_size)
+    for step in range(max_iters):
+        # Sample S pairs from close and S from all
+        S_close = min(pair_batch_size, Ci.numel())
+        S_all   = min(pair_batch_size, Ai.numel())
+        idx_c = torch.randint(0, Ci.numel(), (S_close,), device=device)
+        idx_a = torch.randint(0, Ai.numel(), (S_all,),   device=device)
+        pairs_close = [(int(Ci[k]), int(Cj[k])) for k in idx_c]
+        pairs_all   = [(int(Ai[k]), int(Aj[k])) for k in idx_a]
 
         optimizer.zero_grad()
-
-        sum_close = align_warping(latents, alpha, gamma, epsilon, Pc)
-        sum_all = align_warping(latents, alpha, gamma, epsilon, Pall)
-        beta_cv = sum_close / (sum_all + 1e-8)
-
-        # gradient descent
-        beta_cv.backward()
+        num = sum_over_pairs(trajectories, raw_alpha, raw_gamma, raw_epsilon, pairs_close)
+        den = sum_over_pairs(trajectories, raw_alpha, raw_gamma, raw_epsilon, pairs_all)
+        beta_hat = num / (den + 1e-12)
+        beta_hat.backward()
         optimizer.step()
 
-        beta_val = beta_cv.item()
-
-        # convergence check
-        if prev_beta is not None and abs(beta_val - prev_beta) < convergence_tol:
-            print(f"Converged at step {step} with β̂ ≈ {beta_val:.4f}")
+        current_beta = float(beta_hat.detach().cpu())
+        if prev_beta is not None and abs(current_beta - prev_beta) < convergence_tol:
+            print(f"Converged at step {step} with β̂ = {current_beta:.4f}")
             break
-        prev_beta = beta_val
+        prev_beta = current_beta
 
         if step % 10 == 0:
-            tqdm.tqdm.write(
-                f"Step {step} — β̂: {beta_val:.4f}, "
-                f"α: {alpha.item():.3f}, γ: {gamma.item():.3f}, ε: {epsilon.item():.3f}"
-            )
+            a = torch.sigmoid(raw_alpha).item()
+            g = F.softplus(raw_gamma).item()
+            e = torch.sigmoid(raw_epsilon).item()
+            print(f"Step {step:3d} | β̂: {current_beta:.4f} | α: {a:.3f} | γ: {g:.3f} | ε: {e:.3f}")
 
-    print("Finished optimization.")
-    print(f"β̂: {beta_val:.4f}, "
-                f"α: {alpha.item():.3f}, γ: {gamma.item():.3f}, ε: {epsilon.item():.3f}")
-    return beta_val, alpha.item(), gamma.item(), epsilon.item()
+    # Final parameter values
+    final_alpha   = torch.sigmoid(raw_alpha).item()
+    final_gamma   = F.softplus(raw_gamma).item()
+    final_epsilon = torch.sigmoid(raw_epsilon).item()
+    final_beta    = current_beta if current_beta is not None else float('nan')
+
+    print("\nFinal Results:")
+    print(f"β̂: {final_beta:.4f}")
+    print(f"α: {final_alpha:.3f}")
+    print(f"γ: {final_gamma:.3f}")
+    print(f"ε: {final_epsilon:.3f}")
+
+    return final_beta, final_alpha, final_gamma, final_epsilon
