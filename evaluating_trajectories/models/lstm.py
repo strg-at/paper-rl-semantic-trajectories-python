@@ -1,3 +1,4 @@
+from numpy import True_
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,9 +25,9 @@ class EncoderRNN(nn.Module):
 class BahdanauAttention(nn.Module):
     def __init__(self, hidden_size: int):
         super().__init__()
-        self.Wa = nn.Linear(hidden_size, hidden_size, bias=False)
-        self.Ua = nn.Linear(hidden_size, hidden_size, bias=False)
-        self.Va = nn.Linear(hidden_size, 1, bias=False)
+        self.Wa = nn.Linear(hidden_size, hidden_size, bias=True)
+        self.Ua = nn.Linear(hidden_size, hidden_size, bias=True)
+        self.Va = nn.Linear(hidden_size, 1, bias=True)
 
     def forward(self, query, keys):  # query: (B,1,H), keys: (B,T,H)
         scores = self.Va(torch.tanh(self.Wa(query) + self.Ua(keys)))  # (B,T,1)

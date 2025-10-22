@@ -6,10 +6,7 @@ import torch.nn.functional as F
 import evaluating_trajectories.models.lstm as lstm
 import experiments.experiment_betacv as exp_betacv
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-def compute_latents_for_threshold(dataloader: DataLoader, encoder: exp_betacv.EncoderForAutowarp, max_len: int) -> torch.Tensor:
+def compute_latents(dataloader: DataLoader, encoder: exp_betacv.EncoderForAutowarp) -> torch.Tensor:
     """
     Works with your discrete-ID encoder (nn.Embedding inside).
     Returns H: (N, H) final hidden state per trajectory (no grad).
@@ -19,7 +16,7 @@ def compute_latents_for_threshold(dataloader: DataLoader, encoder: exp_betacv.En
     chunks = []
     with torch.no_grad():
         for x, _ in dataloader: # x: (B, T, D)
-            x = x[:, :max_len].to(device)
+            x = x.to(device)
             h = encoder(x) # h: (B, H)  (wrapper returns latent directly)
             chunks.append(h)
     return torch.cat(chunks, dim=0) 
@@ -76,11 +73,6 @@ def warping_distance(X, Y, raw_alpha, raw_gamma, raw_epsilon):
     return dp[n, m]
 
 
-def distance_matrix(H: torch.Tensor) -> torch.Tensor:
-    """Compute pairwise Euclidean distances between latent representations"""
-    return torch.cdist(H, H)  # (N, N)
-
-
 def precompute_pairs(D_lat: torch.Tensor, percentile: int):
     """Extract pairs for close/all sampling based on latent distances"""
     iu = torch.triu_indices(D_lat.size(0), D_lat.size(1), offset=1)
@@ -100,7 +92,7 @@ def precompute_pairs(D_lat: torch.Tensor, percentile: int):
     return (Ci, Cj, Ai, Aj, delta)
 
 
-def build_originals(dataset: exp_betacv.TrajectoryDataset, max_len: int, embedding_weight: torch.Tensor) -> list[torch.Tensor]:
+def build_originals(dataset: exp_betacv.TrajectoryDataset, embedding_weight: torch.Tensor) -> list[torch.Tensor]:
     """
     Convert discrete token sequences to continuous trajectories via embedding lookup.
     embedding_weight: (vocab_size, D) tensor with frozen weights
@@ -110,7 +102,7 @@ def build_originals(dataset: exp_betacv.TrajectoryDataset, max_len: int, embeddi
     device = embedding_weight.device
     
     for seq in dataset.sequences:
-        ids = seq[:max_len].to(device)
+        ids = seq.to(device)
         continuous_traj = embedding_weight.index_select(0, ids)
         trajectories.append(continuous_traj)
     
@@ -119,19 +111,23 @@ def build_originals(dataset: exp_betacv.TrajectoryDataset, max_len: int, embeddi
 
 def sum_over_pairs(trajectories: list[torch.Tensor], alpha, gamma, epsilon, pairs: list[tuple[int,int]]) -> torch.Tensor:
     """Compute sum of warping distances over given pairs"""
-    total = torch.zeros((), device=DEVICE)
-    
+    device = trajectories[0].device if trajectories else torch.device("cpu")
+    total = torch.zeros((), device=device) 
+    finite_cnt = 0
     for i, j in pairs:
         traj_A, traj_B = trajectories[i], trajectories[j]
-        
-        # Skip very short trajectories
-        if traj_A.size(0) < 2 or traj_B.size(0) < 2:
-            continue
             
         dist = warping_distance(traj_A, traj_B, alpha, gamma, epsilon)
-        
         if torch.isfinite(dist):
             total = total + dist
+            finite_cnt += 1
+
+    if finite_cnt == 0:
+        # Big but finite; avoid overflow and NaNs
+        dtype = total.dtype
+        finfo = torch.finfo(dtype)
+        penalty = torch.tensor(min(1e9, finfo.max / 10), device=device, dtype=dtype)
+        return penalty
     
     return total
 
@@ -140,9 +136,6 @@ def batched_autowarp(
     dataloader: DataLoader,
     encoder: exp_betacv.EncoderForAutowarp,
     dataset: exp_betacv.TrajectoryDataset,
-    max_len: int,
-    percentile: int = 20, # this needs to be low, so close pairs are only pairs below the 20th percentile
-    lr: float = 0.01,
     pair_batch_size: int = 64,
     max_iters: int = 50,
     convergence_tol: float = 1e-4,
@@ -159,15 +152,16 @@ def batched_autowarp(
 
     # Step 1: latents H
     print("Computing latent representations...")
-    H = compute_latents_for_threshold(dataloader, encoder, max_len)  # (N, H)
+    H = compute_latents(dataloader, encoder)  # (N, H)
     print(f"Computed {H.size(0)} latent representations of dimension {H.size(1)}")
 
     # Step 2: originals (continuous) via frozen embedding
     if embedding_weight is None:
         raise ValueError("embedding_weight is required to convert discrete tokens to continuous trajectories.")
-    trajectories = build_originals(dataset, max_len=max_len, embedding_weight=embedding_weight)
+    trajectories = build_originals(dataset, embedding_weight=embedding_weight)
 
-    D_latent = distance_matrix(H)
+    # this computes the distance matrix! 
+    D_latent = torch.cdist(H, H)  # (N, N)
     Ci, Cj, Ai, Aj, delta = precompute_pairs(D_latent, percentile)
     print(f"Found {len(Ci)} close pairs and {len(Ai)} total pairs (threshold: {float(delta):.4f})")
 
