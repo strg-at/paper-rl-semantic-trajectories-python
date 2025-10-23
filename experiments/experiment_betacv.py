@@ -22,7 +22,7 @@ class TrajectoryDataset(Dataset):
 
 
 def load_glove_embeddings(path: str, vocab_size: int, embedding_dim: int, id2idx: dict) -> torch.Tensor:
-    embeddings = np.random.normal(0, 0.02, (vocab_size, embedding_dim))
+    embeddings = np.zeros((vocab_size, embedding_dim))
     embeddings[0] = 0.0  # padding stays zero
 
     with open(path, "r") as f:
@@ -170,9 +170,6 @@ if __name__ == "__main__":
 
     # FROZEN embedding to get continuous states for both encoder and original trajectories
     STATE_DIM = 100  # D; often match hidden size
-    embedding_matrix = load_glove_embeddings("glove_vectors.txt", vocab_size, STATE_DIM, id2idx)
-    fixed_state_embed = nn.Embedding.from_pretrained(embedding_matrix, freeze=True, padding_idx=0).to(device)
-    fixed_state_embed.weight.requires_grad_(False)
 
     dataset = TrajectoryDataset(trajectory_list_remap)
 
@@ -191,23 +188,6 @@ if __name__ == "__main__":
         freeze_before_autowarp(encoder)
 
         originals_builder = lambda: build_originals_glove(dataset, fixed_embed.weight)
-        beta_val, alpha, gamma, epsilon = betacv.batched_autowarp(
-            dataloader=dataloader,
-            encoder=EncoderForAutowarp(encoder),
-            originals_builder=originals_builder,
-            max_iters=100,
-        )
-        with open("autowarp_results_glove.json", "w") as f:
-            json.dump(
-                {
-                    "betaCV": beta_val,
-                    "alpha": alpha,
-                    "gamma": gamma,
-                    "epsilon": epsilon,
-                },
-                f,
-                indent=2,
-            )
 
     elif EMBEDDING_MODE == "latent":
         trainable_embed = nn.Embedding(vocab_size, STATE_DIM, padding_idx=0).to(device)
@@ -228,22 +208,24 @@ if __name__ == "__main__":
         freeze_before_autowarp(encoder, trainable_embed)
 
         originals_builder = lambda: build_originals_encoder_outputs(dataset, collate, encoder, batch_size=64)
-        beta_val, alpha, gamma, epsilon = betacv.batched_autowarp(
-            dataloader=dataloader,
-            encoder=EncoderForAutowarp(encoder),
-            originals_builder=originals_builder,
-            max_iters=100,
-        )
-        with open("autowarp_results_latent.json", "w") as f:
-            json.dump(
-                {
-                    "betaCV": beta_val,
-                    "alpha": alpha,
-                    "gamma": gamma,
-                    "epsilon": epsilon,
-                },
-                f,
-                indent=2,
-            )
+
     else:
         raise ValueError("embedding_mode must be 'glove' or 'latent'.")
+
+    beta_val, alpha, gamma, epsilon = betacv.batched_autowarp(
+        dataloader=dataloader,
+        encoder=EncoderForAutowarp(encoder),
+        originals_builder=originals_builder,
+        max_iters=100,
+    )
+    with open("autowarp_results_latent.json", "w") as f:
+        json.dump(
+            {
+                "betaCV": beta_val,
+                "alpha": alpha,
+                "gamma": gamma,
+                "epsilon": epsilon,
+            },
+            f,
+            indent=2,
+        )
