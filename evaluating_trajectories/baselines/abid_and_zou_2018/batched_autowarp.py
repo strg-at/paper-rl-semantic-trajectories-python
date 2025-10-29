@@ -1,8 +1,9 @@
-import torch
 import typing
-from torch.utils.data import DataLoader
+
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 
 import evaluating_trajectories.models.lstm as lstm
 import experiments.experiment_betacv as exp_betacv

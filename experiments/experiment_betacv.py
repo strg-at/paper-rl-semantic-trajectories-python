@@ -1,10 +1,11 @@
 import json
+
 import duckdb
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
 from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data import DataLoader, Dataset
 
 import evaluating_trajectories.baselines.abid_and_zou_2018 as betacv
 import evaluating_trajectories.models.lstm as lstm

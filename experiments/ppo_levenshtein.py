@@ -25,6 +25,8 @@ from experiments.save_trajectory_callback import SaveTrajectoryCallback
 
 dotenv.load_dotenv()
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 @dataclass
 class TrainingConfig:
@@ -41,6 +43,7 @@ class TrainingConfig:
     sampling_strategy: Literal["cosine_simil", "spherical_kmeans"]
     select_cluster_closest_to_num_trajectories: bool
     levenshtein_reward_strategy: Literal["plain", "diff", "shift"]
+    use_damerau_levensht: bool
     eval_frequency: int
     eval_episodes: int
     train_timesteps: int
@@ -125,6 +128,12 @@ def parse_args() -> TrainingConfig:
         help="Levenshtein reward strategy (see comment in environment/rewards.py)",
     )
     parser.add_argument(
+        "--use-damerau-levensht",
+        action="store_true",
+        default=os.getenv("USE_DAMERAU_LEVENSTH", "False") in ["True", "true", "1"],
+        help="Use Damerau-Levenshtein distance instead of Levenshtein distance",
+    )
+    parser.add_argument(
         "--eval-frequency",
         type=int,
         default=int(os.getenv("EVAL_FREQUENCY", "4096")),
@@ -196,6 +205,7 @@ def parse_args() -> TrainingConfig:
         sampling_strategy=args.sampling_strategy,
         select_cluster_closest_to_num_trajectories=args.select_cluster_closest_to_num_trajectories,
         levenshtein_reward_strategy=args.levenshtein_reward_strategy,
+        use_damerau_levensht=args.use_damerau_levensht,
         eval_frequency=args.eval_frequency,
         eval_episodes=args.eval_episodes,
         train_timesteps=args.train_timesteps,
@@ -263,7 +273,12 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_emb, strategy=config.levenshtein_reward_strategy, penalty=2),
+        reward=LevenshteinReward(
+            target_trajectories_emb,
+            strategy=config.levenshtein_reward_strategy,
+            penalty=2,
+            allow_transpositions=config.use_damerau_levensht,
+        ),
         reward_needs_embeddings=True,
     )
     emb_eval_env = WebsiteEnvironment(
@@ -272,7 +287,12 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_emb, strategy=config.levenshtein_reward_strategy, penalty=2),
+        reward=LevenshteinReward(
+            target_trajectories_emb,
+            strategy=config.levenshtein_reward_strategy,
+            penalty=2,
+            allow_transpositions=config.use_damerau_levensht,
+        ),
         reward_needs_embeddings=True,
     )
     nonemb_env = WebsiteEnvironment(
@@ -285,6 +305,7 @@ def prepare_environment(
             target_trajectories_id,
             distance=exact_comparison_distance,
             strategy=config.levenshtein_reward_strategy,
+            allow_transpositions=config.use_damerau_levensht,
             penalty=1,
         ),
         reward_needs_embeddings=False,

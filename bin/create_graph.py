@@ -1,12 +1,10 @@
-import pickle
-import os
-import csv
 import datetime
+import os
+import pickle
 
+import dotenv
 import duckdb
 import igraph as ig
-import dotenv
-from tqdm import tqdm
 
 dotenv.load_dotenv()
 
@@ -55,9 +53,12 @@ COPY (
 def compute_from_start_to_end_dates(
     conn: duckdb.DuckDBPyConnection, start_date: datetime.date, end_date: datetime.date
 ):
-    user_sessions = conn.sql(
-        f"SELECT user_session, COUNT(*) AS user_session_length FROM '{ALL_DATA_PARQUET}' WHERE event_time BETWEEN ? AND ? GROUP BY user_session",
+    filtered_data = conn.sql(
+        f"SELECT * FROM '{ALL_DATA_PARQUET}' WHERE event_time BETWEEN ? AND ?",
         params=(start_date, end_date),
+    )
+    user_sessions = conn.sql(
+        "SELECT user_session, COUNT(*) AS user_session_length FROM filtered_data GROUP BY user_session"
     )
     percentile = conn.sql(
         f"SELECT quantile_cont(user_session_length, {PERCENTILE_MAX}) as perc FROM user_sessions"
@@ -72,10 +73,10 @@ def compute_from_start_to_end_dates(
     )
     valid_trajectories = conn.sql(
         f"""
-        SELECT a.product_id, a.user_session
-        FROM '{ALL_DATA_PARQUET}' a
+        SELECT d.product_id, d.user_session
+        FROM filtered_data d
         JOIN sessions s
-        ON s.user_session = a.user_session
+        ON s.user_session = d.user_session
         {remove_join}
     """
     )

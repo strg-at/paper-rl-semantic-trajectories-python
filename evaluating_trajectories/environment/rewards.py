@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Literal, Sequence, override
 
@@ -33,6 +34,7 @@ class LevenshteinReward(RewardClass):
         reduction: Literal["min", "max", "avg"] = "avg",
         distance: DistanceFn = cos_dist,
         strategy: Literal["plain", "diff", "shift"] = "plain",
+        allow_transpositions: bool = False,
         penalty: int = 2,
     ):
         """
@@ -48,6 +50,7 @@ class LevenshteinReward(RewardClass):
         self.reduction = reduction
         self.distance = distance
         self.strategy = strategy
+        self.allow_transpositions = allow_transpositions
         self.penalty = penalty
         self.best_reward = -1
 
@@ -59,7 +62,16 @@ class LevenshteinReward(RewardClass):
             # Numba really doesn't like this, so we make sure that types are consistent
             trajectory = list(map(int, trajectory))
         for i, user_traj in enumerate(self.group_trajectories):
-            distances[i] = 1 - levenshtein_distance(user_traj, trajectory, self.distance, penalty=self.penalty)[0]  # type: ignore
+            distances[i] = (
+                1
+                - levenshtein_distance(
+                    user_traj,  # type: ignore
+                    trajectory,  # type: ignore
+                    self.distance,  # type: ignore
+                    penalty=self.penalty,
+                    allow_transposition=self.allow_transpositions,
+                )[0]
+            )
 
         match self.reduction:
             case "min":

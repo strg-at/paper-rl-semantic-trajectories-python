@@ -121,7 +121,7 @@ python bin/create_graph.py
 Then, you can generate the `glove_trajectories.txt` file with:
 
 ```bash
-python bin/glove_preprocessing.py --path trajectories.csv --output-file glove_trajectories.txt
+python bin/glove_preprocessing.py --path trajectories.parquet --output-file glove_trajectories.txt
 ```
 
 Feel free to adjust the parameters to your liking.
@@ -144,6 +144,9 @@ $BUILDDIR/glove -save-file $SAVE_FILE -threads $NUM_THREADS -input-file $COOCCUR
 This will compute the embeddings using Glove C code, and will output a `vectors.txt` file.
 
 #### Running on GPU
+
+> [!WARNING]  
+> We currently do not recommend to run GloVe on GPU, as this code is not well tested and optimized. The pure C original implementation is fast enough, and even faster, in most cases.
 
 For this, you will need the `evaluating_trajectories/experiments/train_glove_embeddings.py` script. Run it with:
 
