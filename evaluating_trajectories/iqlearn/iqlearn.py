@@ -131,7 +131,9 @@ class IQLearn:
         else:
             self.regularizer = regularizer
 
-        run_name = f"{env.spec.id if env.spec is not None else ''}__{self.args.exp_name}__{self.args.seed}__{int(time.time())}"
+        run_name = (
+            f"{env.spec.id if env.spec is not None else ''}__{self.args.exp_name}__{self.args.seed}__{int(time.time())}"
+        )
         if self.args.track:
             import wandb
 
@@ -147,12 +149,7 @@ class IQLearn:
         self.writer = SummaryWriter(f"website_log/{run_name}")
         self.writer.add_text(
             "hyperparameters",
-            "|param|value|\n|-|-|\n%s"
-            % (
-                "\n".join(
-                    [f"|{key}|{value}|" for key, value in vars(self.args).items()]
-                )
-            ),
+            "|param|value|\n|-|-|\n%s" % ("\n".join([f"|{key}|{value}|" for key, value in vars(self.args).items()])),
         )
 
         # TRY NOT TO MODIFY: seeding
@@ -164,13 +161,9 @@ class IQLearn:
         self.env = env
         self.env = gym.wrappers.RecordEpisodeStatistics(self.env)  # type: ignore
 
-        assert isinstance(
-            self.env.observation_space, gym.spaces.Box
-        ), "only continuous observation space is supported"
+        assert isinstance(self.env.observation_space, gym.spaces.Box), "only continuous observation space is supported"
 
-        input_dim = (
-            np.prod(self.env.observation_space.shape) + self.env.embeddings.shape[1]
-        )
+        input_dim = np.prod(self.env.observation_space.shape) + self.env.embeddings.shape[1]
         self.qf1 = SoftQNetwork(input_dim).to(self.args.device)
         self.qf2 = SoftQNetwork(input_dim).to(self.args.device)
         if self.args.use_targets:
@@ -181,17 +174,13 @@ class IQLearn:
         else:
             self.qf1_target = self.qf1
             self.qf2_target = self.qf2
-        self.q_optimizer = optim.Adam(
-            list(self.qf1.parameters()) + list(self.qf2.parameters()), lr=self.args.q_lr
-        )
+        self.q_optimizer = optim.Adam(list(self.qf1.parameters()) + list(self.qf2.parameters()), lr=self.args.q_lr)
 
         # Automatic entropy tuning
         if self.args.autotune:
             raise NotImplementedError("Autotuning currently not supported")
             if self.args.auto_target_entropy:
-                self.target_entropy = -torch.prod(
-                    torch.Tensor(self.env.action_space.shape).to(self.args.device)
-                ).item()
+                self.target_entropy = -torch.prod(torch.Tensor(self.env.action_space.shape).to(self.args.device)).item()
             else:
                 self.target_entropy = self.args.target_entropy
             self.log_alpha = torch.zeros(1, requires_grad=True, device=self.args.device)
@@ -212,9 +201,7 @@ class IQLearn:
 
         self.global_step = 0
 
-    def compute_action(
-        self, observation, actions
-    ) -> tuple[Number, Number, torch.Tensor]:
+    def compute_action(self, observation, actions) -> tuple[Number, Number, torch.Tensor]:
         observation = observation.flatten()
         observation_repeated = observation.unsqueeze(0).repeat(len(actions), 1)
         obs_act_pairs = torch.hstack((observation_repeated, actions))
@@ -237,13 +224,9 @@ class IQLearn:
         qf1 = self.qf1_target if use_target else self.qf1
         qf2 = self.qf2_target if use_target else self.qf2
         obs_act_pairs = []
-        for observation, possible_actions in zip(
-            observations, possible_actions_per_observation
-        ):
+        for observation, possible_actions in zip(observations, possible_actions_per_observation):
             observation = observation.flatten()
-            observation_repeated = observation.unsqueeze(0).repeat(
-                len(possible_actions), 1
-            )
+            observation_repeated = observation.unsqueeze(0).repeat(len(possible_actions), 1)
             obs_act_pair = torch.hstack((observation_repeated, possible_actions))
             obs_act_pairs.append(obs_act_pair)
         obs_act_pairs = torch.vstack(obs_act_pairs)
@@ -253,10 +236,7 @@ class IQLearn:
         ]
         qf1_outputs = [qf1(batch) for batch in batch_list]
         qf2_outputs = [qf2(batch) for batch in batch_list]
-        qf_outputs = [
-            torch.minimum(qf1_output, qf2_output)
-            for qf1_output, qf2_output in zip(qf1_outputs, qf2_outputs)
-        ]
+        qf_outputs = [torch.minimum(qf1_output, qf2_output) for qf1_output, qf2_output in zip(qf1_outputs, qf2_outputs)]
         qf_concat = torch.vstack(qf_outputs).squeeze()
         if use_target:
             qf_concat_policy = qf_concat
@@ -264,8 +244,7 @@ class IQLearn:
             qf1_outputs = [self.qf1_target(batch) for batch in batch_list]
             qf2_outputs = [self.qf1_target(batch) for batch in batch_list]
             qf_outputs = [
-                torch.minimum(qf1_output, qf2_output)
-                for qf1_output, qf2_output in zip(qf1_outputs, qf2_outputs)
+                torch.minimum(qf1_output, qf2_output) for qf1_output, qf2_output in zip(qf1_outputs, qf2_outputs)
             ]
             qf_concat_policy = torch.vstack(qf_outputs).squeeze()
 
@@ -281,13 +260,8 @@ class IQLearn:
                 ),
             ),
         )
-        qf_split = [
-            qf_concat_policy[cumsum_actions[i] : cumsum_actions[i + 1]]
-            for i in range(len(cumsum_actions) - 1)
-        ]
-        padded_qfs = pad_sequence(
-            qf_split, batch_first=True, padding_value=torch.finfo(torch.float32).min
-        )
+        qf_split = [qf_concat_policy[cumsum_actions[i] : cumsum_actions[i + 1]] for i in range(len(cumsum_actions) - 1)]
+        padded_qfs = pad_sequence(qf_split, batch_first=True, padding_value=torch.finfo(torch.float32).min)
         probabilities = torch.softmax(padded_qfs, dim=1)
         entropy = (-probabilities * (torch.log(probabilities + 1e-20))).sum(dim=1)
         # samples = torch.distributions.Categorical(probs=probabilities).sample()
@@ -325,9 +299,7 @@ class IQLearn:
         self.qf1.train()
         self.qf2.train()
         # ALGO LOGIC: put action logic here
-        assert (
-            self.demonstration_buffer is not None
-        ), "Demonstration Buffer has to be set!"
+        assert self.demonstration_buffer is not None, "Demonstration Buffer has to be set!"
         if self.online_size > 0:
             obs, _ = self.env.reset(seed=self.args.seed)
 
@@ -375,33 +347,18 @@ class IQLearn:
             if self.global_step > self.args.learning_starts:
                 data = self.demonstration_buffer.sample(self.args.batch_size)
 
-                loss, demonstration_loss, mixed_loss, regularizer_loss = (
-                    self.update_critic(data)
-                )
+                loss, demonstration_loss, mixed_loss, regularizer_loss = self.update_critic(data)
                 # if self.global_step % self.args.policy_frequency == 0:  # TD 3 Delayed update support
                 #     actor_loss, alpha_loss = self.update_policy(data)
                 actor_loss = torch.tensor(0)
                 alpha_loss = torch.tensor(0)
 
                 # update the target networks
-                if (
-                    self.global_step % self.args.target_network_frequency == 0
-                    and self.args.use_targets
-                ):
-                    for param, target_param in zip(
-                        self.qf1.parameters(), self.qf1_target.parameters()
-                    ):
-                        target_param.data.copy_(
-                            self.args.tau * param.data
-                            + (1 - self.args.tau) * target_param.data
-                        )
-                    for param, target_param in zip(
-                        self.qf2.parameters(), self.qf2_target.parameters()
-                    ):
-                        target_param.data.copy_(
-                            self.args.tau * param.data
-                            + (1 - self.args.tau) * target_param.data
-                        )
+                if self.global_step % self.args.target_network_frequency == 0 and self.args.use_targets:
+                    for param, target_param in zip(self.qf1.parameters(), self.qf1_target.parameters()):
+                        target_param.data.copy_(self.args.tau * param.data + (1 - self.args.tau) * target_param.data)
+                    for param, target_param in zip(self.qf2.parameters(), self.qf2_target.parameters()):
+                        target_param.data.copy_(self.args.tau * param.data + (1 - self.args.tau) * target_param.data)
 
                 if self.global_step % 1 == 0:
                     self.writer.add_scalar(
@@ -414,9 +371,7 @@ class IQLearn:
                         demonstration_loss.item(),
                         self.global_step,
                     )
-                    self.writer.add_scalar(
-                        "losses/mixed_loss", mixed_loss.item(), self.global_step
-                    )
+                    self.writer.add_scalar("losses/mixed_loss", mixed_loss.item(), self.global_step)
                     self.writer.add_scalar(
                         "losses/regularizer_loss",
                         regularizer_loss.item(),
@@ -452,31 +407,32 @@ class IQLearn:
 
     def update_critic(self, data, live_data=None):
         actions = self.embeddings[data.actions.squeeze()]
-        possible_actions = [
-            self.embeddings[action_mask.type(torch.bool)]
-            for action_mask in data.action_masks
-        ]
+        possible_actions = [self.embeddings[action_mask.type(torch.bool)] for action_mask in data.action_masks]
         next_possible_actions = [
-            self.embeddings[action_mask.type(torch.bool)]
-            for action_mask in data.next_action_masks
+            self.embeddings[action_mask.type(torch.bool)] for action_mask in data.next_action_masks
         ]
         demonstration_loss = self.get_values(data.observations, actions) - (
             1 - data.dones
         ) * self.args.gamma * self.compute_values(
-            data.next_observations, next_possible_actions, True  # type: ignore
+            data.next_observations,
+            next_possible_actions,
+            True,  # type: ignore
         )
         mixed_loss = self.compute_values(
-            data.observations, possible_actions, add_entropy=False, log_entropy=True  # type: ignore
+            data.observations,
+            possible_actions,
+            add_entropy=False,
+            log_entropy=True,  # type: ignore
         ) - (1 - data.dones) * self.args.gamma * self.compute_values(
-            data.next_observations, next_possible_actions, True  # type:ignore
+            data.next_observations,
+            next_possible_actions,
+            True,  # type:ignore
         )
         if live_data is not None:
             raise NotImplementedError()
             live_loss = (
                 self.get_values(live_data.observations)
-                - (1 - live_data.dones)
-                * self.args.gamma
-                * self.get_values(live_data.next_observations).detach()
+                - (1 - live_data.dones) * self.args.gamma * self.get_values(live_data.next_observations).detach()
             )
         else:
             live_loss = []  # hack so live_loss has len()
@@ -523,9 +479,7 @@ class IQLearn:
             if self.args.autotune:
                 with torch.no_grad():
                     _, log_pi, _ = self.actor.get_action(data.observations)
-                alpha_loss = (
-                    -self.log_alpha.exp() * (log_pi + self.target_entropy)
-                ).mean()
+                alpha_loss = (-self.log_alpha.exp() * (log_pi + self.target_entropy)).mean()
 
                 self.a_optimizer.zero_grad()
                 alpha_loss.backward()
@@ -540,9 +494,7 @@ class IQLearn:
             obs = torch.tensor(obs, dtype=torch.float32, device=self.args.device)
         if len(obs.shape) == 3:
             obs = obs.unsqueeze(0)  # type: ignore
-        possible_actions = self.env.map_action_ids_to_embeddings(
-            self.env.valid_actions()
-        )
+        possible_actions = self.env.map_action_ids_to_embeddings(self.env.valid_actions())
         possible_actions = torch.tensor(possible_actions, device=self.args.device)
         action, mean, probabilities = self.compute_action(obs, possible_actions)
         prediction = mean if deterministic else action

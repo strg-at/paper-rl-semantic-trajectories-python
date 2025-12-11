@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from typing import Literal
 
 import dotenv
+import duckdb
 import igraph as ig
 import numpy as np
 from sb3_contrib import MaskablePPO
@@ -18,12 +19,14 @@ from tqdm import tqdm
 from evaluating_trajectories.dataset import preprocessing
 from evaluating_trajectories.distances.levenshtein_distance import exact_comparison_distance
 from evaluating_trajectories.environment import trajectory_sampling
-from evaluating_trajectories.environment.rewards import LevenshteinReward
+from evaluating_trajectories.environment.rewards import AbidAndZouReward, LevenshteinReward
 from evaluating_trajectories.environment.website_env import WebsiteEnvironment
 from evaluating_trajectories.utils import utils
 from experiments.save_trajectory_callback import SaveTrajectoryCallback
 
 dotenv.load_dotenv()
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 @dataclass
@@ -34,13 +37,18 @@ class TrainingConfig:
     num_experiments: int
     gamma: float
     num_trajectories: int
+    exclude_user_session_file: str
     min_trajectory_length: int
     max_trajectory_length: int
     skip_consecutive_duplicates: bool
     pad_target_trajectories: bool
     sampling_strategy: Literal["cosine_simil", "spherical_kmeans"]
     select_cluster_closest_to_num_trajectories: bool
+    test_levenshtein: bool
+    test_abid_zou: bool
     levenshtein_reward_strategy: Literal["plain", "diff", "shift"]
+    use_damerau_levensht: bool
+    abid_zou_autowarp_path: str
     eval_frequency: int
     eval_episodes: int
     train_timesteps: int
@@ -82,6 +90,13 @@ def parse_args() -> TrainingConfig:
     )
 
     parser.add_argument(
+        "--exclude-user-sessions-file",
+        type=str,
+        default=os.getenv("EXCLUDE_USER_SESSIONS_FILE", "autowarp_training_ids.json"),
+        help="Path to file with user sessions to exclude from training. This should be a json formatted file, see f.e. the `experiment_betacv.py` generated one.",
+    )
+
+    parser.add_argument(
         "--min-trajectory-length",
         type=int,
         default=int(os.getenv("MIN_TRAJECTORY_LENGTH", "3")),
@@ -119,10 +134,34 @@ def parse_args() -> TrainingConfig:
         help="Select cluster closest to the number of trajectories (instead of random)",
     )
     parser.add_argument(
+        "--test-levenshtein",
+        action="store_true",
+        default=os.getenv("TEST_LEVENSHTEIN", "true") in ["True", "true", "1"],
+        help="Test Levenshtein reward",
+    )
+    parser.add_argument(
+        "--test-abid-zou",
+        action="store_true",
+        default=os.getenv("TEST_ABID_ZOU", "true") in ["True", "true", "1"],
+        help="Test Abid and Zou reward",
+    )
+    parser.add_argument(
         "--levenshtein-reward-strategy",
         default=os.getenv("LEVENSHTEIN_REWARD_STRATEGY", "plain"),
         choices=["plain", "diff", "shift"],
         help="Levenshtein reward strategy (see comment in environment/rewards.py)",
+    )
+    parser.add_argument(
+        "--use-damerau-levensht",
+        action="store_true",
+        default=os.getenv("USE_DAMERAU_LEVENSTH", "False") in ["True", "true", "1"],
+        help="Use Damerau-Levenshtein distance instead of Levenshtein distance",
+    )
+    parser.add_argument(
+        "--abid-zou-autowarp-path",
+        type=str,
+        default=os.getenv("ABID_ZOU_AUTOWARP_PATH", "autowarp_results_latent.json"),
+        help="Path to Abid and Zou autowarp results file",
     )
     parser.add_argument(
         "--eval-frequency",
@@ -189,13 +228,18 @@ def parse_args() -> TrainingConfig:
         num_experiments=args.num_experiments,
         gamma=args.gamma,
         num_trajectories=args.num_trajectories,
+        exclude_user_session_file=args.exclude_user_sessions_file,
         min_trajectory_length=args.min_trajectory_length,
         max_trajectory_length=args.max_trajectory_length,
         skip_consecutive_duplicates=args.skip_consecutive_duplicates,
         pad_target_trajectories=args.pad_target_trajectories,
         sampling_strategy=args.sampling_strategy,
         select_cluster_closest_to_num_trajectories=args.select_cluster_closest_to_num_trajectories,
+        test_levenshtein=args.test_levenshtein,
+        test_abid_zou=args.test_abid_zou,
         levenshtein_reward_strategy=args.levenshtein_reward_strategy,
+        use_damerau_levensht=args.use_damerau_levensht,
+        abid_zou_autowarp_path=args.abid_zou_autowarp_path,
         eval_frequency=args.eval_frequency,
         eval_episodes=args.eval_episodes,
         train_timesteps=args.train_timesteps,
@@ -249,10 +293,11 @@ def do_train_and_eval(
         pickle.dump(trajectories, f)
 
 
-def prepare_environment(
+def prepare_environments(
     starting_locations,
     target_trajectories_emb,
     target_trajectories_id,
+    config: TrainingConfig,
     graph: ig.Graph,
     embeddings_min: float,
     embeddings_max: float,
@@ -263,7 +308,12 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_emb, strategy=config.levenshtein_reward_strategy, penalty=2),
+        reward=LevenshteinReward(
+            target_trajectories_emb,
+            strategy=config.levenshtein_reward_strategy,
+            penalty=2,
+            allow_transpositions=config.use_damerau_levensht,
+        ),
         reward_needs_embeddings=True,
     )
     emb_eval_env = WebsiteEnvironment(
@@ -272,7 +322,12 @@ def prepare_environment(
         config.max_trajectory_length,
         embeddings_min,
         embeddings_max,
-        reward=LevenshteinReward(target_trajectories_emb, strategy=config.levenshtein_reward_strategy, penalty=2),
+        reward=LevenshteinReward(
+            target_trajectories_emb,
+            strategy=config.levenshtein_reward_strategy,
+            penalty=2,
+            allow_transpositions=config.use_damerau_levensht,
+        ),
         reward_needs_embeddings=True,
     )
     nonemb_env = WebsiteEnvironment(
@@ -285,6 +340,7 @@ def prepare_environment(
             target_trajectories_id,
             distance=exact_comparison_distance,
             strategy=config.levenshtein_reward_strategy,
+            allow_transpositions=config.use_damerau_levensht,
             penalty=1,
         ),
         reward_needs_embeddings=False,
@@ -303,7 +359,41 @@ def prepare_environment(
         ),
         reward_needs_embeddings=False,
     )
-    return emb_env, emb_eval_env, nonemb_env, nonemb_eval_env
+    # Load abid and zou environment
+    alpha, gamma, epsilon = duckdb.sql(
+        f"select alpha, gamma, epsilon from '{config.abid_zou_autowarp_path}'"
+    ).fetchall()[0]
+    abid_zou_env = WebsiteEnvironment(
+        graph,
+        starting_locations,
+        config.max_trajectory_length,
+        embeddings_min,
+        embeddings_max,
+        reward=AbidAndZouReward(
+            alpha=alpha,
+            gamma=gamma,
+            epsilon=epsilon,
+            group_trajectories=target_trajectories_emb,
+            strategy=config.levenshtein_reward_strategy,
+        ),
+        reward_needs_embeddings=True,
+    )
+    abid_zou_eval_env = WebsiteEnvironment(
+        graph,
+        starting_locations,
+        config.max_trajectory_length,
+        embeddings_min,
+        embeddings_max,
+        reward=AbidAndZouReward(
+            alpha=alpha,
+            gamma=gamma,
+            epsilon=epsilon,
+            group_trajectories=target_trajectories_emb,
+            strategy=config.levenshtein_reward_strategy,
+        ),
+        reward_needs_embeddings=True,
+    )
+    return emb_env, emb_eval_env, nonemb_env, nonemb_eval_env, abid_zou_env, abid_zou_eval_env
 
 
 if __name__ == "__main__":
@@ -316,8 +406,16 @@ if __name__ == "__main__":
     embs_with_vocab = preprocessing.load_glove_embeddings(config.glove_vocab_file, config.glove_vectors_file)
 
     print("Loading environment...")
+    exclude_user_sessions = np.array([])
+    if os.path.exists(config.exclude_user_session_file):
+        exclude_user_sessions = duckdb.sql(
+            f"SELECT json::VARCHAR AS us FROM '{config.exclude_user_session_file}'"
+        ).fetchnumpy()["us"]
+
     graph, trajectories = trajectory_sampling.load_environment(
-        graph_filepath=config.graph_file, trajectories_filepath=config.trajectories_file
+        graph_filepath=config.graph_file,
+        trajectories_filepath=config.trajectories_file,
+        exclude_sessions=exclude_user_sessions,
     )
 
     # Filter the graph so that we obtain the subgraph of only those products for which we have embeddings.
@@ -396,10 +494,11 @@ if __name__ == "__main__":
         group_trajectories_id_te = group_trajectories_id[training_size:]
         group_trajectories_emb_te = group_trajectories_emb[training_size:]
 
-        emb_env, emb_eval_env, nonemb_env, nonemb_eval_env = prepare_environment(
+        emb_env, emb_eval_env, nonemb_env, nonemb_eval_env, abid_zou_env, abid_zou_eval_env = prepare_environments(
             starting_locations,
             group_trajectories_emb_tr,
             group_trajectories_id_tr,
+            config,
             graph,
             embeddings.min(),
             embeddings.max(),
@@ -435,11 +534,15 @@ if __name__ == "__main__":
         lev_nonemb_model = MaskablePPO(
             "MlpPolicy", nonemb_env, gamma=config.gamma, verbose=1, device=config.device, n_steps=config.n_steps
         )
+        abid_zou_model = MaskablePPO(
+            "MlpPolicy", abid_zou_env, gamma=config.gamma, verbose=1, device=config.device, n_steps=config.n_steps
+        )
 
         early_stop_callback = StopTrainingOnNoModelImprovement(max_no_improvement_evals=10)
 
         emb_model_name = "levenshtein_emb"
         nonemb_model_name = "levenshtein_nonemb"
+        abid_zou_model_name = "abid_zou"
 
         emb_save_traj_callback = SaveTrajectoryCallback(config.eval_episodes, exp_folder, emb_model_name)
         emb_callback = EvalCallback(
@@ -451,10 +554,23 @@ if __name__ == "__main__":
             nonemb_eval_env, callback_after_eval=early_stop_callback, callback_on_new_best=noemb_save_traj_callback
         )
 
-        do_train_and_eval(lev_emb_model, emb_eval_env, config, exp_folder, emb_model_name, callback=emb_callback)
-        do_train_and_eval(
-            lev_nonemb_model, nonemb_eval_env, config, exp_folder, nonemb_model_name, callback=nonemb_callback
+        abid_zou_save_traj_callback = SaveTrajectoryCallback(config.eval_episodes, exp_folder, abid_zou_model_name)
+        abid_zou_callback = EvalCallback(
+            abid_zou_eval_env,
+            callback_after_eval=early_stop_callback,
+            callback_on_new_best=abid_zou_save_traj_callback,
         )
 
-        lev_emb_model.save(os.path.join(exp_folder, "model_with_cosine_levensth.zip"))
-        lev_nonemb_model.save(os.path.join(exp_folder, "model_with_exact_levensth.zip"))
+        if config.test_levenshtein:
+            do_train_and_eval(lev_emb_model, emb_eval_env, config, exp_folder, emb_model_name, callback=emb_callback)
+            do_train_and_eval(
+                lev_nonemb_model, nonemb_eval_env, config, exp_folder, nonemb_model_name, callback=nonemb_callback
+            )
+            lev_emb_model.save(os.path.join(exp_folder, "model_with_cosine_levensth.zip"))
+            lev_nonemb_model.save(os.path.join(exp_folder, "model_with_exact_levensth.zip"))
+        if config.test_abid_zou:
+            do_train_and_eval(
+                abid_zou_model, abid_zou_eval_env, config, exp_folder, abid_zou_model_name, callback=abid_zou_callback
+            )
+
+            abid_zou_model.save(os.path.join(exp_folder, "model_with_abid_zou.zip"))

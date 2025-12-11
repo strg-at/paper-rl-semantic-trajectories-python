@@ -1,18 +1,30 @@
 import json
+import os
+from typing import Callable
+
+import dotenv
 import duckdb
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
 from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
 
 import evaluating_trajectories.baselines.abid_and_zou_2018 as betacv
+import evaluating_trajectories.dataset.preprocessing as preproc
 import evaluating_trajectories.models.lstm as lstm
+
+dotenv.load_dotenv()
 
 
 class TrajectoryDataset(Dataset):
     def __init__(self, trajectories):
-        self.sequences = [torch.tensor(traj, dtype=torch.long) for traj in trajectories if len(traj) >= 2]
+        self.sequences = [
+            torch.tensor(traj, dtype=torch.long)
+            for traj in tqdm(trajectories, desc="Converting trajectories to tensors")
+        ]
 
     def __len__(self):
         return len(self.sequences)
@@ -30,33 +42,16 @@ def load_glove_embeddings(path: str, vocab_size: int, embedding_dim: int, id2idx
             parts = line.strip().split()
             if len(parts) != embedding_dim + 1:
                 continue
-            token_id = int(parts[0])
+            token_id = parts[0]
             if token_id in id2idx:
                 embeddings[id2idx[token_id]] = np.array(parts[1:], dtype=np.float32)
     return torch.tensor(embeddings, dtype=torch.float32)
 
 
-class ContinuousCollator:
-    """
-    Pads ID sequences, then looks up an embedding to return (B,T,D) + mask (B,T).
-    If freeze_lookup=True, lookup is wrapped in no_grad().
-    Handles both latent representations and glove embeddings for originals.
-    """
-
-    def __init__(self, embedding: nn.Embedding, device: torch.device, freeze_lookup: bool = True):
-        self.embedding = embedding
-        self.device = device
-        self.freeze_lookup = freeze_lookup
-
-    def __call__(self, batch: list[torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
-        padded_ids = pad_sequence(batch, batch_first=True, padding_value=0)  # (B,T_ids)
-        mask = padded_ids != 0  # (B,T)
-        if self.freeze_lookup:
-            with torch.no_grad():
-                x = self.embedding(padded_ids.to(self.device))  # (B,T,D)
-        else:
-            x = self.embedding(padded_ids.to(self.device))  # (B,T,D)
-        return x, mask.to(self.device)
+def apply_padding(batch: list[torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+    padded_ids = pad_sequence(batch, batch_first=True, padding_value=0)  # (B,T_ids)
+    mask = padded_ids != 0  # (B,T)
+    return padded_ids, mask
 
 
 def masked_mse(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
@@ -92,81 +87,113 @@ def build_originals_glove(dataset: TrajectoryDataset, embedding_weight: torch.Te
 
 @torch.no_grad()
 def build_originals_encoder_outputs(
-    dataset: TrajectoryDataset, collate_fn: ContinuousCollator, encoder: lstm.EncoderRNN, batch_size: int = 64
+    dataset: TrajectoryDataset,
+    collate_fn: Callable,
+    embedding_layer: nn.Embedding,
+    encoder: lstm.EncoderRNN,
+    batch_size: int = 64,
 ) -> list[torch.Tensor]:
     dl = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
     encoder.eval()
     out_trajs: list[torch.Tensor] = []
     for x, mask in dl:
-        enc_outs, _ = encoder(x)  # (B,T,H)
+        x = x.to(device)
+        mask = mask.to(device)
+        enc_outs, _ = encoder(embedding_layer(x))  # (B,T,H)
         lengths = mask.sum(dim=1).tolist()
         for b, L in enumerate(lengths):
             out_trajs.append(enc_outs[b, : int(L)].detach())
     return out_trajs
 
 
-class EncoderForAutowarp(nn.Module):
-    def __init__(self, base_encoder):
-        super().__init__()
-        self.base = base_encoder
-
-    def forward(self, x):
-        _, h = self.base(x)  # keep only latent
-        return h
-
-
 def train(
+    embedding_layer: nn.Embedding,
     encoder: lstm.EncoderRNN,
     decoder: lstm.AttnDecoderRNN,
     dataloader: DataLoader,
+    device: torch.device,
     num_epochs: int = 50,
     lr: float = 1e-3,
+    patience: int = 5,
+    min_delta: float = 1e-4,
 ):
     encoder.train()
     decoder.train()
     opt = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=lr)
-    for _ in range(num_epochs):
-        for x, mask in dataloader:  # x: (B,T,D) continuous; mask: (B,T)
-            T = x.size(1)
 
+    # Early stopping variables
+    best_loss = float("inf")
+    patience_counter = 0
+
+    pbar = tqdm(range(num_epochs), desc="Training LSTM encoder.", position=0)
+    for epoch in pbar:
+        losses = []
+        batch_pbar = tqdm(dataloader, desc="Training batches", position=1, leave=False)
+        for x, mask in batch_pbar:  # x: (B,T,D) continuous; mask: (B,T)
+            T = x.size(1)
+            x = x.to(device)
+            mask = mask.to(device)
             opt.zero_grad()
+            x = embedding_layer(x)
             enc_outs, h = encoder(x)
             x_hat = decoder(enc_outs, h, out_len=T)
             loss = masked_mse(x_hat, x, mask)
             loss.backward()
+            losses.append(loss.item())
             opt.step()
+            batch_pbar.set_description(f"Training batches, avg Loss: {np.mean(losses):.4f}")
+
+        epoch_loss = np.mean(losses)
+        pbar.set_description(f"Training LSTM encoder. Avg Epoch Loss: {epoch_loss:.4f}")
+
+        # Early stopping check
+        if epoch_loss < best_loss - min_delta:
+            best_loss = epoch_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+
+        if patience_counter >= patience:
+            print(f"\nEarly stopping triggered at epoch {epoch + 1}. Best loss: {best_loss:.4f}")
+            break
 
 
 if __name__ == "__main__":
-    TRAJECTORIES_PARQUET = "data/trajectories.parquet"
-    MIN_TRAJECTORY_LENGTH = 3
-    MAX_TRAJECTORY_LENGTH = 16
-    NUM_TRAJECTORIES = 100
-    EMBEDDING_MODE = "latent"  # "latent" or "glove"!!!
-    HIDDEN = 100
+    TRAJECTORIES_FILE = os.getenv("TRAJECTORIES_FILE", "data/trajectories.parquet")
+    MIN_TRAJECTORY_LENGTH = int(os.getenv("MIN_TRAJECTORY_LENGTH", 3))
+    MAX_TRAJECTORY_LENGTH = int(os.getenv("MAX_TRAJECTORY_LENGTH", 16))
+    PERCENTAGE_TRAJECTORIES_SAMPLE = float(os.getenv("PERCENTAGE_TRAJECTORIES_SAMPLE", 0.3))
+    EMBEDDING_MODE = os.getenv("EMBEDDING_MODE", "glove")  # "latent" or "glove"!!!
+    GLOVE_VECTORS_FILE = os.getenv("GLOVE_VECTORS_FILE", "glove_vectors.txt")
+    GLOVE_VOCAB_FILE = os.getenv("GLOVE_VOCAB_FILE", "glove_vocab.txt")
+    HIDDEN = int(os.getenv("HIDDEN_SIZE", 100))
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     con = duckdb.connect()
+    sample_size = con.execute(
+        f"SELECT round(count(*) * {PERCENTAGE_TRAJECTORIES_SAMPLE}) FROM read_parquet('{TRAJECTORIES_FILE}')"
+    ).fetchone()[0]
     query = f"""
-        SELECT trajectory
-        FROM read_parquet('{TRAJECTORIES_PARQUET}')
+        SELECT user_session, trajectory
+        FROM read_parquet('{TRAJECTORIES_FILE}')
         WHERE array_length(trajectory) BETWEEN {MIN_TRAJECTORY_LENGTH} AND {MAX_TRAJECTORY_LENGTH}
-        ORDER BY RANDOM()
-        LIMIT {NUM_TRAJECTORIES}
+        USING SAMPLE {sample_size} ROWS
     """
-    trajectory_list = con.execute(query).fetchall()
-    trajectory_list = [row[0] for row in trajectory_list]
+    print("Loading data...")
+    trajectory_dict = dict(con.execute(query).fetchall())
+    trajectory_list = list(trajectory_dict.values())
     print(f"Loaded {len(trajectory_list)} filtered trajectories")
 
-    # map tokens to indices (pad=0)
-    all_ids = set(x for traj in trajectory_list for x in traj)
-    id2idx = {nid: idx + 1 for idx, nid in enumerate(sorted(all_ids))}
-    vocab_size = len(id2idx) + 1
-    trajectory_list_remap = [[id2idx[x] for x in traj] for traj in trajectory_list]
-    del trajectory_list
+    embs_with_vocab = preproc.load_glove_embeddings(GLOVE_VOCAB_FILE, GLOVE_VECTORS_FILE)
+    vocab = {int(k): v for k, v in embs_with_vocab.vocab.items()}
+    vocab_size = len(vocab)
 
-    assert all(1 <= x < vocab_size for traj in trajectory_list_remap for x in traj), "Indexing error!"
+    # Based on the desired configuration, GloVe might have discarded some nodes. We remove trajectories that contain those nodes.
+    # These trajectories are removed in all cases to make things comparable.
+    trajectory_list_remap = [[vocab.get(x) for x in traj] for traj in tqdm(trajectory_list)]
+    trajectory_list_remap = [traj for traj in trajectory_list_remap if all(t is not None for t in traj)]
+    del trajectory_list
 
     # FROZEN embedding to get continuous states for both encoder and original trajectories
     STATE_DIM = 100  # D; often match hidden size
@@ -174,48 +201,72 @@ if __name__ == "__main__":
     dataset = TrajectoryDataset(trajectory_list_remap)
 
     if EMBEDDING_MODE == "glove":
-        embedding_matrix = load_glove_embeddings("glove_vectors.txt", vocab_size, STATE_DIM, id2idx)
-        fixed_embed = nn.Embedding.from_pretrained(embedding_matrix, freeze=True, padding_idx=0).to(device)
-        collate = ContinuousCollator(fixed_embed, device, freeze_lookup=True)
-        dataloader = DataLoader(dataset, batch_size=16, shuffle=True, collate_fn=collate)
+        emb_layer = nn.Embedding.from_pretrained(
+            torch.tensor(embs_with_vocab.embeddings, dtype=torch.float32), freeze=True, padding_idx=0
+        ).to(device)
+        dataloader = DataLoader(dataset, batch_size=768, shuffle=True, collate_fn=apply_padding, num_workers=10)
 
         encoder = lstm.EncoderRNN(input_dim=STATE_DIM, hidden_size=HIDDEN).to(device)
         decoder = lstm.AttnDecoderRNN(hidden_size=HIDDEN, output_dim=STATE_DIM).to(device)
 
-        train(encoder, decoder, dataloader, num_epochs=100)
+        train(emb_layer, encoder, decoder, dataloader, device=device, num_epochs=100)
 
         # freeze before AutoWarp (encoder only; embed is already frozen)
         freeze_before_autowarp(encoder)
 
-        originals_builder = lambda: build_originals_glove(dataset, fixed_embed.weight)
+        originals_builder = lambda: build_originals_glove(dataset, emb_layer.weight)
 
     elif EMBEDDING_MODE == "latent":
-        trainable_embed = nn.Embedding(vocab_size, STATE_DIM, padding_idx=0).to(device)
-        nn.init.normal_(trainable_embed.weight, mean=0.0, std=0.02)
-        with torch.no_grad():
-            trainable_embed.weight[0].zero_()
+        emb_layer = nn.Embedding(vocab_size, STATE_DIM, padding_idx=0).to(device)
 
         # TRAIN with gradients flowing through the embedding
-        collate = ContinuousCollator(trainable_embed, device, freeze_lookup=False)
-        dataloader = DataLoader(dataset, batch_size=16, shuffle=True, collate_fn=collate)
+        dataloader = DataLoader(dataset, batch_size=768, shuffle=True, collate_fn=apply_padding, num_workers=10)
 
         encoder = lstm.EncoderRNN(input_dim=STATE_DIM, hidden_size=HIDDEN).to(device)
         decoder = lstm.AttnDecoderRNN(hidden_size=HIDDEN, output_dim=STATE_DIM).to(device)
 
-        train(encoder, decoder, dataloader, num_epochs=100)
+        train(emb_layer, encoder, decoder, dataloader, device=device, num_epochs=100)
 
         # freeze encoder + embedding before AutoWarp
-        freeze_before_autowarp(encoder, trainable_embed)
+        freeze_before_autowarp(encoder, emb_layer)
 
-        originals_builder = lambda: build_originals_encoder_outputs(dataset, collate, encoder, batch_size=64)
+        originals_builder = lambda: build_originals_encoder_outputs(
+            dataset, apply_padding, emb_layer, encoder, batch_size=64
+        )
 
     else:
         raise ValueError("embedding_mode must be 'glove' or 'latent'.")
 
+    # the Autowarp algorithm needs to compute a distance matrix between all trajectories.
+    # This does not scale well at all. Our solution for now is to:
+    #   1. Limit the amount of trajectory we deal with;
+    #   2. Use duckdb to compute the euclidean distance, and store the distance matrix into a parquet file;
+    #   3. Use duckdb to compute the approx. quantile and do the sampling, reading from the parquet file.
+    con.execute(f"CREATE TABLE trajs (id BIGINT, trajectory float[{HIDDEN}])")
+    print("Computing latent representations...")
+    latents = betacv.compute_latents(dataloader, emb_layer, betacv.EncoderForAutowarp(encoder))
+    print(f"Computed {latents.size(0)} latent representations of dimension {latents.size(1)}")
+
+    print("Storing distance matrix into duckdb...")
+    # Use a df to insert data, this makes it much much faster
+    df = pd.DataFrame({"id": range(len(latents)), "trajectory": latents.detach().cpu().tolist()})
+    con.execute("INSERT INTO trajs FROM df")
+    con.execute("SET preserve_insertion_order = false;")
+    con.execute("COPY trajs TO 'latenttrajs.parquet'")
+
+    con.sql(
+        "CREATE VIEW dist AS SELECT a.id id_1, b.id id_2, array_distance(a.trajectory, b.trajectory) AS DIST FROM trajs a CROSS JOIN trajs b WHERE a.id < b.id"
+    )
+    print("Saving distance matrix onto parquet file...")
+    con.sql("COPY dist TO 'distance_matrix.parquet'")
+
     beta_val, alpha, gamma, epsilon = betacv.batched_autowarp(
-        dataloader=dataloader,
-        encoder=EncoderForAutowarp(encoder),
+        conn=con,
+        distparquet_path="distance_matrix.parquet",
+        latents=latents,
         originals_builder=originals_builder,
+        device=device,
+        pair_batch_size=2048,
         max_iters=100,
     )
     with open("autowarp_results_latent.json", "w") as f:
@@ -229,3 +280,6 @@ if __name__ == "__main__":
             f,
             indent=2,
         )
+    with open("autowarp_training_ids.json", "w") as f:
+        ids = list(trajectory_dict.keys())
+        json.dump(ids, f, indent=2)

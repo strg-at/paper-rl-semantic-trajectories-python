@@ -15,23 +15,10 @@ def euclid_sim(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floa
 
 
 @njit
-def cos_dist(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floating]) -> np.floating:
-    r"""
-    `Cosine similarity <https://en.wikipedia.org/wiki/Cosine_similarity#Definition>`_ implementation, where, given the ``threshold`` :math:`t`:
-
-    This function is compiled with `numba <https://numba.readthedocs.io/>`_
-
-    .. math::
-      \text{cos} &= \frac{A \cdot B}{||A|| \, ||B||} \\ \\
-      \text{cos} &= \begin{cases}
-        \text{cos}, & \text{if cos} > t \\
-        -abs(\text{cos}), & \text{if cos} < t \\
-        -1, & \text{if cos} = 0
-        \end{cases}
-
-    """
+def cos_dist(vector_a: npt.NDArray[np.floating], vector_b: npt.NDArray[np.floating]) -> float:
     cos = (vector_a @ vector_b) / (np.linalg.norm(vector_a) * np.linalg.norm(vector_b))  # type: ignore
-    return 1 - cos
+    cos_dist = np.clip(np.array(1 - cos), 0, 1)
+    return cos_dist.item()
 
 
 @njit
@@ -44,7 +31,8 @@ def levenshtein_distance(
     trajectory_a: list[npt.NDArray[np.floating]],
     trajectory_b: list[npt.NDArray[np.floating]],
     dist_fn: Callable[[npt.NDArray[np.floating], npt.NDArray[np.floating]], float],
-    penalty=1,
+    penalty: int = 1,
+    allow_transposition: bool = False,
 ) -> tuple[float, npt.NDArray[np.floating]]:
     """
     Compute the Levenshtein distance algorithm.
@@ -54,6 +42,7 @@ def levenshtein_distance(
     :param trajectory_a: first trajectory
     :param trajectory_b: second trajectory
     :param dist_fn: similarity function. Should be something like :py:func:`cos_dist`.
+    :param penalty: penalty for insertion/deletion
     :return: returns the computed scores, path and the Needleman-Wunsch matrix.
     """
     n_rows = len(trajectory_a) + 1
@@ -71,6 +60,14 @@ def levenshtein_distance(
             cost_right = nw_matrix[i, j - 1] + penalty
             cost_diag = nw_matrix[i - 1, j - 1] + dist_fn(trajectory_a[i - 1], trajectory_b[j - 1])
             nw_matrix[i, j] = min(cost_down, cost_right, cost_diag)
+            if allow_transposition and i > 1 and j > 1:
+                cost_transpose = (
+                    nw_matrix[i - 2, j - 2]
+                    + dist_fn(trajectory_a[i - 1], trajectory_b[j - 2])
+                    + dist_fn(trajectory_a[i - 2], trajectory_b[j - 1])
+                    + penalty
+                )
+                nw_matrix[i, j] = min(nw_matrix[i, j], cost_transpose)
 
     i = n_rows - 1
     j = n_cols - 1
@@ -89,14 +86,24 @@ def mean_levenshtein_distance(
     penalty=2,
 ) -> float:
     """
-    Compute the mean Levenshtein distance algorithm.
+    Compute a simplified "restricted" Damerau-Levenshtein distance using cosine distance as the cost function.
 
-    This function is compiled with `numba <https://numba.readthedocs.io/>`_
+    This algorithm compares trajectories element-wise and allows for transpositions (swapping adjacent elements)
+    by choosing the minimum cost between the current alignment and the previous element's cost. When trajectories
+    have different lengths, the algorithm handles the extra elements as insertions.
 
-    :param trajectory_a: list of first trajectories, e.g. expert trajectories
-    :param trajectory_b: list of second trajectories, e.g. imitated trajectories
-    :param dist_fn: distance function. Should be something like :py:func:`cos_dist`.
-    :return: returns the mean levenshtein distance over all trajectory pairs
+    Args:
+        trajectory_a: First trajectory as a list of numpy arrays (e.g., position vectors)
+        trajectory_b: Second trajectory as a list of numpy arrays
+        insertion_cost: Cost penalty for each extra element when trajectories have different lengths.
+                       This represents the cost of inserting/deleting trajectory points to make lengths equal.
+
+    Returns:
+        Normalized distance score between 0 and 1, where 0 means identical trajectories and 1 means maximum dissimilarity.
+
+    Note:
+        Unlike standard Damerau-Levenshtein, insertions/deletions are only allowed at trajectory ends,
+        not in the middle, which simplifies the algorithm significantly.
     """
     n_rows = len(trajectories_a)
     n_cols = len(trajectories_b)
@@ -106,6 +113,31 @@ def mean_levenshtein_distance(
             scores[i, j] = levenshtein_distance(trajectories_a[i], trajectories_b[j], dist_fn, penalty)[  # type: ignore
                 0
             ]
+    return np.mean(scores).item()
+
+
+@njit(parallel=True)
+def mean_damerau_levenshtein_distance(
+    trajectories_a: list[list[npt.NDArray[np.floating]]],
+    trajectories_b: list[list[npt.NDArray[np.floating]]],
+    insertion_costs: int = 1,
+) -> float:
+    """
+    Compute the mean Damerau-Levenshtein distance algorithm using cosine distance as the cost function.
+
+    This function is compiled with `numba <https://numba.readthedocs.io/>`_
+
+    :param trajectories_a: list of first trajectories, e.g. expert trajectories
+    :param trajectories_b: list of second trajectories, e.g. imitated trajectories
+    :param insertion_costs: insertion costs
+    :return: returns the mean Damerau-Levenshtein distance over all trajectory pairs
+    """
+    n_rows = len(trajectories_a)
+    n_cols = len(trajectories_b)
+    scores = np.zeros((n_rows, n_cols), dtype=float)
+    for i in prange(n_rows):
+        for j in range(n_cols):
+            scores[i, j] = damerau_levensht_with_cosine(trajectories_a[i], trajectories_b[j], insertion_costs)
     return np.mean(scores).item()
 
 

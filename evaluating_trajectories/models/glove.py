@@ -5,12 +5,8 @@ import torch.nn as nn
 class GloVe(nn.Module):
     def __init__(self, vocab_size, embedding_size, x_max, alpha):
         super().__init__()
-        self.weight = nn.Embedding(
-            num_embeddings=vocab_size, embedding_dim=embedding_size, sparse=True
-        )
-        self.weight_tilde = nn.Embedding(
-            num_embeddings=vocab_size, embedding_dim=embedding_size, sparse=True
-        )
+        self.weight = nn.Embedding(num_embeddings=vocab_size, embedding_dim=embedding_size, sparse=True)
+        self.weight_tilde = nn.Embedding(num_embeddings=vocab_size, embedding_dim=embedding_size, sparse=True)
         self.bias = nn.Parameter(
             torch.randn(
                 vocab_size,

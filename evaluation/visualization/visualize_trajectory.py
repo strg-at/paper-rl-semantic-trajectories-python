@@ -59,7 +59,6 @@ def trajectory_scatter_visualization_2d(
     frames = [
         go.Frame(data=[scatter_trace] + list(flatten(datas)), name=f"step {i}") for i, datas in enumerate(zip(*data))
     ]
-    print(frames)
 
     layout = _plotly_layout_with_sliders(emb_reduced, max_len)
     # Create placeholder traces for each line and marker in the animation

@@ -35,15 +35,9 @@ def cooccurrence_iterator(cooccur_filepath: str, batch_size: int) -> Generator[
             read_lines = creclib.read_cooccur(coo_arr, f, batch_size)
             if read_lines == 0:
                 break
-            w1_buf = ffibuilder.buffer(
-                coo_arr.words_1, read_lines * ffibuilder.sizeof("int")
-            )
-            w2_buf = ffibuilder.buffer(
-                coo_arr.words_2, read_lines * ffibuilder.sizeof("int")
-            )
-            vals_buf = ffibuilder.buffer(
-                coo_arr.vals, read_lines * ffibuilder.sizeof("real")
-            )
+            w1_buf = ffibuilder.buffer(coo_arr.words_1, read_lines * ffibuilder.sizeof("int"))
+            w2_buf = ffibuilder.buffer(coo_arr.words_2, read_lines * ffibuilder.sizeof("int"))
+            vals_buf = ffibuilder.buffer(coo_arr.vals, read_lines * ffibuilder.sizeof("real"))
 
             # word indices start at 1 in GloVe cooccurr file, see `glove.c`, line 187, 188.
             w1_np = np.frombuffer(w1_buf, dtype=np.int32, count=read_lines) - 1

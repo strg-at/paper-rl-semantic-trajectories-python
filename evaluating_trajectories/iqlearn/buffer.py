@@ -39,9 +39,7 @@ class MaskableReplayBuffer(ReplayBuffer):
             optimize_memory_usage,
             handle_timeout_termination,
         )
-        assert (
-            type(action_space) == gymnasium.spaces.Discrete
-        ), "Masking is only supported with discrete Action Spaces"
+        assert type(action_space) == gymnasium.spaces.Discrete, "Masking is only supported with discrete Action Spaces"
         self.action_masks: np.ndarray = np.zeros((buffer_size, action_space.n))
 
     def add(
@@ -73,9 +71,7 @@ class MaskableReplayBuffer(ReplayBuffer):
                 env,
             )
         else:
-            next_obs = self._normalize_obs(
-                self.next_observations[batch_inds, env_indices, :], env
-            )
+            next_obs = self._normalize_obs(self.next_observations[batch_inds, env_indices, :], env)
 
         data = (
             self._normalize_obs(self.observations[batch_inds, env_indices, :], env),
@@ -83,13 +79,8 @@ class MaskableReplayBuffer(ReplayBuffer):
             next_obs,
             # Only use dones that are not due to timeouts
             # deactivated by default (timeouts is initialized as an array of False)
-            (
-                self.dones[batch_inds, env_indices]
-                * (1 - self.timeouts[batch_inds, env_indices])
-            ).reshape(-1, 1),
-            self._normalize_reward(
-                self.rewards[batch_inds, env_indices].reshape(-1, 1), env
-            ),
+            (self.dones[batch_inds, env_indices] * (1 - self.timeouts[batch_inds, env_indices])).reshape(-1, 1),
+            self._normalize_reward(self.rewards[batch_inds, env_indices].reshape(-1, 1), env),
             self.action_masks[batch_inds],
             self.action_masks[(batch_inds + 1) % self.buffer_size],
         )

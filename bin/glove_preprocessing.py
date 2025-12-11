@@ -1,8 +1,9 @@
-from evaluating_trajectories.dataset import preprocessing
-from tqdm import tqdm
-import duckdb
 import argparse
 
+import duckdb
+from tqdm import tqdm
+
+from evaluating_trajectories.dataset import preprocessing
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

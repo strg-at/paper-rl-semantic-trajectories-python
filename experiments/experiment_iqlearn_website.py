@@ -159,13 +159,13 @@ for i in range(train_intervals):
                 trajectories.append(obs)
                 break
 
-    with open(f"{output_folder}/trajectories_{i*eval_frequency}.pkl", "wb") as f:
+    with open(f"{output_folder}/trajectories_{i * eval_frequency}.pkl", "wb") as f:
         pickle.dump(trajectories, f)
 
     print(f"training round {i}")
     iqlearn.learn(eval_frequency)
 
-print(f"evaluation round {i+1}")  # type:ignore
+print(f"evaluation round {i + 1}")  # type:ignore
 trajectories = []
 for _ in range(eval_episodes):
     obs, info = env.reset()
@@ -176,5 +176,5 @@ for _ in range(eval_episodes):
             trajectories.append(obs)
             break
 
-with open(f"{output_folder}/trajectories_{(i+1)*eval_frequency}.pkl", "wb") as f:  # type:ignore
+with open(f"{output_folder}/trajectories_{(i + 1) * eval_frequency}.pkl", "wb") as f:  # type:ignore
     pickle.dump(trajectories, f)

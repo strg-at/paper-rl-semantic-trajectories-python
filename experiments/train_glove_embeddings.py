@@ -1,7 +1,7 @@
 import argparse
 
-import torch
 import tinygrad as tg
+import torch
 from tqdm import tqdm
 
 from evaluating_trajectories import models

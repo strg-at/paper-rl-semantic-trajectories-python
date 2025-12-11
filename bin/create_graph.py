@@ -1,17 +1,14 @@
-import pickle
-import os
-import csv
 import datetime
+import os
+import pickle
 
+import dotenv
 import duckdb
 import igraph as ig
-import dotenv
-from tqdm import tqdm
 
 dotenv.load_dotenv()
 
 ALL_DATA_PARQUET = os.getenv("ALL_DATA_PARQUET", "data/alldata.parquet")
-TEXTGEN_DUCKDB = os.getenv("TEXTGEN_DUCKDB", "data/text_gen.duckdb")
 EDGELIST_OUTPUT_PATH = os.getenv("EDGELIST_OUTPUT_PATH", "data/edgelist.csv")
 TRAJECTORIES_OUTPUT_PATH = os.getenv("TRAJECTORIES_OUTPUT_PATH", "data/trajectories.parquet")
 ELABORATE_PER_MONTH = os.getenv("ELABORATE_PER_MONTH", "0") in [
@@ -55,9 +52,12 @@ COPY (
 def compute_from_start_to_end_dates(
     conn: duckdb.DuckDBPyConnection, start_date: datetime.date, end_date: datetime.date
 ):
-    user_sessions = conn.sql(
-        f"SELECT user_session, COUNT(*) AS user_session_length FROM '{ALL_DATA_PARQUET}' WHERE event_time BETWEEN ? AND ? GROUP BY user_session",
+    filtered_data = conn.sql(
+        f"SELECT * FROM '{ALL_DATA_PARQUET}' WHERE event_time BETWEEN ? AND ?",
         params=(start_date, end_date),
+    )
+    user_sessions = conn.sql(
+        "SELECT user_session, COUNT(*) AS user_session_length FROM filtered_data GROUP BY user_session"
     )
     percentile = conn.sql(
         f"SELECT quantile_cont(user_session_length, {PERCENTILE_MAX}) as perc FROM user_sessions"
@@ -72,10 +72,10 @@ def compute_from_start_to_end_dates(
     )
     valid_trajectories = conn.sql(
         f"""
-        SELECT a.product_id, a.user_session
-        FROM '{ALL_DATA_PARQUET}' a
+        SELECT d.product_id, d.user_session
+        FROM filtered_data d
         JOIN sessions s
-        ON s.user_session = a.user_session
+        ON s.user_session = d.user_session
         {remove_join}
     """
     )
@@ -108,7 +108,7 @@ def compute_from_start_to_end_dates(
 
 if __name__ == "__main__":
     print(f"Computing {int(PERCENTILE_MAX * 100)}th percentile...")
-    conn = duckdb.connect(TEXTGEN_DUCKDB)
+    conn = duckdb.connect()
 
     if ELABORATE_PER_MONTH:
         months_iterator = conn.sql(

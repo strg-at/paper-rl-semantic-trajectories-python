@@ -1,20 +1,20 @@
+import itertools
 import os
 import pickle
 import re
-import itertools
 
 import numpy as np
 import pandas as pd
-import umap
 import streamlit as st
-from sklearn.preprocessing import StandardScaler
+import umap
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import StandardScaler
 
-from evaluation.visualization import visualize_trajectory
 from evaluating_trajectories.distances import wasserstein_distance
+from evaluation.visualization import visualize_trajectory
 
-# Updated pattern to match the new format
-agent_traj_pattern = re.compile(r"levenshtein_(\w+)_trajectories_(.+)\.pkl")
+# Updated pattern to match the new format (with optional second group)
+agent_traj_pattern = re.compile(r"(levenshtein|abid_zou)_?(\w+)?_trajectories_(.+)\.pkl")
 
 
 @st.cache_data
@@ -24,8 +24,19 @@ def load_graph(exp_folder):
 
 
 @st.cache_data
-def load_target_group(exp_folder):
-    with open(os.path.join(exp_folder, "trajectories_target.pkl"), "rb") as f:
+def load_target_group(exp_folder, target_group_type="all"):
+    """Load target group based on type (all, train, or test)"""
+    match target_group_type:
+        case "all":
+            target_group_fname = "trajectories_target.pkl"
+        case "train":
+            target_group_fname = "trajectories_target_train.pkl"
+        case "test":
+            target_group_fname = "trajectories_target_test.pkl"
+        case _:
+            raise ValueError(f"Unknown target group: {target_group_type}")
+
+    with open(os.path.join(exp_folder, target_group_fname), "rb") as f:
         return pickle.load(f)
 
 
@@ -35,20 +46,22 @@ def get_model_trajectories(exp_folder):
 
 
 def groupby_model(model_trajectories: list[re.Match[str]]):
+    """Group trajectories by model, handling optional second group in pattern"""
     if not model_trajectories:
         return []
 
-    mtraj = sorted(model_trajectories, key=lambda m: m.groups()[0])
+    def get_group_name(match):
+        # Join first two groups (e.g., "levenshtein_emb" or "abid_zou_")
+        return "_".join(match.groups("")[:2])
+
+    mtraj = sorted(model_trajectories, key=get_group_name)
     result = []
 
-    current_model = None
+    current_model = get_group_name(mtraj[0])
     current_group = []
 
     for traj in mtraj:
-        model_name = traj.groups()[0]
-        if current_model is None:
-            current_model = model_name
-
+        model_name = get_group_name(traj)
         if model_name == current_model:
             current_group.append(traj.string)
         else:
@@ -125,9 +138,17 @@ if __name__ == "__main__":
         selected_experiment_dir = st.selectbox(label="Select an experiment directory", options=experiment_dirs)
         exp_folder = os.path.join(run_folder, selected_experiment_dir)
 
+    # Add target group selection
+    target_group_type = st.selectbox(
+        label="Select target group",
+        options=["all", "train", "test"],
+        index=0,
+        help="Choose which target trajectories to compare against",
+    )
+
     with st.spinner(text="Loading data...", show_time=True):
         graph = load_graph(run_folder)
-        target_group = load_target_group(exp_folder)
+        target_group = load_target_group(exp_folder, target_group_type)
         model_trajectories_matches = get_model_trajectories(exp_folder)
 
     if not model_trajectories_matches:
@@ -139,7 +160,18 @@ if __name__ == "__main__":
 
     # Let user select a model
     model_names = [model_name for _, model_name in model_groups]
-    selected_model = st.selectbox(label="Select a model", options=model_names)
+
+    # Apply display name mapping
+    display_names = {
+        "levenshtein_emb": "Cosine-Levensht.",
+        "levenshtein_nonemb": "Traditional-Levensht.",
+        "abid_zou_": "Abid&Zou",
+    }
+
+    selected_model_display = st.selectbox(
+        label="Select a model", options=model_names, format_func=lambda x: display_names.get(x, x)
+    )
+    selected_model = selected_model_display
 
     # Find the group for the selected model
     selected_group = next((group for group, name in model_groups if name == selected_model), [])
@@ -159,6 +191,8 @@ if __name__ == "__main__":
         learned_trajs = load_agent_trajectories(exp_folder, model_file)
         target_trajectories = target_group["trajectory_id"]
         max_traj_length = max(itertools.chain(map(len, target_trajectories), map(len, learned_trajs)))
+
+    with st.spinner("Padding trajectories...", show_time=True):
         target_traj_padded = np.array(
             [
                 np.pad(
@@ -170,9 +204,6 @@ if __name__ == "__main__":
                 for traj in target_trajectories
             ]
         )
-        sampled_target_traj = target_traj_padded
-        if len(target_traj_padded) > 10:
-            sampled_target_traj = np.random.default_rng().choice(sampled_target_traj, size=10, replace=False)
 
         agent_traj_padded = np.array(
             [
@@ -186,6 +217,7 @@ if __name__ == "__main__":
             ]
         )
 
+    with st.spinner("Computing distances...", show_time=True):
         # Calculate metrics
         cosine_df = calculate_cosine_similarities(learned_trajs, target_group, graph)
         wasserstein_dist = calculate_wasserstein_distance(agent_traj_padded, target_traj_padded)
@@ -240,6 +272,8 @@ if __name__ == "__main__":
         label="Number of background samples to visualize", options=[100, 500, 1000, 3000, 10_000], index=2
     )
 
+    print(f"agent traj: {agent_traj}")
+    print(f"group trajs: {group_trajs}")
     fig = visualize_trajectory.trajectory_scatter_visualization_2d(
         embs_2d, group_trajs + [agent_traj], titles=[], n_background_samples=n_background_samples
     )
