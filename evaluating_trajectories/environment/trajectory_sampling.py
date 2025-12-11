@@ -18,11 +18,15 @@ from evaluating_trajectories.utils import consts
 def load_environment(
     graph_filepath: str,
     trajectories_filepath: str,
+    exclude_sessions: npt.NDArray,
 ) -> tuple[ig.Graph, list[npt.NDArray[np.integer]]]:
     with open(graph_filepath, "rb") as f:
         graph = pickle.load(f)
 
-    trajectories = duckdb.sql(f"SELECT trajectory FROM '{trajectories_filepath}'").fetchnumpy()["trajectory"]
+    # We use anti join to remove all sessions that we shouldn' take. If eexclude_sessions is empty, then nothing will be removed
+    trajectories = duckdb.sql(
+        f"SELECT trajectory FROM '{trajectories_filepath}' t ANTI JOIN exclude_sessions e ON t.user_session = e.column0"
+    ).fetchnumpy()["trajectory"]
 
     return graph, trajectories
 

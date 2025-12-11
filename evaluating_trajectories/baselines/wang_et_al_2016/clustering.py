@@ -3,8 +3,8 @@ import itertools as itt
 from collections.abc import Sequence
 
 import igraph as ig
-import numpy as np
 import joblib as jl
+import numpy as np
 import scipy.special
 from tqdm import tqdm
 

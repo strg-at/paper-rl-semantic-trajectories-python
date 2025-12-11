@@ -1,6 +1,7 @@
-import duckdb
-import dotenv
 import os
+
+import dotenv
+import duckdb
 
 dotenv.load_dotenv()
 

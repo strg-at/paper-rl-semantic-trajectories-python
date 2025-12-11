@@ -4,7 +4,9 @@ from typing import Literal, Sequence, override
 
 import numpy as np
 import numpy.typing as npt
+import torch
 
+from evaluating_trajectories.baselines import abid_and_zou_2018 as abid_zou
 from evaluating_trajectories.distances.levenshtein_distance import (
     DistanceFn,
     cos_dist,
@@ -85,12 +87,66 @@ class LevenshteinReward(RewardClass):
 
         if self.strategy == "diff":
             reward = reward - self.best_reward
-            self.best_reward = max(reward, self.best_reward)
         elif self.strategy == "shift":
             reward = (reward - 0.5) * 2
-            self.best_reward = max(reward, self.best_reward)
-        elif self.strategy == "plain":
-            self.best_reward = max(reward, self.best_reward)
+
+        self.best_reward = max(reward, self.best_reward)
+        return reward
+
+    @override
+    def reset(self):
+        self.best_reward = -1
+
+
+class AbidAndZouReward(RewardClass):
+    def __init__(
+        self,
+        alpha: float,
+        gamma: float,
+        epsilon: float,
+        group_trajectories: Sequence[npt.ArrayLike],
+        reduction: Literal["min", "max", "avg"] = "avg",
+        strategy: Literal["plain", "diff", "shift"] = "plain",
+    ):
+        self.alpha = torch.tensor(alpha)
+        self.gamma = torch.tensor(gamma)
+        self.epsilon = torch.tensor(epsilon)
+        self.group_trajectories = group_trajectories
+        self.reduction = reduction
+        self.strategy = strategy
+        self.best_reward = -1
+
+    @override
+    @torch.no_grad
+    def compute_reward(self, trajectory: npt.NDArray[np.float32]) -> float:
+        distances = np.zeros((len(self.group_trajectories),))
+        for i, user_traj in enumerate(self.group_trajectories):
+            dist = 1 - abid_zou.warping_distance_numba(
+                torch.tensor(trajectory, dtype=torch.float32),
+                torch.tensor(user_traj, dtype=torch.float32),
+                self.alpha,
+                self.gamma,
+                self.epsilon,
+                normalization=True,
+            )
+            distances[i] = dist
+
+        match self.reduction:
+            case "min":
+                reward = np.min(distances).item()
+            case "max":
+                reward = np.max(distances).item()
+            case "avg":
+                reward = np.mean(distances).item()
+            case _:
+                raise ValueError(f"Invalid reduction method: {self.reduction}")
+
+        if self.strategy == "diff":
+            reward = reward - self.best_reward
+        elif self.strategy == "shift":
+            reward = (reward - 0.5) * 2
+
+        self.best_reward = max(reward, self.best_reward)
 
         return reward
 

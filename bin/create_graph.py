@@ -9,7 +9,6 @@ import igraph as ig
 dotenv.load_dotenv()
 
 ALL_DATA_PARQUET = os.getenv("ALL_DATA_PARQUET", "data/alldata.parquet")
-TEXTGEN_DUCKDB = os.getenv("TEXTGEN_DUCKDB", "data/text_gen.duckdb")
 EDGELIST_OUTPUT_PATH = os.getenv("EDGELIST_OUTPUT_PATH", "data/edgelist.csv")
 TRAJECTORIES_OUTPUT_PATH = os.getenv("TRAJECTORIES_OUTPUT_PATH", "data/trajectories.parquet")
 ELABORATE_PER_MONTH = os.getenv("ELABORATE_PER_MONTH", "0") in [
@@ -109,7 +108,7 @@ def compute_from_start_to_end_dates(
 
 if __name__ == "__main__":
     print(f"Computing {int(PERCENTILE_MAX * 100)}th percentile...")
-    conn = duckdb.connect(TEXTGEN_DUCKDB)
+    conn = duckdb.connect()
 
     if ELABORATE_PER_MONTH:
         months_iterator = conn.sql(
