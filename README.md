@@ -4,7 +4,7 @@ Python code for the paper "A Reinforcement Learning approach to User Group Behav
 
 ## Cloning and pulling
 
-This git repo also provides GloVe as a submodule. When cloning it you can do `git clone --recursive https://github.com/strg-at/paper-evaluation-trajectories-python.git`
+This git repo also provides GloVe as a submodule. When cloning it you can do `git clone --recursive https://github.com/strg-at/paper-rl-semantic-trajectories-python.git`
 to automatically also download the submodule.
 
 Pulling changes for the submodules should _always_ be done with:
@@ -148,17 +148,17 @@ This will compute the embeddings using Glove C code, and will output a `vectors.
 > [!WARNING]  
 > We currently do not recommend to run GloVe on GPU, as this code is not well tested and optimized. The pure C original implementation is fast enough, and even faster, in most cases.
 
-For this, you will need the `evaluating_trajectories/experiments/train_glove_embeddings.py` script. Run it with:
+For this, you will need the `./experiments/train_glove_embeddings.py` script. Run it with:
 
 ```bash
-python evaluating_trajectories/experiments/train_glove_embeddings.py --vocab-file vocab.txt --cooccurr-file cooccurence.shuf.bin --embeddings-size 100 --embs-save-path glove_vectors.pt --glove-vectors-save-path glove_vectors.txt
+python ./experiments/train_glove_embeddings.py --vocab-file vocab.txt --cooccurr-file cooccurence.shuf.bin --embeddings-size 100 --embs-save-path glove_vectors.pt --glove-vectors-save-path glove_vectors.txt
 ```
 
 Notice that the script also exposes a [tinygrad](https://github.com/tinygrad/tinygrad) model, in case you have an AMD or Intel GPU.
 You can run it with:
 
 ```bash
-python evaluating_trajectories/experiments/train_glove_embeddings.py --vocab-file vocab.txt --cooccurr-file cooccurence.shuf.bin --embeddings-size 100 --embs-save-path glove_vectors.pt --glove-vectors-save-path glove_vectors.txt --use-tinygrad
+python ./experiments/train_glove_embeddings.py --vocab-file vocab.txt --cooccurr-file cooccurence.shuf.bin --embeddings-size 100 --embs-save-path glove_vectors.pt --glove-vectors-save-path glove_vectors.txt --use-tinygrad
 ```
 
 ### Using GloVe embeddings
