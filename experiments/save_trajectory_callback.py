@@ -1,7 +1,8 @@
-from stable_baselines3.common.callbacks import BaseCallback
-from sb3_contrib.common.maskable.utils import get_action_masks
-import pickle
 import os
+import pickle
+
+from sb3_contrib.common.maskable.utils import get_action_masks
+from stable_baselines3.common.callbacks import BaseCallback
 
 
 class SaveTrajectoryCallback(BaseCallback):
@@ -13,7 +14,7 @@ class SaveTrajectoryCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         assert self.parent is not None, "``SaveTrajectoryCallback`` must be used with ``EvalCallback``"
-        eval_env = self.parent.eval_env
+        eval_env = self.parent.eval_env  # pyright: ignore[reportAttributeAccessIssue]
         trajectories = []
         for _ in range(self.num_trajectories):
             obs = eval_env.reset()
@@ -22,7 +23,7 @@ class SaveTrajectoryCallback(BaseCallback):
             trajectory = [int(eval_env.envs[0].agent_location)]
             while not (terminated or truncated):
                 action_masks = get_action_masks(eval_env.envs[0])
-                action, _ = self.model.predict(obs, action_masks=action_masks)
+                action, _ = self.model.predict(obs, action_masks=action_masks)  # pyright: ignore[reportCallIssue]
                 obs, _, terminated, truncated_dict = eval_env.step(action)
                 truncated = truncated_dict[0]["TimeLimit.truncated"]
                 trajectory.append(int(action))

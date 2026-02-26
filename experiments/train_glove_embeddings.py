@@ -4,8 +4,8 @@ import tinygrad as tg
 import torch
 from tqdm import tqdm
 
-from evaluating_trajectories import models
-from evaluating_trajectories.dataset.load_cooccurrence_dataset import (
+from rl_semantic_trajectories import models
+from rl_semantic_trajectories.dataset.load_cooccurrence_dataset import (
     cooccurrence_iterator,
 )
 

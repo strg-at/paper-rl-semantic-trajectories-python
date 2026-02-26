@@ -82,7 +82,7 @@ class WebsiteEnvironment(gym.Env):
         unpadded_observation = self.trajectory
         if self.reward_needs_embeddings:
             unpadded_observation = self.map_action_ids_to_embeddings(self.trajectory)
-        reward = self.reward.compute_reward(unpadded_observation)
+        reward = self.reward.compute_reward(unpadded_observation)  # pyright: ignore[reportArgumentType]
 
         if terminated:
             return (observation, reward, terminated, False, info)
@@ -112,7 +112,7 @@ class WebsiteEnvironment(gym.Env):
         """
         Returns the list of neighbors reachable from the current agent location with at most 1 step.
         """
-        return self.graph.neighbors(self.agent_location)
+        return self.graph.successors(self.agent_location)
 
     def action_masks(self) -> npt.NDArray[np.bool_]:
         """

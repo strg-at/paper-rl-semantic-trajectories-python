@@ -16,13 +16,13 @@ from stable_baselines3.common.type_aliases import MaybeCallback
 from torch.distributions import Distribution
 from tqdm import tqdm
 
-from evaluating_trajectories.dataset import preprocessing
-from evaluating_trajectories.distances.levenshtein_distance import exact_comparison_distance
-from evaluating_trajectories.environment import trajectory_sampling
-from evaluating_trajectories.environment.rewards import AbidAndZouReward, LevenshteinReward
-from evaluating_trajectories.environment.website_env import WebsiteEnvironment
-from evaluating_trajectories.utils import utils
 from experiments.save_trajectory_callback import SaveTrajectoryCallback
+from rl_semantic_trajectories.dataset import preprocessing
+from rl_semantic_trajectories.distances.levenshtein_distance import exact_comparison_distance
+from rl_semantic_trajectories.environment import trajectory_sampling
+from rl_semantic_trajectories.environment.rewards import AbidAndZouReward, LevenshteinReward
+from rl_semantic_trajectories.environment.website_env import WebsiteEnvironment
+from rl_semantic_trajectories.utils import utils
 
 dotenv.load_dotenv()
 
@@ -187,21 +187,21 @@ def parse_args() -> TrainingConfig:
     parser.add_argument(
         "--embs-file",
         type=str,
-        default=os.getenv("EMBS_FILE", "evaluating_trajectories/dataset/embs.npy"),
+        default=os.getenv("EMBS_FILE", "rl_semantic_trajectories/dataset/embs.npy"),
         help="Path to embeddings file",
     )
 
     parser.add_argument(
         "--graph-file",
         type=str,
-        default=os.getenv("GRAPH_FILE", "evaluating_trajectories/dataset/graph.pkl"),
+        default=os.getenv("GRAPH_FILE", "rl_semantic_trajectories/dataset/graph.pkl"),
         help="Path to graph file",
     )
 
     parser.add_argument(
         "--trajectories-file",
         type=str,
-        default=os.getenv("TRAJECTORIES_FILE", "evaluating_trajectories/dataset/trajectories.pkl"),
+        default=os.getenv("TRAJECTORIES_FILE", "rl_semantic_trajectories/dataset/trajectories.pkl"),
         help="Path to trajectories file",
     )
 
@@ -338,7 +338,7 @@ def prepare_environments(
         embeddings_max,
         reward=LevenshteinReward(
             target_trajectories_id,
-            distance=exact_comparison_distance,
+            distance=exact_comparison_distance,  # pyright: ignore[reportArgumentType]
             strategy=config.levenshtein_reward_strategy,
             allow_transpositions=config.use_damerau_levensht,
             penalty=1,
@@ -353,7 +353,7 @@ def prepare_environments(
         embeddings_max,
         reward=LevenshteinReward(
             target_trajectories_id,
-            distance=exact_comparison_distance,
+            distance=exact_comparison_distance,  # pyright: ignore[reportArgumentType]
             strategy=config.levenshtein_reward_strategy,
             penalty=1,
         ),
@@ -415,7 +415,7 @@ if __name__ == "__main__":
     graph, trajectories = trajectory_sampling.load_environment(
         graph_filepath=config.graph_file,
         trajectories_filepath=config.trajectories_file,
-        exclude_sessions=exclude_user_sessions,
+        exclude_sessions=exclude_user_sessions,  # pyright: ignore[reportArgumentType]
     )
 
     # Filter the graph so that we obtain the subgraph of only those products for which we have embeddings.

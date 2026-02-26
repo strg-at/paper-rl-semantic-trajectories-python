@@ -1,10 +1,10 @@
-from evaluating_trajectories.dataset.preprocessing import load_glove_embeddings
 import argparse
-import numpy as np
+
 import duckdb
-import random
+import numpy as np
 from tqdm import tqdm
 
+from rl_semantic_trajectories.dataset.preprocessing import load_glove_embeddings
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

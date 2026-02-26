@@ -1,10 +1,10 @@
+import itertools as itt
 import random
 
 import numpy as np
 import numpy.typing as npt
-import plotly.graph_objects as go
 import plotly
-import itertools as itt
+import plotly.graph_objects as go
 
 
 def flatten(list_of_lists):
@@ -17,6 +17,8 @@ def trajectory_scatter_visualization_2d(
     trajectories: list[tuple[list[int], str]],
     titles: list[str],
     n_background_samples: int = 1000,
+    zoom_to_trajectories: bool = True,
+    padding_factor: float = 0.1,
 ) -> go.Figure:
     """
     Same as :py:func:`trajectory_scatter_visualization_3d`, but for 2D scatter plots.
@@ -33,15 +35,45 @@ def trajectory_scatter_visualization_2d(
     for path, _ in trajectories:
         trajectory_points.update(path)
 
-    # Create mask for non-trajectory points
-    all_indices = set(range(len(emb_reduced)))
-    background_points = list(all_indices - trajectory_points)
+    # Calculate bounding box for trajectories if zoom is enabled
+    if zoom_to_trajectories and trajectory_points:
+        traj_coords = emb_reduced[list(trajectory_points)]
+        x_min, x_max = traj_coords[:, 0].min(), traj_coords[:, 0].max()
+        y_min, y_max = traj_coords[:, 1].min(), traj_coords[:, 1].max()
+
+        # Add padding
+        x_range = x_max - x_min
+        y_range = y_max - y_min
+        x_padding = x_range * padding_factor
+        y_padding = y_range * padding_factor
+
+        x_min -= x_padding
+        x_max += x_padding
+        y_min -= y_padding
+        y_max += y_padding
+
+        # Filter background points to only those within the zoomed area
+        background_mask = (
+            (emb_reduced[:, 0] >= x_min)
+            & (emb_reduced[:, 0] <= x_max)
+            & (emb_reduced[:, 1] >= y_min)
+            & (emb_reduced[:, 1] <= y_max)
+        )
+        background_candidates = np.where(background_mask)[0]
+        # Remove trajectory points from background
+        background_candidates = [idx for idx in background_candidates if idx not in trajectory_points]
+    else:
+        # Use full range
+        x_min, x_max = emb_reduced[:, 0].min(), emb_reduced[:, 0].max()
+        y_min, y_max = emb_reduced[:, 1].min(), emb_reduced[:, 1].max()
+        all_indices = set(range(len(emb_reduced)))
+        background_candidates = list(all_indices - trajectory_points)
 
     # Sample background points if needed
-    if len(background_points) > n_background_samples:
-        background_indices = np.random.choice(background_points, size=n_background_samples, replace=False)
+    if len(background_candidates) > n_background_samples:
+        background_indices = np.random.choice(background_candidates, size=n_background_samples, replace=False)
     else:
-        background_indices = background_points
+        background_indices = background_candidates
 
     # Create scatter trace with sampled points
     scatter_trace = go.Scatter(
@@ -51,7 +83,6 @@ def trajectory_scatter_visualization_2d(
         marker=dict(opacity=0.2, color="blue"),
     )
 
-    # Rest of the function remains the same
     _, trajectory_names, paths, colors = _trajectory_path_names_colors(trajectories, emb_reduced)
     max_len = max(len(p) for p in paths)
     data = _path_scatter_2d(paths, trajectory_names, colors, max_len)
@@ -60,7 +91,8 @@ def trajectory_scatter_visualization_2d(
         go.Frame(data=[scatter_trace] + list(flatten(datas)), name=f"step {i}") for i, datas in enumerate(zip(*data))
     ]
 
-    layout = _plotly_layout_with_sliders(emb_reduced, max_len)
+    # Pass the calculated ranges to the layout function
+    layout = _plotly_layout_with_sliders(emb_reduced, max_len, x_range=(x_min, x_max), y_range=(y_min, y_max))
     # Create placeholder traces for each line and marker in the animation
     initial_traces = []
     for i in range(len(paths)):
@@ -144,10 +176,22 @@ def _path_scatter_2d(
     return data
 
 
-def _plotly_layout_with_sliders(data: npt.NDArray, max_len: int) -> go.Layout:
+def _plotly_layout_with_sliders(
+    data: npt.NDArray,
+    max_len: int,
+    x_range: tuple[float, float] | None = None,
+    y_range: tuple[float, float] | None = None,
+) -> go.Layout:
+    # Use provided ranges or calculate from data
+    if x_range is None:
+        x_range = (data[:, 0].min(), data[:, 0].max())
+    if y_range is None:
+        y_range = (data[:, 1].min(), data[:, 1].max())
+
     layout = go.Layout(
-        xaxis=dict(range=[data[:, 0].min(), data[:, 0].max()], autorange=False, zeroline=False),
-        yaxis=dict(range=[data[:, 1].min(), data[:, 1].max()], autorange=False, zeroline=False),
+        xaxis=dict(range=list(x_range), autorange=False, zeroline=False),
+        yaxis=dict(range=list(y_range), autorange=False, zeroline=False),
+        # ...existing code...
         updatemenus=[
             dict(
                 type="buttons",

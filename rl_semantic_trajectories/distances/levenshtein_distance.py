@@ -116,31 +116,6 @@ def mean_levenshtein_distance(
     return np.mean(scores).item()
 
 
-@njit(parallel=True)
-def mean_damerau_levenshtein_distance(
-    trajectories_a: list[list[npt.NDArray[np.floating]]],
-    trajectories_b: list[list[npt.NDArray[np.floating]]],
-    insertion_costs: int = 1,
-) -> float:
-    """
-    Compute the mean Damerau-Levenshtein distance algorithm using cosine distance as the cost function.
-
-    This function is compiled with `numba <https://numba.readthedocs.io/>`_
-
-    :param trajectories_a: list of first trajectories, e.g. expert trajectories
-    :param trajectories_b: list of second trajectories, e.g. imitated trajectories
-    :param insertion_costs: insertion costs
-    :return: returns the mean Damerau-Levenshtein distance over all trajectory pairs
-    """
-    n_rows = len(trajectories_a)
-    n_cols = len(trajectories_b)
-    scores = np.zeros((n_rows, n_cols), dtype=float)
-    for i in prange(n_rows):
-        for j in range(n_cols):
-            scores[i, j] = damerau_levensht_with_cosine(trajectories_a[i], trajectories_b[j], insertion_costs)
-    return np.mean(scores).item()
-
-
 def compare_groups(group_1, group_2, graph, cos_dist):
     results = {}
     for group1_id, group1_traj in group_1.items():

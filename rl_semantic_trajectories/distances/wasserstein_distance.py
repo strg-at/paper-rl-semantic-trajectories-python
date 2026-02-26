@@ -7,7 +7,7 @@ import ot
 
 def wasserstein(x, y, weights_x, weights_y) -> float:
     M = ot.dist(x, y, metric="cosine")
-    return ot.emd2(weights_x, weights_y, M, check_marginals=False)
+    return ot.emd2(weights_x, weights_y, M, check_marginals=False)  # pyright: ignore[reportReturnType]
 
 
 def wasserstein_uniform(x, y) -> float:

@@ -10,8 +10,8 @@ import umap
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
 
-from evaluating_trajectories.distances import wasserstein_distance
 from evaluation.visualization import visualize_trajectory
+from rl_semantic_trajectories.distances import wasserstein_distance
 
 # Updated pattern to match the new format (with optional second group)
 agent_traj_pattern = re.compile(r"(levenshtein|abid_zou)_?(\w+)?_trajectories_(.+)\.pkl")
@@ -108,44 +108,7 @@ def calculate_wasserstein_distance(target_trajectories, agent_trajectories):
     return wasserstein_distance.wasserstein_uniform(target_trajectories, agent_trajectories)
 
 
-if __name__ == "__main__":
-    st.title("Trajectory Visualization and Metrics")
-
-    exp_folder = st.text_input(
-        label="Experiment folder",
-        value=".experiments",
-    )
-    if not os.path.exists(exp_folder):
-        if exp_folder:
-            st.error(f"{exp_folder} does not exist")
-        st.stop()
-
-    experiments = os.listdir(exp_folder)
-    selected_experiment = st.selectbox(label="Select an experiment", options=experiments)
-
-    exp_folder = os.path.join(exp_folder, selected_experiment)
-
-    # Always select a run first
-    runs = sorted(os.listdir(exp_folder), reverse=True)
-    selected_run = st.selectbox(label="Select a run", options=runs)
-    run_folder = os.path.join(exp_folder, selected_run)
-
-    # Now check if there are experiment folders within the run
-    exp_folder = run_folder
-    if any("experiment_" in d for d in os.listdir(exp_folder)):
-        # New format with experiment_ directories
-        experiment_dirs = sorted([d for d in os.listdir(exp_folder) if "experiment_" in d])
-        selected_experiment_dir = st.selectbox(label="Select an experiment directory", options=experiment_dirs)
-        exp_folder = os.path.join(run_folder, selected_experiment_dir)
-
-    # Add target group selection
-    target_group_type = st.selectbox(
-        label="Select target group",
-        options=["all", "train", "test"],
-        index=0,
-        help="Choose which target trajectories to compare against",
-    )
-
+def load_and_visualize():
     with st.spinner(text="Loading data...", show_time=True):
         graph = load_graph(run_folder)
         target_group = load_target_group(exp_folder, target_group_type)
@@ -272,9 +235,73 @@ if __name__ == "__main__":
         label="Number of background samples to visualize", options=[100, 500, 1000, 3000, 10_000], index=2
     )
 
+    # Add zoom control
+    zoom_to_trajectories = st.checkbox(
+        label="Zoom to trajectory area",
+        value=True,
+        help="If enabled, the plot will zoom to show only the area where agents and users are moving",
+    )
+
+    padding_factor = (
+        st.slider(
+            label="Padding around trajectories (%)",
+            min_value=0,
+            max_value=50,
+            value=10,
+            help="Percentage of the trajectory area to add as padding",
+        )
+        / 100.0
+    )
+
     print(f"agent traj: {agent_traj}")
     print(f"group trajs: {group_trajs}")
     fig = visualize_trajectory.trajectory_scatter_visualization_2d(
-        embs_2d, group_trajs + [agent_traj], titles=[], n_background_samples=n_background_samples
+        embs_2d,
+        group_trajs + [agent_traj],
+        titles=[],
+        n_background_samples=n_background_samples,
+        zoom_to_trajectories=zoom_to_trajectories,
+        padding_factor=padding_factor,
     )
     st.plotly_chart(fig, use_container_width=True)
+
+
+if __name__ == "__main__":
+    st.title("Trajectory Visualization and Metrics")
+
+    exp_folder = st.text_input(
+        label="Experiment folder",
+        value=".experiments",
+    )
+    if not os.path.exists(exp_folder):
+        if exp_folder:
+            st.error(f"{exp_folder} does not exist")
+        st.stop()
+
+    experiments = os.listdir(exp_folder)
+    selected_experiment = st.selectbox(label="Select an experiment", options=experiments)
+
+    exp_folder = os.path.join(exp_folder, selected_experiment)
+
+    # Always select a run first
+    runs = sorted(os.listdir(exp_folder), reverse=True)
+    selected_run = st.selectbox(label="Select a run", options=runs)
+    run_folder = os.path.join(exp_folder, selected_run)
+
+    # Now check if there are experiment folders within the run
+    exp_folder = run_folder
+    if any("experiment_" in d for d in os.listdir(exp_folder)):
+        # New format with experiment_ directories
+        experiment_dirs = sorted([d for d in os.listdir(exp_folder) if "experiment_" in d])
+        selected_experiment_dir = st.selectbox(label="Select an experiment directory", options=experiment_dirs)
+        exp_folder = os.path.join(run_folder, selected_experiment_dir)
+
+    # Add target group selection
+    target_group_type = st.selectbox(
+        label="Select target group",
+        options=["all", "train", "test"],
+        index=0,
+        help="Choose which target trajectories to compare against",
+    )
+
+    load_and_visualize()

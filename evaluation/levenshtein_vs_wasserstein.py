@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numba.typed import List
 
-from evaluating_trajectories.distances.levenshtein_distance import (
+from rl_semantic_trajectories.distances.levenshtein_distance import (
     cos_dist,
     mean_levenshtein_distance,
 )
-from evaluating_trajectories.distances.wasserstein_distance import wasserstein_uniform
+from rl_semantic_trajectories.distances.wasserstein_distance import wasserstein_uniform
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -34,7 +34,9 @@ def get_label(params: dict):
 
 
 def convert_to_list(trajectories):
-    return List(List(trajectory[i, :] for i in range(trajectory.shape[0])) for trajectory in trajectories)
+    return List(
+        List(trajectory[i, :] for i in range(trajectory.shape[0])) for trajectory in trajectories
+    )  # pyright: ignore[reportCallIssue]
 
 
 fig, axs = plt.subplots(2, 1, figsize=(12, 6))

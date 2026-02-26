@@ -18,8 +18,8 @@ from torch.types import Number
 from torch.utils.tensorboard.writer import SummaryWriter
 from tqdm.rich import tqdm
 
-from evaluating_trajectories.environment.website_env import WebsiteEnvironment
-from evaluating_trajectories.iqlearn.buffer import MaskableReplayBuffer
+from rl_semantic_trajectories.environment.website_env import WebsiteEnvironment
+from rl_semantic_trajectories.iqlearn.buffer import MaskableReplayBuffer
 
 
 @dataclass

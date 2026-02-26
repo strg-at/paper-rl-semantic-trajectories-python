@@ -1,6 +1,6 @@
-# paper-evaluation-trajectories-python
+# A Reinforcement Learning approach to User Group Behavior Imitation
 
-Python code for the Research paper on evaluating user trajectories
+Python code for the paper "A Reinforcement Learning approach to User Group Behavior Imitation". The paper was accepted and published at the [ECIR 2026 Synirgy Workshop](https://synirgy-workshop.github.io/).
 
 ## Cloning and pulling
 
@@ -165,3 +165,27 @@ python evaluating_trajectories/experiments/train_glove_embeddings.py --vocab-fil
 
 The generated embeddings will be in a file called `vectors.txt` or `glove_vectors.txt`.
 To see an example on how to load or use the embeddings, look at the `bin/embedding_visualization.py` script.
+
+## Reproducing paper's experiments
+
+You can run the file `run.sh`. You'll need a few files, that you can generate as explained above. You can set your experiment options using a `.env` file in the root of the repo. Example:
+
+```.env
+ELABORATE_PER_MONTH=1
+REMOVE_PRODUCTS_WITHOUT_DESC=0
+
+GRAPH_FILE="./data/graph_2019-10-01_2019-11-01.pkl"
+TRAJECTORIES_FILE="./data/trajectories_2019-10-01_2019-11-01.parquet"
+GLOVE_VECTORS_FILE=./data/glove_emb_out_2019-10-01_2019-11-01/vectors.txt
+GLOVE_VOCAB_FILE=./data/glove_emb_out_2019-10-01_2019-11-01/vocab.txt
+PERCENTAGE_TRAJECTORIES_SAMPLE=0.01
+
+EVAL_FREQUENCY=2048
+TRAIN_TIMESTEPS=160000
+NUM_EXPERIMENTS=32
+NUM_TRAJECTORIES=16
+SKIP_CONSECUTIVE_DUPLICATES=true
+LEVENSHTEIN_REWARD_STRATEGY=plain
+SAMPLING_STRATEGY=kmeans
+USE_DAMERAU_LEVENSTH=true
+```

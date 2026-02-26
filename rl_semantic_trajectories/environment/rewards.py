@@ -6,8 +6,8 @@ import numpy as np
 import numpy.typing as npt
 import torch
 
-from evaluating_trajectories.baselines import abid_and_zou_2018 as abid_zou
-from evaluating_trajectories.distances.levenshtein_distance import (
+from rl_semantic_trajectories.baselines import abid_and_zou_2018 as abid_zou
+from rl_semantic_trajectories.distances.levenshtein_distance import (
     DistanceFn,
     cos_dist,
     levenshtein_distance,
