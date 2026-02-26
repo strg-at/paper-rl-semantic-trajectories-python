@@ -12,9 +12,9 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-import evaluating_trajectories.baselines.abid_and_zou_2018 as betacv
-import evaluating_trajectories.dataset.preprocessing as preproc
-import evaluating_trajectories.models.lstm as lstm
+import rl_semantic_trajectories.baselines.abid_and_zou_2018 as betacv
+import rl_semantic_trajectories.dataset.preprocessing as preproc
+import rl_semantic_trajectories.models.lstm as lstm
 
 dotenv.load_dotenv()
 
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     con = duckdb.connect()
-    sample_size = con.execute(
+    sample_size = con.execute(  # pyright: ignore[reportOptionalSubscript]
         f"SELECT round(count(*) * {PERCENTAGE_TRAJECTORIES_SAMPLE}) FROM read_parquet('{TRAJECTORIES_FILE}')"
     ).fetchone()[0]
     query = f"""

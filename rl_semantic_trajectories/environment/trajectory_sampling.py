@@ -12,7 +12,7 @@ import torch
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
-from evaluating_trajectories.utils import consts
+from rl_semantic_trajectories.utils import consts
 
 
 def load_environment(
@@ -28,13 +28,13 @@ def load_environment(
         f"SELECT trajectory FROM '{trajectories_filepath}' t ANTI JOIN exclude_sessions e ON t.user_session = e.column0"
     ).fetchnumpy()["trajectory"]
 
-    return graph, trajectories
+    return graph, trajectories  # pyright: ignore[reportReturnType]
 
 
 def is_trajectory_valid(trajectory: npt.NDArray[np.integer], graph: ig.Graph, min_length: int, max_length: int) -> bool:
     if len(trajectory) < min_length or len(trajectory) >= max_length:
         return False
-    return np.all(trajectory < len(graph.vs))
+    return np.all(trajectory < len(graph.vs))  # pyright: ignore[reportReturnType]
 
 
 def remove_consecutive_duplicate_node_visits(

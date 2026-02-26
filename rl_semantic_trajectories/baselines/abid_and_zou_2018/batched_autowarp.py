@@ -1,15 +1,15 @@
 import typing
 
 import duckdb
-import torch
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from numba import jit, prange
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from numba import jit, prange
 
-import evaluating_trajectories.models.lstm as lstm
+import rl_semantic_trajectories.models.lstm as lstm
 
 
 class EncoderForAutowarp(nn.Module):
@@ -248,7 +248,7 @@ def batched_autowarp(
     trajectories = originals_builder()  # list of (Li, D)
     assert len(trajectories) == latents.size(0), "Originals and latents must align."
 
-    quantile = conn.sql(
+    quantile = conn.sql(  # pyright: ignore[reportOptionalSubscript]
         f"SELECT approx_quantile(dist, ?::FLOAT) FROM '{distparquet_path}'", params=(quantile,)
     ).fetchone()[0]
 

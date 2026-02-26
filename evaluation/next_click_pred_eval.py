@@ -2,7 +2,9 @@ import argparse
 import json
 import os
 import pickle
+import random
 import re
+from itertools import combinations
 from pathlib import Path
 from typing import Literal
 
@@ -12,18 +14,160 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from scipy.stats import chi2_contingency, mannwhitneyu, shapiro
 from sb3_contrib import MaskablePPO
 from sb3_contrib.common.maskable.utils import get_action_masks
 from sklearn.metrics.pairwise import cosine_similarity
 from torch.distributions import Distribution
 from tqdm import tqdm
 
-from evaluating_trajectories.baselines import bernhard_et_al_2016
-from evaluating_trajectories.environment.rewards import DefaultReward
-from evaluating_trajectories.environment.website_env import WebsiteEnvironment
-from evaluating_trajectories.utils import utils
+from rl_semantic_trajectories.baselines import bernhard_et_al_2016
+from rl_semantic_trajectories.environment.rewards import DefaultReward
+from rl_semantic_trajectories.environment.website_env import WebsiteEnvironment
+from rl_semantic_trajectories.utils import utils
 
 agent_traj_pattern = re.compile(r"(levenshtein|abid_zou)_?(\w+)?_trajectories_(.+)\.pkl")
+
+
+def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
+    """Calculate Cohen's d effect size."""
+    n1, n2 = len(group1), len(group2)
+    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return 0.0
+    return float((np.mean(group1) - np.mean(group2)) / pooled_std)
+
+
+def perform_statistical_tests(df: pd.DataFrame, alpha: float = 0.05) -> dict:
+    """
+    Perform statistical tests on next-click prediction results.
+
+    Tests:
+    - Cosine similarity: Mann-Whitney U + Cohen's d (all model pairs)
+    - Next-click accuracy: chi-squared test on match/total counts (all model pairs)
+    """
+    results = {"cosine_similarity": [], "accuracy": []}
+
+    models = df["model"].unique().tolist()
+    model_pairs = list(combinations(models, 2))
+    n_comparisons = len(model_pairs)
+    bonferroni_alpha = alpha / n_comparisons
+
+    # --- Cosine similarity ---
+    print("\n" + "=" * 80)
+    print("COSINE SIMILARITY TESTS (Mann-Whitney U)")
+    print("=" * 80)
+
+    for model1, model2 in model_pairs:
+        scores1 = df[df["model"] == model1]["cossim"].values
+        scores2 = df[df["model"] == model2]["cossim"].values
+
+        print(f"\n{model1} vs {model2}:")
+        print(f"  Sample sizes: {len(scores1)}, {len(scores2)}")
+        print(f"  {model1}: mean={np.mean(scores1):.4f}, std={np.std(scores1):.4f}, median={np.median(scores1):.4f}")
+        print(f"  {model2}: mean={np.mean(scores2):.4f}, std={np.std(scores2):.4f}, median={np.median(scores2):.4f}")
+
+        # Normality check on a subsample
+        sample_size = min(len(scores1), len(scores2), 5000)
+        _, norm_p1 = shapiro(scores1[:sample_size])
+        _, norm_p2 = shapiro(scores2[:sample_size])
+        print(f"  Normality (Shapiro): {model1} p={norm_p1:.4e}, {model2} p={norm_p2:.4e}")
+
+        u_stat, u_pval = mannwhitneyu(scores1, scores2, alternative="two-sided")
+        u_pval_str = f"{u_pval:.4e}" if u_pval > 1e-300 else "<1e-300"
+        effect = cohens_d(scores1, scores2)
+
+        significant = u_pval < bonferroni_alpha
+        print(f"  Mann-Whitney U: U={u_stat:.4f}, p={u_pval_str} {'*' if significant else ''}")
+        print(f"  Cohen's d: {effect:.4f}")
+        print(f"  Mean diff ({model1} - {model2}): {np.mean(scores1) - np.mean(scores2):.4f}")
+
+        results["cosine_similarity"].append(
+            {
+                "model1": model1,
+                "model2": model2,
+                "mean_diff": np.mean(scores1) - np.mean(scores2),
+                "median_diff": np.median(scores1) - np.median(scores2),
+                "mannwhitney_statistic": u_stat,
+                "mannwhitney_pvalue": u_pval,
+                "significant": significant,
+                "cohens_d": effect,
+                "n_samples_1": len(scores1),
+                "n_samples_2": len(scores2),
+            }
+        )
+
+    # --- Next-click accuracy ---
+    print("\n" + "=" * 80)
+    print("NEXT-CLICK ACCURACY TESTS (Chi-squared)")
+    print("=" * 80)
+
+    match_counts = (
+        df.assign(match=(df["prediction"] == df["truth"]).astype(int))
+        .groupby("model")["match"]
+        .agg(["sum", "count"])
+        .rename(columns={"sum": "matches", "count": "total"})
+    )
+
+    acc_bonferroni = alpha / n_comparisons
+    for model1, model2 in model_pairs:
+        m1 = match_counts.loc[model1]
+        m2 = match_counts.loc[model2]
+        # Contingency table: [[matches, non-matches], [matches, non-matches]]
+        table = np.array([[m1["matches"], m1["total"] - m1["matches"]], [m2["matches"], m2["total"] - m2["matches"]]])
+        chi2, p_val, dof, _ = chi2_contingency(table)
+        p_val_str = f"{p_val:.4e}" if p_val > 1e-300 else "<1e-300"
+        significant = p_val < acc_bonferroni
+        acc1 = m1["matches"] / m1["total"]
+        acc2 = m2["matches"] / m2["total"]
+
+        print(f"\n{model1} vs {model2}:")
+        print(f"  {model1}: {m1['matches']}/{m1['total']} = {acc1:.4f}")
+        print(f"  {model2}: {m2['matches']}/{m2['total']} = {acc2:.4f}")
+        print(f"  Chi-squared: chi2={chi2:.4f}, p={p_val_str} {'*' if significant else ''}")
+
+        results["accuracy"].append(
+            {
+                "model1": model1,
+                "model2": model2,
+                "accuracy_1": acc1,
+                "accuracy_2": acc2,
+                "accuracy_diff": acc1 - acc2,
+                "chi2_statistic": chi2,
+                "chi2_pvalue": p_val,
+                "significant": significant,
+                "n_samples_1": int(m1["total"]),
+                "n_samples_2": int(m2["total"]),
+            }
+        )
+
+    print(f"\n{'=' * 80}")
+    print(f"Bonferroni-corrected alpha: {bonferroni_alpha:.4e} ({n_comparisons} comparisons)")
+    print(f"{'=' * 80}\n")
+
+    return results
+
+
+def save_statistical_results(results: dict, results_path: str, experiment_hash: str):
+    """Save statistical test results to LaTeX tables."""
+    # Cosine similarity
+    cos_df = pd.DataFrame(results["cosine_similarity"])
+    cos_df = cos_df[["model1", "model2", "mean_diff", "mannwhitney_pvalue", "cohens_d", "significant"]]
+    cos_df.columns = ["Model 1", "Model 2", "Mean Diff", "Mann-Whitney p", "Cohen's d", "Significant"]
+    with open(Path(results_path) / f"statistical_tests_cossim_{experiment_hash}.tex", "w") as f:
+        f.write("% Cosine Similarity Statistical Tests (Mann-Whitney U)\n")
+        f.write(cos_df.to_latex(index=False, float_format="%.4f"))
+
+    # Accuracy
+    acc_df = pd.DataFrame(results["accuracy"])
+    acc_df = acc_df[["model1", "model2", "accuracy_1", "accuracy_2", "accuracy_diff", "chi2_pvalue", "significant"]]
+    acc_df.columns = ["Model 1", "Model 2", "Acc. 1", "Acc. 2", "Acc. Diff", "Chi2 p", "Significant"]
+    with open(Path(results_path) / f"statistical_tests_accuracy_{experiment_hash}.tex", "w") as f:
+        f.write("% Next-Click Accuracy Statistical Tests (Chi-squared)\n")
+        f.write(acc_df.to_latex(index=False, float_format="%.4f"))
+
+    print(f"Statistical test results saved to {results_path}")
 
 
 def groupby_model(model_trajectories: list[re.Match[str]]):
@@ -77,6 +221,36 @@ def evaluate_nextclick_preds(
     landmark_mc = bernhard_et_al_2016.LandmarkMarkovChain(len(graph.vs) - 1)
     landmark_mc.build_markov_chain(train_target_group["trajectory_id"])
 
+    predictions = []
+    for traj in tqdm(target_group["trajectory_id"], desc="Evaluating LandmarkMC", leave=False):
+        for j in range(1, len(traj) - 1):
+            action_mc = landmark_mc.get_prediction(np.array([traj[j - 1]]))
+            if action_mc[0] == -1:
+                continue
+            mc_pred_emb = graph.vs[action_mc[0]]["embedding"]
+
+            target = int(traj[j])
+            target_emb = graph.vs[target]["embedding"]
+            mc_cossim = cosine_similarity([target_emb], [mc_pred_emb]).item()
+            predictions.append(("markov_chain", int(action_mc[0]), target, j, mc_cossim))
+
+    for traj in tqdm(target_group["trajectory_id"], desc="Evaluating Random Walk", leave=False):
+        for j in range(1, len(traj) - 1):
+            # Skip the same steps that are unpredictable for the MC/agent models
+            action_mc = landmark_mc.get_prediction(np.array([traj[j - 1]]))
+            if action_mc[0] == -1:
+                continue
+            current_node = int(traj[j - 1])
+            neighbors = graph.neighbors(current_node, mode="out")
+            if not neighbors:
+                continue
+            rw_action = random.choice(neighbors)
+            target = int(traj[j])
+            target_emb = graph.vs[target]["embedding"]
+            rw_pred_emb = graph.vs[rw_action]["embedding"]
+            rw_cossim = cosine_similarity([target_emb], [rw_pred_emb]).item()
+            predictions.append(("random_walk", int(rw_action), target, j, rw_cossim))
+
     embeddings = np.array(graph.vs["embedding"])
     env = WebsiteEnvironment(
         graph,
@@ -104,9 +278,8 @@ def evaluate_nextclick_preds(
         raise FileNotFoundError("No model files found in the experiment folder.")
 
     # Group trajectories by model
-    groups_it = groupby_model(model_trajectories)
+    groups_it = groupby_model(model_trajectories)  # pyright: ignore[reportArgumentType]
 
-    predictions = []
     unpredictable = 0
 
     for group, group_name in groups_it:
@@ -142,31 +315,30 @@ def evaluate_nextclick_preds(
             if agent_model is None:
                 continue
 
-            for traj in tqdm(target_group["trajectory_id"], desc=f"Evaluating {group_name}", leave=False):
-                for j in range(len(traj) - 1):
+            for traj in tqdm(
+                target_group["trajectory_id"], desc=f"Evaluating {group_name}", leave=False
+            ):  # pyright: ignore[reportCallIssue, reportArgumentType]
+                for j in range(1, len(traj) - 1):
                     env.reset()
-                    env.trajectory = traj[: j + 1]
+                    env.trajectory = traj[:j]
                     env.agent_location = env.trajectory[-1]
                     obs = env._get_obs()
                     action_masks = get_action_masks(env)
                     action_agent = int(agent_model.predict(obs, action_masks=action_masks)[0])
 
-                    action_mc = landmark_mc.get_prediction(np.array([traj[j]]))
+                    action_mc = landmark_mc.get_prediction(np.array([traj[j - 1]]))
 
                     if action_mc[0] == -1:
                         unpredictable += 1
                         continue
 
-                    target = int(traj[j + 1])
+                    target = int(traj[j])  # target is `j`, since we start from `:j`, which does not include `j` itself
                     target_emb = graph.vs[target]["embedding"]
                     agent_pred_emb = graph.vs[action_agent]["embedding"]
-                    mc_pred_emb = graph.vs[action_mc[0]]["embedding"]
 
                     agent_cossim = cosine_similarity([target_emb], [agent_pred_emb]).item()
-                    mc_cossim = cosine_similarity([target_emb], [mc_pred_emb]).item()
 
                     predictions.append((model_label, int(action_agent), target, j, agent_cossim))
-                    predictions.append(("markov_chain", int(action_mc[0]), target, j, mc_cossim))
 
     return pd.DataFrame(predictions, columns=["model", "prediction", "truth", "past_steps", "cossim"]), unpredictable
 
@@ -228,6 +400,7 @@ if __name__ == "__main__":
             "tradlev_agent": "Trad-Levensht.",
             "abid_zou_agent": "Abid&Zou",
             "markov_chain": "Landmark MC",
+            "random_walk": "Random Walk",
         }
     )
 
@@ -307,7 +480,7 @@ if __name__ == "__main__":
         f.write(avg_results.to_latex(index=False))
 
     cluster_technique = "Close" if params["select_cluster_closest_to_num_trajectories"] else "Rand"
-    model_order = ["Abid&Zou", "Cos-Levensht.", "Trad-Levensht.", "Landmark MC"]
+    model_order = ["Abid&Zou", "Cos-Levensht.", "Trad-Levensht.", "Landmark MC", "Random Walk"]
 
     plt.figure(figsize=(10, 6))
     sns.boxplot(data=df, x="model", y="cossim", order=model_order)
@@ -318,3 +491,6 @@ if __name__ == "__main__":
     plt.ylabel("Cosine similarity")
     plt.tight_layout()
     plt.savefig(os.path.join(plot_path, f"next_click_pred_cossim_boxplot_{experiment_hash}.png"))
+
+    statistical_results = perform_statistical_tests(df)
+    save_statistical_results(statistical_results, results_path, experiment_hash)

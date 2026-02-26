@@ -1,11 +1,12 @@
 import argparse
+
 import duckdb
-import umap
 import plotly.express as px
+import umap
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
-from evaluating_trajectories.dataset.preprocessing import load_glove_embeddings
 
+from rl_semantic_trajectories.dataset.preprocessing import load_glove_embeddings
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

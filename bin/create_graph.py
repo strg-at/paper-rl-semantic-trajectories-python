@@ -22,6 +22,7 @@ REMOVE_PRODUCTS_WITHOUT_DESC = os.getenv("REMOVE_PRODUCTS_WITHOUT_DESC", "1") in
     "True",
     "true",
 ]
+DIRECTED_GRAPH = os.getenv("DIRECTED_GRAPH", "1") in ["1", "True", "true"]
 
 # WARNING: 10 threads are reasonable if you have more than 32GB of RAM. Adjust according to your preferences
 HIGH_RAM_DEVICE = os.getenv("HIGH_RAM_DEVICE", "0") in ["1", "True", "true"]
@@ -59,7 +60,7 @@ def compute_from_start_to_end_dates(
     user_sessions = conn.sql(
         "SELECT user_session, COUNT(*) AS user_session_length FROM filtered_data GROUP BY user_session"
     )
-    percentile = conn.sql(
+    percentile = conn.sql(  # pyright: ignore[reportOptionalSubscript]
         f"SELECT quantile_cont(user_session_length, {PERCENTILE_MAX}) as perc FROM user_sessions"
     ).fetchone()[0]
 
@@ -88,7 +89,7 @@ def compute_from_start_to_end_dates(
     conn.sql(EDGE_LIST_QUERY.format(csvname=edgelist_file_name))
 
     print("Creating graph...")
-    graph = ig.Graph.Read_Ncol(edgelist_file_name, directed=False)
+    graph = ig.Graph.Read_Ncol(edgelist_file_name, directed=DIRECTED_GRAPH)
 
     graph_filename, ext = os.path.splitext(GRAPH_PATH)
     graph_filename = f"{graph_filename}_{start_date.strftime('%Y-%m-%d')}_{end_date.strftime('%Y-%m-%d')}{ext}"
@@ -109,6 +110,7 @@ def compute_from_start_to_end_dates(
 if __name__ == "__main__":
     print(f"Computing {int(PERCENTILE_MAX * 100)}th percentile...")
     conn = duckdb.connect()
+    print(f"Generating directed graphs: {DIRECTED_GRAPH}")
 
     if ELABORATE_PER_MONTH:
         months_iterator = conn.sql(

@@ -7,7 +7,7 @@ import numpy as np
 import numpy.typing as npt
 from sentence_transformers import SentenceTransformer
 
-from evaluating_trajectories.utils import consts
+from rl_semantic_trajectories.utils import consts
 
 
 @dataclass
